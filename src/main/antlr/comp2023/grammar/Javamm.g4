@@ -28,11 +28,11 @@ classDeclaration
     ;
 
 methodDeclaration
-    : 'public' type ID  '(' (type ID (',' type ID)*)? ')' '{'
+    : ('public')? type ID  '(' (type ID (',' type ID)*)? ')' '{'
             (varDeclaration)* (statement)*
             'return' expression ';'
       '}'
-    | ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' ID ')' '{'
+    | ('public')? 'static' 'void' 'main' '(' type '[' ']' ID ')' '{'
             (varDeclaration)* (statement)*
       '}'
     ;
@@ -45,6 +45,7 @@ type
     : 'int' '[' ']'
     | 'boolean'
     | 'int'
+    | 'String'
     | ID
     ;
 
