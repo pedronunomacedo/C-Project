@@ -1,5 +1,8 @@
 package pt.up.fe.comp2023;
 
+import org.antlr.runtime.CharStream;
+import org.antlr.v4.Tool;
+import org.antlr.v4.parse.ToolANTLRLexer;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
@@ -10,6 +13,11 @@ import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
+import pt.up.fe.comp2023.JavammLexer;
+import pt.up.fe.comp2023.JavammParser;
+
+import org.antlr.runtime.BaseRecognizer;
+
 
 
 import java.util.Collections;
@@ -28,7 +36,7 @@ import java.util.Map;
  * specific language governing permissions and limitations under the License. under the License.
  */
 
-public class SimpleParser implements JmmParser {
+public class SimpleParser extends Tool implements JmmParser {
 
     @Override
     public String getDefaultRule() {
@@ -37,24 +45,39 @@ public class SimpleParser implements JmmParser {
 
     @Override
     public JmmParserResult parse(String jmmCode, String startingRule, Map<String, String> config) {
-
         try {
             // Convert code string into a character stream
             var input = new ANTLRInputStream(jmmCode);
+
             // Transform characters into tokens using the lexer
             var lex = new JavammLexer(input);
+
             // Wrap lexer around a token stream
             var tokens = new CommonTokenStream(lex);
+
             // Transforms tokens into a parse tree
             var parser = new JavammParser(tokens);
 
             // Convert ANTLR CST to JmmNode AST
-            return AntlrParser.parse(lex, parser, startingRule)
+            var result = AntlrParser.parse(lex, parser, startingRule)
                     // If there were no errors and a root node was generated, create a JmmParserResult with the node
                     .map(root -> new JmmParserResult(root, Collections.emptyList(), config))
                     // If there were errors, create an error JmmParserResult without root node
                     .orElseGet(() -> JmmParserResult.newError(new Report(ReportType.WARNING, Stage.SYNTATIC, -1,
                             "There were syntax errors during parsing, terminating")));
+
+            // Check for syntax errors (ERRADO??????????)
+            int numErrors = parser.getNumberOfSyntaxErrors();
+            if (numErrors > 0) {
+                return JmmParserResult.newError(
+                        new Report(ReportType.ERROR, Stage.SYNTATIC, -1,
+                                "There were syntax errors during parsing, terminating"));
+            }
+
+            // If there were no errors and a root node was generated, create a JmmParserResult with the node
+            return JmmParserResult.newError(
+                    new Report(ReportType.WARNING, Stage.SYNTATIC, -1,
+                            "There were syntax errors during parsing, terminating"));
 
         } catch (Exception e) {
             // There was an uncaught exception during parsing, create an error JmmParserResult without root node
