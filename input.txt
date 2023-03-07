@@ -1,18 +1,16 @@
 import io;
 
 class Fac {
-    int num = 10;
-    public int computeFac ( int num ) {
-        int num_aux;
-        if (num < 1)
-            num_aux = 1;
+    public int computeFac ( int num ){
+        int num_aux ;
+        if ( num < 1)
+        num_aux = 1;
         else
-            num_aux = num * (this.computeFac(num - 1));
-        return num_aux;
+        num_aux = num * ( this . computeFac ( num -1));
+        return num_aux ;
     }
-    public static void main(String []args) {
-        io.println(new Fac().computeFac(10)); // assuming the existence
-                                              // of the classfile io.class
-        int num = !a + b;
+    public static void main ( String [] args ){
+        io . println ( new Fac (). computeFac (10)); // assuming the existence
+                                                     // of the classfile io . class
     }
 }
