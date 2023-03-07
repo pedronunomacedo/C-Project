@@ -75,9 +75,7 @@ public class SimpleParser extends Tool implements JmmParser {
             }
 
             // If there were no errors and a root node was generated, create a JmmParserResult with the node
-            return JmmParserResult.newError(
-                    new Report(ReportType.WARNING, Stage.SYNTATIC, -1,
-                            "There were syntax errors during parsing, terminating"));
+            return result;
 
         } catch (Exception e) {
             // There was an uncaught exception during parsing, create an error JmmParserResult without root node

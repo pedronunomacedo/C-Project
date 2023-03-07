@@ -13,7 +13,7 @@ COMMENT : '//' ~[\n]* -> skip;
 LINE_COMMENT: '/*' .*? '*/' -> skip;
 
 program
-    : importDeclaration classDeclaration EOF
+    : importDeclaration* classDeclaration EOF
     ;
 
 importDeclaration
