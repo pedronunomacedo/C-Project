@@ -13,18 +13,26 @@ COMMENT : '//' ~[\n]* -> skip;
 LINE_COMMENT: '/*' .*? '*/' -> skip;
 
 program
-    : (importDeclaration)* classDeclaration EOF
+    : (importDeclaration)* (classDeclaration) EOF
+    ;
+
+subImportDeclaration
+    : '.' id=ID                                       #SubImport
     ;
 
 importDeclaration
-    : 'import' first=ID ( '.' second+=ID)* ';'
+    : 'import' id=ID (subImportDeclaration)* ';'      #Import
+    ;
+
+extendsClassDeclaration
+    : 'extends' extendedClassName=ID                                 #ExtendedClass
     ;
 
 classDeclaration
-    : 'class' ID ('extends' ID)? '{'
-            (varDeclaration)*
-            (methodDeclaration)*
-      '}'
+    : 'class' className=ID (extendsClassDeclaration)? '{'
+            // (varDeclaration)*
+            // (methodDeclaration)*
+      '}'                                              #Class
     ;
 
 methodDeclaration
@@ -52,37 +60,37 @@ type
 statement
     : '{'
             (statement)*
-      '}'
+      '}'                                           #ExprStmt
     | 'if' '(' expression ')'
             ((type)? statement)*
       'else'
-            ((type)? statement)*
+            ((type)? statement)*                    #Conditional
     | 'while' '(' expression ')'
-            (statement)*
-    | ID '[' expression ']' '=' expression ';'
-    | ID '=' expression ';'
-    | type expression ';'
-    | expression ';'
+            (statement)*                            #Loop
+    | ID '[' expression ']' '=' expression ';'      #Assignment
+    | ID '=' expression ';'                         #Assignment
+    | type expression ';'                           #ExprStmt
+    | expression ';'                                #ExprStmt
     ;
 
 
 
 expression
-    : '!' expression #UnaryOP
-    | expression op=('*' | '/' | '%') expression #BinaryOp
-    | expression op=('+' | '-') expression #BinaryOp
-    | expression op=('<'|'<='|'>'|'>=') expression #BinaryOp
-    | expression op='&&' expression #BinaryOp
-    | expression op='||' expression #BinaryOp
-    | expression '[' expression ']' #Array
-    | expression '.' 'length' #Method
-    | expression '.' ID '(' (expression (',' expression)*)? ')' #Method
-    | 'new' 'int' '[' expression ']' #NewObject
-    | 'new' ID '(' ')' #NewObject
-    | '(' expression ')' #Expr
-    | INT #Integer
-    | 'true' #Bool
-    | 'false' #Bool
-    | ID #Identifier
-    | 'this' #SelfCall
+    : '!' expression #UnaryOp
+    | expression op=('*' | '/' | '%') expression                    #BinaryOp
+    | expression op=('+' | '-') expression                          #BinaryOp
+    | expression op=('<'|'<='|'>'|'>=') expression                  #BinaryOp
+    | expression op='&&' expression                                 #BinaryOp
+    | expression op='||' expression                                 #BinaryOp
+    | expression '[' expression ']'                                 #Array
+    | expression '.' 'length'                                       #Method
+    | expression '.' ID '(' (expression (',' expression)*)? ')'     #Method
+    | 'new' 'int' '[' expression ']'                                #NewObject
+    | 'new' ID '(' ')'                                              #NewObject
+    | '(' expression ')'                                            #Expr
+    | INT                                                           #Integer
+    | 'true'                                                        #Bool
+    | 'false'                                                       #Bool
+    | ID                                                            #Identifier
+    | 'this'                                                        #SelfCall
     ;
