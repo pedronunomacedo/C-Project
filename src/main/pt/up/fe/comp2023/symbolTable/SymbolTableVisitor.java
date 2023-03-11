@@ -21,6 +21,7 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
         addVisit("Program", this::dealWithProgram);
         addVisit("ClassDeclaration", this::dealWithClassDeclaration);
         addVisit("ExtendedClass", this::dealWithExtendedClassDeclaration);
+        addVisit("VariableDeclaration", this::dealWithVariableDeclaration);
     }
 
     public JmmSymbolTable getSymbolTable(JmmNode node) {
@@ -67,15 +68,9 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
         var className = node.get("className");
         this.symbolTable.addClassName(className);
 
+
         for (JmmNode child : node.getChildren()) {
-            if (child.getKind().equals("ExtendedClass")) {
-                this.symbolTable.addSuperClassName(child.get("extendedClassName"));
-                System.out.println("After adding the class name " + this.symbolTable.getClassName());
-            }
-            else {
-                System.out.println("Visiting child " + child.getKind() + " of " + node.getKind());
-                visit(child, null);
-            }
+            visit(child, null);
         }
 
         return null;
@@ -86,18 +81,19 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
         space = ((space != null) ? space : "");
 
         // deal with extended classes
-        for (JmmNode child : node.getChildren()) {
-            if (child.getKind().equals("ExtendedClass")) {
-                String extendedClassName = child.get("extendedClassName");
+        var extendedClassName = node.get("extendedClassName");
+        this.symbolTable.addSuperClassName(extendedClassName);
 
-                System.out.println("Adding extended class name!");
-                this.symbolTable.addSuperClassName(extendedClassName);
-            }
-            else {
-                System.out.println("Visiting child " + child.getKind() + " of " + node.getKind());
-                visit(child, null);
-            }
-        }
+        return null;
+    }
+
+    public String dealWithVariableDeclaration(JmmNode node, String space) {
+        System.out.println("In dealWithVariableDeclaration() function! (" + node.getKind() + ")");
+        space = ((space != null) ? space : "");
+
+        // deal with extended classes
+        var extendedClassName = node.get("varName");
+        this.symbolTable.addSuperClassName(extendedClassName);
 
         return null;
     }

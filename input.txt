@@ -1,5 +1,5 @@
 import io.mmm;
 
-class nameExample {
-
+class classNameExample extends superClassNameExample {
+    String variableName;
 }

@@ -52,7 +52,9 @@ public class Launcher {
 
         System.out.println("className: " + result.getSymbolTable().getClassName());
 
-        System.out.println("ExtendedClassName: " + result.getSymbolTable().getSuper());
+        System.out.println("SuperClassName: " + result.getSymbolTable().getSuper());
+
+
 
         /*
         System.out.println("SymbolTable:");
