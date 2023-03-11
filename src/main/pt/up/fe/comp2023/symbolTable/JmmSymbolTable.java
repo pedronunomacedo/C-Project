@@ -1,8 +1,9 @@
 package pt.up.fe.comp2023.symbolTable;
 
-import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
+import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
+import pt.up.fe.comp.jmm.ast.JmmNode;
 
 import java.util.*;
 
@@ -13,14 +14,14 @@ public class JmmSymbolTable implements SymbolTable {
 
     private final List<String> imports;
     private final Map<String, Symbol> fields;
-    private final Map<String, JmmMethod> methods;
+    private final List<JmmMethod> methods;
 
     public JmmSymbolTable() {
         this.className = "";
         this.superClassName = "";
         this.imports = new ArrayList<String>();
         this.fields = new HashMap<>();
-        this.methods = new HashMap<>();
+        this.methods = new ArrayList<>();
     }
 
     @Override
@@ -39,12 +40,17 @@ public class JmmSymbolTable implements SymbolTable {
     }
 
     @Override
-    public List<Symbol> getFields() {
-        return null;
-    }
+    public List<Symbol> getFields() { return new ArrayList<>(this.fields.values()); }
 
     @Override
-    public List<String> getMethods() {return null;}
+    public List<String> getMethods() {
+        List<String> methods = new ArrayList<>();
+        for (JmmMethod method : this.methods) {
+            methods.add(method.getName());
+        }
+
+        return methods;
+    }
 
     @Override
     public Type getReturnType(String s) {
@@ -59,6 +65,18 @@ public class JmmSymbolTable implements SymbolTable {
     @Override
     public List<Symbol> getLocalVariables(String s) {
         return null;
+    }
+
+    public static Type getType(JmmNode node, String attribute) {
+        Type type;
+        if (node.get(attribute).equals("int[]"))
+            type = new Type("int", true);
+        else if (node.get(attribute).equals("int"))
+            type = new Type("int", false);
+        else
+            type = new Type(node.get(attribute), false);
+
+        return type;
     }
 
     @Override
@@ -77,5 +95,14 @@ public class JmmSymbolTable implements SymbolTable {
 
     public void addSuperClassName(String superClassName) {
         this.superClassName = superClassName;
+    }
+
+    public void addClassField(Symbol field) {
+        this.fields.put(field.getName(), field);
+    }
+
+    public void addClassMethod(String name, Type returnType) {
+        JmmMethod method = new JmmMethod(name, returnType);
+        this.methods.add(method);
     }
 }

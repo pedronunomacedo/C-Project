@@ -1,13 +1,14 @@
 package pt.up.fe.comp2023;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
+import pt.up.fe.comp2023.symbolTable.JmmMethod;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -53,6 +54,10 @@ public class Launcher {
         System.out.println("className: " + result.getSymbolTable().getClassName());
 
         System.out.println("SuperClassName: " + result.getSymbolTable().getSuper());
+
+        System.out.println("ClassFields: " + result.getSymbolTable().getFields());
+
+        System.out.println("Methods: " + result.getSymbolTable().getMethods());
 
 
 
