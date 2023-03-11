@@ -30,7 +30,7 @@ extendsClassDeclaration
 
 classDeclaration
     : 'class' className=ID (extendsClassDeclaration)? '{'
-            // (varDeclaration)*
+            (varDeclaration)*
             // (methodDeclaration)*
       '}'                                              #Class
     ;
@@ -46,15 +46,15 @@ methodDeclaration
     ;
 
 varDeclaration
-    : type ID ';'
+    : type varName=ID ';'                    #VariableDeclaration
     ;
 
 type
-    : 'int' '[' ']'
-    | 'boolean'
-    | 'int'
-    | 'String'
-    | ID
+    : 'int' '[' ']'                  #IntegerArrayType
+    | 'boolean'                      #BooleanType
+    | 'int'                          #IntegerType
+    | 'String'                       #StringType
+    | typeName=ID                    #IdType
     ;
 
 statement
