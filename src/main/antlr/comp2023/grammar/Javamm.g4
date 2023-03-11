@@ -31,18 +31,24 @@ extendsClassDeclaration
 classDeclaration
     : 'class' className=ID (extendsClassDeclaration)? '{'
             (varDeclaration)*
-            // (methodDeclaration)*
+            (methodDeclaration)*
       '}'                                              #Class
     ;
 
+parameters
+    : type methodParameters=ID ((',' type restMethodParameters=ID)*)?          #ClassParameters
+    ;
+
+
+
 methodDeclaration
-    : ('public')? type ID  '(' (type ID (',' type ID)*)? ')' '{'
-            (varDeclaration)* (statement)*
+    : ('public')? returnType=type methodName=ID  '(' parameters ')' '{'
+            // (varDeclaration)* (statement)*
             'return' expression ';'
-      '}'
+      '}'                                                               #MethodDeclarationOther
     | ('public')? 'static' 'void' 'main' '(' type '[' ']' ID ')' '{'
             (varDeclaration)* (statement)*
-      '}'
+      '}'                                                               #MethodDeclarationMain
     ;
 
 varDeclaration
@@ -50,11 +56,11 @@ varDeclaration
     ;
 
 type
-    : 'int' '[' ']'                  #IntegerArrayType
-    | 'boolean'                      #BooleanType
-    | 'int'                          #IntegerType
-    | 'String'                       #StringType
-    | typeName=ID                    #IdType
+    : typeName='int' '[' ']'                  #IntegerArrayType
+    | typeName='int'                          #IntegerType
+    | typeName='boolean'                      #BooleanType
+    | typeName='String'                       #StringType
+    | typeName=ID                             #IdType
     ;
 
 statement
@@ -76,7 +82,7 @@ statement
 
 
 expression
-    : '!' expression #UnaryOp
+    : '!' expression                                                #UnaryOp
     | expression op=('*' | '/' | '%') expression                    #BinaryOp
     | expression op=('+' | '-') expression                          #BinaryOp
     | expression op=('<'|'<='|'>'|'>=') expression                  #BinaryOp

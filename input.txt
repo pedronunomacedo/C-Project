@@ -1,5 +1,15 @@
 import io.mmm;
 
 class classNameExample extends superClassNameExample {
-    String variableName;
+    int intVariableExample;
+    boolean booleanVariableExample;
+    int [] arrayVariableExample;
+
+    public static void main ( String [] args ) {
+
+    }
+
+    public int[] MethodExample (String parametermethod) {
+        return false;
+    }
 }
