@@ -35,14 +35,14 @@ classDeclaration
       '}'                                              #Class
     ;
 
-parameters
-    : type methodParameters=ID ((',' type restMethodParameters=ID)*)?          #ClassParameters
+classParameters
+    : (keyType=type value=ID ((',' classParameters)*)?)?          #ClassParametersDeclaration
     ;
 
 
 
 methodDeclaration
-    : ('public')? returnType=type methodName=ID  '(' parameters ')' '{'
+    : ('public')? type methodName=ID  '(' classParameters ')' '{'
             // (varDeclaration)* (statement)*
             'return' expression ';'
       '}'                                                               #MethodDeclarationOther

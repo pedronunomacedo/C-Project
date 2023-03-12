@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class SymbolTableVisitor extends AJmmVisitor<String, String> {
     private JmmSymbolTable symbolTable;
     private List<Report> reports;
+    private String scope;
 
     public SymbolTableVisitor() {
         this.symbolTable = new JmmSymbolTable();
@@ -27,6 +28,7 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
         addVisit("ExtendedClass", this::dealWithExtendedClassDeclaration);
         addVisit("VariableDeclaration", this::dealWithVariableDeclaration);
         addVisit("MethodDeclaration", this::dealWithMethodDeclaration);
+        addVisit("ClassParameters", this::dealWithClassParameters);
     }
 
     public JmmSymbolTable getSymbolTable(JmmNode node) {
@@ -66,6 +68,8 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
         System.out.println("-> In dealWithClassDeclaration() function! (" + node.getKind() + ")");
         space = ((space != null) ? space : "");
 
+        this.scope = "CLASS";
+
         System.out.println("Child of " + node.getKind() + " are: " + node.getChildren().size());
 
         var className = node.get("className");
@@ -98,16 +102,19 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
         String variableName = node.get("varName");
         System.out.println("Variable name: " + variableName);
 
-        Type variableType;
 
-        for (JmmNode child : node.getChildren()) {
-            String variableKind = child.getKind();
-            variableType = JmmSymbolTable.getType(child, "typeName");
+        if (this.scope.equals("CLASS")) {
+            Type variableType;
 
-            Type varType = new Type(variableName, child.getKind().equals("IntegerArrayType"));
-            Symbol field = new Symbol(varType, variableName);
+            for (JmmNode child : node.getChildren()) {
+                String variableKind = child.getKind();
+                variableType = JmmSymbolTable.getType(child, "typeName");
 
-            this.symbolTable.addClassField(field);
+                Type varType = new Type(variableName, child.getKind().equals("IntegerArrayType"));
+                Symbol field = new Symbol(varType, variableName);
+
+                this.symbolTable.addClassField(field);
+            }
         }
 
         return null;
@@ -116,6 +123,7 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
     public String dealWithMethodDeclaration(JmmNode node, String space) {
         System.out.println("-> In dealWithMethodDeclaration() function! (" + node.getKind() + ")");
         space = ((space != null) ? space : "");
+        this.scope = "METHOD";
 
         String nodeKind = node.getKind();
         System.out.println("Method declaration: " + nodeKind);
@@ -128,11 +136,30 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
         } else { // MethodDeclarationOther
             System.out.println("---- METHOD DECLARATION ----");
 
-            System.out.println("-> -> -> Children: " + node.getChildren());
             System.out.println("Return type: " + node.getChildren().get(0));
 
             var methodName = node.get("methodName");
             System.out.println("methodName: " + node.get("methodName"));
+            Type returnType;
+            for (JmmNode child : node.getChildren()) {
+                if (child.getKind().equals("IntegerArrayType") || child.getKind().equals("IntegerType") || child.getKind().equals("BooleanType") || child.getKind().equals("stringType") || child.getKind().equals("IdType")) {
+                    System.out.println("child.get = " + child.get("typeName"));
+                    returnType = new Type(child.get("typeName"), child.getKind().equals("IntegerArrayType"));
+                    this.symbolTable.addClassMethod(methodName, returnType);
+                } else {
+                    System.out.println("Child of " + node.getKind() + " is " + child.getKind());
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public String dealWithClassParameters(JmmNode node, String space) {
+        if (scope.equals("METHOD")) {
+            System.out.println("METHOD kids: " + node.getChildren());
+            this.symbolTable.getCurrentMethod().addParameter(new Symbol(new Type(node.get("keyType"), false), node.get("value")));
+            System.out.println("Child parent: " + node.getJmmParent());
         }
 
         return null;
