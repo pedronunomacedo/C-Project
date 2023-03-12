@@ -11,10 +11,10 @@ public class JmmSymbolTable implements SymbolTable {
 
     private String className;
     private String superClassName;
-
     private final List<String> imports;
     private final Map<String, Symbol> fields;
     private final List<JmmMethod> methods;
+    private JmmMethod currentMethod;
 
     public JmmSymbolTable() {
         this.className = "";
@@ -41,16 +41,6 @@ public class JmmSymbolTable implements SymbolTable {
 
     @Override
     public List<Symbol> getFields() { return new ArrayList<>(this.fields.values()); }
-
-    @Override
-    public List<String> getMethods() {
-        List<String> methods = new ArrayList<>();
-        for (JmmMethod method : this.methods) {
-            methods.add(method.getName());
-        }
-
-        return methods;
-    }
 
     @Override
     public Type getReturnType(String s) {
@@ -80,6 +70,20 @@ public class JmmSymbolTable implements SymbolTable {
     }
 
     @Override
+    public List<String> getMethods() {
+        List<String> methodsList = new ArrayList<>();
+        for (JmmMethod method : this.methods) {
+            methodsList.add(method.getName());
+        }
+
+        return methodsList;
+    }
+
+    public JmmMethod getCurrentMethod() {
+        return this.currentMethod;
+    }
+
+    @Override
     public String print() {
         return SymbolTable.super.print();
     }
@@ -102,7 +106,7 @@ public class JmmSymbolTable implements SymbolTable {
     }
 
     public void addClassMethod(String name, Type returnType) {
-        JmmMethod method = new JmmMethod(name, returnType);
-        this.methods.add(method);
+        this.currentMethod = new JmmMethod(name, returnType);
+        this.methods.add(currentMethod);
     }
 }
