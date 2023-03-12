@@ -48,4 +48,8 @@ public class JmmMethod {
     }
 
     public String getName() { return this.name; }
+
+    public void setReturnType(Type type) {
+        this.returnType = type;
+    }
 }

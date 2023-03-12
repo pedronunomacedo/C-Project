@@ -36,18 +36,21 @@ classDeclaration
     ;
 
 classParameters
-    : (keyType=type value=ID ((',' classParameters)*)?)?          #ClassParametersDeclaration
+    : keyType=type value=ID ((',' keyType=type value=ID)*)?          #ClassParametersDeclaration
     ;
 
 
 
 methodDeclaration
-    : ('public')? type methodName=ID  '(' classParameters ')' '{'
-            // (varDeclaration)* (statement)*
+    : ('public')? type methodName=ID  '(' classParameters? ')' '{'
+            (varDeclaration)*
+            (statement)*
+
             'return' expression ';'
       '}'                                                               #MethodDeclarationOther
     | ('public')? 'static' 'void' 'main' '(' type '[' ']' ID ')' '{'
-            (varDeclaration)* (statement)*
+            (varDeclaration)*
+            (statement)*
       '}'                                                               #MethodDeclarationMain
     ;
 
