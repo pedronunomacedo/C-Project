@@ -43,7 +43,14 @@ public class JmmSymbolTable implements SymbolTable {
     public List<Symbol> getFields() { return new ArrayList<>(this.fields.values()); }
 
     @Override
-    public Type getReturnType(String s) {
+    public Type getReturnType(String methodName) {
+        System.out.println("On file JmmSymbolTable in function getReturnType()!");
+        for (JmmMethod method : this.methods) {
+            if (method.getName().equals(methodName)) {
+                return method.getReturnType();
+            }
+            System.out.println("Method name: " + method.getName() + " | returnType: " + method.getReturnType());
+        }
         return null;
     }
 
@@ -71,6 +78,7 @@ public class JmmSymbolTable implements SymbolTable {
 
     @Override
     public List<String> getMethods() {
+        System.out.println("In file JmmSymbolTable in function getMethods()!");
         List<String> methodsList = new ArrayList<>();
         for (JmmMethod method : this.methods) {
             methodsList.add(method.getName());
@@ -105,7 +113,7 @@ public class JmmSymbolTable implements SymbolTable {
         this.fields.put(field.getName(), field);
     }
 
-    public void addClassMethod(String name, Type returnType) {
+    public void addMethod(String name, Type returnType) {
         this.currentMethod = new JmmMethod(name, returnType);
         this.methods.add(currentMethod);
     }

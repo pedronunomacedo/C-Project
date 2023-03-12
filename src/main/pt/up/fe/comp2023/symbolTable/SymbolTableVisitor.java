@@ -29,6 +29,7 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
         addVisit("VariableDeclaration", this::dealWithVariableDeclaration);
         addVisit("MethodDeclaration", this::dealWithMethodDeclaration);
         addVisit("ClassParameters", this::dealWithClassParameters);
+        addVisit("TypeDeclaration", this::dealWithTypeDeclaration);
     }
 
     public JmmSymbolTable getSymbolTable(JmmNode node) {
@@ -104,11 +105,10 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
 
 
         if (this.scope.equals("CLASS")) {
-            Type variableType;
 
             for (JmmNode child : node.getChildren()) {
                 String variableKind = child.getKind();
-                variableType = JmmSymbolTable.getType(child, "typeName");
+                Type variableType = JmmSymbolTable.getType(child, "typeName");
 
                 Type varType = new Type(variableName, child.getKind().equals("IntegerArrayType"));
                 Symbol field = new Symbol(varType, variableName);
@@ -123,33 +123,28 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
     public String dealWithMethodDeclaration(JmmNode node, String space) {
         System.out.println("-> In dealWithMethodDeclaration() function! (" + node.getKind() + ")");
         space = ((space != null) ? space : "");
-        this.scope = "METHOD";
 
         String nodeKind = node.getKind();
-        System.out.println("Method declaration: " + nodeKind);
 
         if (nodeKind.equals("MethodDeclarationMain")) { // MethodDeclarationMain
             System.out.println("---- MAIN METHOD DECLARATION ----");
-            this.symbolTable.addClassMethod("main", new Type("void", false));
+            this.scope = "MAIN";
+
+            this.symbolTable.addMethod("main", new Type("void", false));
+
             node.put("params", "");
 
         } else { // MethodDeclarationOther
             System.out.println("---- METHOD DECLARATION ----");
+            this.scope = "METHOD";
 
-            System.out.println("Return type: " + node.getChildren().get(0));
+            System.out.println("Node attributes: " + node.getAttributes());
 
-            var methodName = node.get("methodName");
-            System.out.println("methodName: " + node.get("methodName"));
-            Type returnType;
-            for (JmmNode child : node.getChildren()) {
-                if (child.getKind().equals("IntegerArrayType") || child.getKind().equals("IntegerType") || child.getKind().equals("BooleanType") || child.getKind().equals("stringType") || child.getKind().equals("IdType")) {
-                    System.out.println("child.get = " + child.get("typeName"));
-                    returnType = new Type(child.get("typeName"), child.getKind().equals("IntegerArrayType"));
-                    this.symbolTable.addClassMethod(methodName, returnType);
-                } else {
-                    System.out.println("Child of " + node.getKind() + " is " + child.getKind());
-                }
-            }
+            String methodName = node.get("methodName");
+            System.out.println("Method name: " + methodName);
+            this.symbolTable.addMethod(methodName, new Type("", false));
+
+            System.out.println("Children node: " + node.getChildren());
         }
 
         return null;
@@ -160,6 +155,15 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
             System.out.println("METHOD kids: " + node.getChildren());
             this.symbolTable.getCurrentMethod().addParameter(new Symbol(new Type(node.get("keyType"), false), node.get("value")));
             System.out.println("Child parent: " + node.getJmmParent());
+        }
+
+        return null;
+    }
+
+    public String dealWithTypeDeclaration(JmmNode node, String space) {
+        if (scope.equals("METHOD")) {
+            System.out.println("Dealing with TypeDeclaration");
+            this.symbolTable.getCurrentMethod().setReturnType(JmmSymbolTable.getType(node, "typeName"));
         }
 
         return null;

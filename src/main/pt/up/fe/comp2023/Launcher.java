@@ -9,6 +9,7 @@ import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp2023.symbolTable.JmmMethod;
+import pt.up.fe.comp2023.symbolTable.JmmSymbolTable;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -58,6 +59,10 @@ public class Launcher {
         System.out.println("-> ClassFields: " + result.getSymbolTable().getFields());
 
         System.out.println("-> Methods: " + result.getSymbolTable().getMethods());
+
+        for (String method : result.getSymbolTable().getMethods()) {
+            System.out.println("Return type of " + method + " is " + result.getSymbolTable().getReturnType(method));
+        }
 
         /*
         System.out.println("SymbolTable:");
