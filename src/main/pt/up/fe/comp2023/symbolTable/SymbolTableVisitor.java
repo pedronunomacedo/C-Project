@@ -107,7 +107,7 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
 
         if (this.scope.equals("CLASS")) {
             for (JmmNode child : node.getChildren()) {
-                Type varType = new Type(variableName, child.getKind().equals("IntegerArrayType"));
+                Type varType = new Type(JmmSymbolTable.getType(child, "typeName").getName(), child.getKind().equals("IntegerArrayType"));
                 Symbol field = new Symbol(varType, variableName);
 
                 this.symbolTable.addClassField(field);
@@ -120,6 +120,7 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
     public String dealWithMethodDeclaration(JmmNode node, String space) {
         System.out.println("-> In dealWithMethodDeclaration() function! (" + node.getKind() + ")");
         space = ((space != null) ? space : "");
+        this.scope = "METHOD";
 
         String nodeKind = node.getKind();
 

@@ -102,18 +102,18 @@ statement
 
 
 expression
-    : '!' expression                                                #UnaryOp
+    : '(' expression ')'                                            #ExprParentheses
+    | expression '[' expression ']'                                 #Array
+    | expression '.' 'length'                                       #Lenght
+    | expression '.' id=ID '(' (expression (',' expression)*)? ')'  #MemberAccess
+    | '!' expression                                                #UnaryOp
     | expression op=('*' | '/' | '%') expression                    #BinaryOp
     | expression op=('+' | '-') expression                          #BinaryOp
     | expression op=('<'|'<='|'>'|'>=') expression                  #BinaryOp
     | expression op='&&' expression                                 #BinaryOp
     | expression op='||' expression                                 #BinaryOp
-    | expression '[' expression ']'                                 #Array
-    | expression '.' 'length'                                       #Lenght
-    | expression '.' id=ID '(' (expression (',' expression)*)? ')'  #Method
     | 'new' 'int' '[' expression ']'                                #NewObject
     | 'new' ID '(' ')'                                              #NewObject
-    | '(' expression ')'                                            #Expr
     | INT                                                           #Integer
     | 'true'                                                        #Bool
     | 'false'                                                       #Bool
