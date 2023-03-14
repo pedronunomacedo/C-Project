@@ -29,7 +29,8 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
         addVisit("VariableDeclaration", this::dealWithVariableDeclaration);
         addVisit("MethodDeclaration", this::dealWithMethodDeclaration);
         addVisit("ClassParameters", this::dealWithClassParameters);
-        addVisit("TypeDeclaration", this::dealWithTypeDeclaration);
+        addVisit("LocalVariables", this::dealWithLocalVariables);
+        addVisit("Statement", this::dealWithStatement);
     }
 
     public JmmSymbolTable getSymbolTable(JmmNode node) {
@@ -56,7 +57,7 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
                 System.out.println("Adding import statement");
                 this.symbolTable.addImport(path);
             }
-            else {
+            else { // Class
                 System.out.println("Visiting child " + child.getKind() + " of " + node.getKind());
                 visit(child, null);
             }
@@ -105,11 +106,7 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
 
 
         if (this.scope.equals("CLASS")) {
-
             for (JmmNode child : node.getChildren()) {
-                String variableKind = child.getKind();
-                Type variableType = JmmSymbolTable.getType(child, "typeName");
-
                 Type varType = new Type(variableName, child.getKind().equals("IntegerArrayType"));
                 Symbol field = new Symbol(varType, variableName);
 
@@ -131,39 +128,78 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
             this.scope = "MAIN";
 
             this.symbolTable.addMethod("main", new Type("void", false));
-
             node.put("params", "");
 
         } else { // MethodDeclarationOther
-            System.out.println("---- METHOD DECLARATION ----");
+            System.out.println("---- METHOD DECLARATION OTHER ----");
             this.scope = "METHOD";
 
-            System.out.println("Node attributes: " + node.getAttributes());
-
             String methodName = node.get("methodName");
-            System.out.println("Method name: " + methodName);
-            this.symbolTable.addMethod(methodName, new Type("", false));
 
-            System.out.println("Children node: " + node.getChildren());
+            // Visit the children of the node
+            for (JmmNode child: node.getChildren()) {
+                System.out.println("Child: " + child.getKind());
+                if (child.getKind().equals("ReturnType")) {
+                    Type returnType = JmmSymbolTable.getType(child.getChildren().get(0), "typeName");
+                    this.symbolTable.addMethod(methodName, returnType);
+                } else if (child.getKind().equals("ReturnObj")) {
+                    continue; // ignore
+                } else {
+                    visit(child);
+                }
+            }
         }
 
         return null;
     }
 
     public String dealWithClassParameters(JmmNode node, String space) {
+        System.out.println("-> In dealWithClassParameters() function! (" + node + ")");
+        space = ((space != null) ? space : "");
+
         if (scope.equals("METHOD")) {
-            System.out.println("METHOD kids: " + node.getChildren());
-            this.symbolTable.getCurrentMethod().addParameter(new Symbol(new Type(node.get("keyType"), false), node.get("value")));
-            System.out.println("Child parent: " + node.getJmmParent());
+            // this.symbolTable.getCurrentMethod().addParameter(new Symbol(new Type(node.get("keyType"), false), node.get("value")));
+            var parameterType = node.getChildren().get(0);
+            var parameterValue = node.get("value");
+
+            Type type = JmmSymbolTable.getType(parameterType, "typeName");
+
+            Symbol symbol = new Symbol(type, parameterValue);
+
+            this.symbolTable.getCurrentMethod().addParameter(symbol);
         }
 
         return null;
     }
 
-    public String dealWithTypeDeclaration(JmmNode node, String space) {
+    public String dealWithLocalVariables(JmmNode node, String space) {
+        System.out.println("-> In dealWithLocalVariables() function! (" + node + ")");
+        space = ((space != null) ? space : "");
+
         if (scope.equals("METHOD")) {
-            System.out.println("Dealing with TypeDeclaration");
-            this.symbolTable.getCurrentMethod().setReturnType(JmmSymbolTable.getType(node, "typeName"));
+            if (node.getChildren().size() > 0) {
+                String variableName = node.get("varName");
+
+                Type localVarType = JmmSymbolTable.getType(node.getChildren().get(0), "typeName");
+                Symbol localVarSymbol = new Symbol(localVarType, variableName);
+                this.symbolTable.getCurrentMethod().addLocalVariable(localVarSymbol);
+            } else {
+                String variableName = node.get("varName");
+
+                Symbol localVarSymbol = new Symbol(new Type("", false), variableName);
+                this.symbolTable.getCurrentMethod().addLocalVariable(localVarSymbol);
+            }
+        }
+
+        return null;
+    }
+
+    public String dealWithStatement(JmmNode node, String space) {
+        System.out.println("-> In dealWithStatement() function! (" + node + ")");
+        space = ((space != null) ? space : "");
+
+        if (scope.equals("METHOD")) {
+
         }
 
         return null;

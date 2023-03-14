@@ -45,8 +45,11 @@ public class Launcher {
 
         // ... add remaining stages
 
+        System.out.println(parserResult.getRootNode().toTree());
+
         // Create the symbolTable class object
         JmmSemanticsResult result = new AnalysisStage().semanticAnalysis(parserResult);
+
 
         System.out.println("\n\n\n\n");
         System.out.println("---- Symbol Table ----");
@@ -61,13 +64,11 @@ public class Launcher {
         System.out.println("-> Methods: " + result.getSymbolTable().getMethods());
 
         for (String method : result.getSymbolTable().getMethods()) {
-            System.out.println("Return type of " + method + " is " + result.getSymbolTable().getReturnType(method));
+            System.out.println("-> -> Method name: " + method);
+            System.out.println("-> -> -> Return type of " + method + " is " + result.getSymbolTable().getReturnType(method));
+            System.out.println("-> -> -> Parameters of " + method + " are " + result.getSymbolTable().getParameters(method));
+            System.out.println("-> -> -> LocalVariables of " + method + " are " + result.getSymbolTable().getLocalVariables(method));
         }
-
-        /*
-        System.out.println("SymbolTable:");
-        System.out.println(result.getSymbolTable().print());
-        */
 
         System.out.println("\n\n\n\n");
     }

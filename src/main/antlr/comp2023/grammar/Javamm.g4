@@ -36,26 +36,43 @@ classDeclaration
     ;
 
 classParameters
-    : keyType=type value=ID ((',' keyType=type value=ID)*)?          #ClassParametersDeclaration
+    : type value=ID
     ;
 
 
 
 methodDeclaration
-    : ('public')? type methodName=ID  '(' classParameters? ')' '{'
-            (varDeclaration)*
+    : ('public')? returnType methodName=ID  '(' (classParameters ( ',' classParameters)*)?  ')' '{'
+            (localVariables)*
             (statement)*
 
-            'return' expression ';'
+            'return' returnObj ';'
       '}'                                                               #MethodDeclarationOther
     | ('public')? 'static' 'void' 'main' '(' type '[' ']' ID ')' '{'
-            (varDeclaration)*
+            (localVariables)*
             (statement)*
       '}'                                                               #MethodDeclarationMain
     ;
 
+localVariables
+    : type varName=ID ';'
+    | varName=ID ('=' (ID | INT)) ';'
+    ;
+
+varType
+    : type
+    ;
+
+returnType
+    : type
+    ;
+
+returnObj
+    : expression
+    ;
+
 varDeclaration
-    : type varName=ID ';'                    #VariableDeclaration
+    : type varName=ID ';'                     #VariableDeclaration
     ;
 
 type
@@ -76,9 +93,9 @@ statement
             ((type)? statement)*                    #Conditional
     | 'while' '(' expression ')'
             (statement)*                            #Loop
-    | ID '[' expression ']' '=' expression ';'      #Assignment
-    | ID '=' expression ';'                         #Assignment
-    | type expression ';'                           #ExprStmt
+    | varName=ID '[' expression ']' '=' expression ';'      #Assignment
+    | varName=ID '=' expression ';'                         #Assignment
+    | varDeclaration ';'                            #VarDeclare
     | expression ';'                                #ExprStmt
     ;
 
@@ -92,8 +109,8 @@ expression
     | expression op='&&' expression                                 #BinaryOp
     | expression op='||' expression                                 #BinaryOp
     | expression '[' expression ']'                                 #Array
-    | expression '.' 'length'                                       #Method
-    | expression '.' ID '(' (expression (',' expression)*)? ')'     #Method
+    | expression '.' 'length'                                       #Lenght
+    | expression '.' id=ID '(' (expression (',' expression)*)? ')'  #Method
     | 'new' 'int' '[' expression ']'                                #NewObject
     | 'new' ID '(' ')'                                              #NewObject
     | '(' expression ')'                                            #Expr
