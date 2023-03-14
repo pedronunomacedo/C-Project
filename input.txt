@@ -9,7 +9,10 @@ class classNameExample extends superClassNameExample {
 
     }
 
-    public int[] MethodExample (String parameterMethodString, int parameterMethodInt) {
-        return false;
+    public boolean MethodExample (String methodVariable1, int methodVariable2) {
+        int localIntegerVariableExample1;
+        localIntegerVariableExample2 = 11;
+
+        return true;
     }
 }

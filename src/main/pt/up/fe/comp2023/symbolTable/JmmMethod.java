@@ -8,17 +8,18 @@ import java.util.*;
 public class JmmMethod {
     private String name;
     private Type returnType;
-    private final List<Map.Entry<Symbol, String>> parameters = new ArrayList<>();
+    private final Map<String, Symbol> parameters;
     // Map from Symbol to Value -> null if the field is not initialized yet
-    private final Map<Symbol, Boolean> localVariables = new HashMap<>();
+    private final Map<String, Symbol> localVariables;
 
-    public JmmMethod(String name, Type returnType) {
+    public JmmMethod(String name) {
         this.name = name;
-        this.returnType = returnType;
+        this.parameters = new HashMap<String, Symbol>();
+        this.localVariables = new HashMap<String, Symbol>();
     }
 
-    public List<Map.Entry<Symbol, String>> getParameters() {
-        return this.parameters;
+    public List<Symbol> getParameters() {
+        return new ArrayList<>(this.parameters.values());
     }
 
     public Type getReturnType() {
@@ -28,23 +29,23 @@ public class JmmMethod {
     public List<String> getParameterTypes() {
             List<String> params = new ArrayList<>();
 
-        for (Map.Entry<Symbol, String> parameter : parameters) {
-            params.add(parameter.getKey().getName());
+        for (Map.Entry<String, Symbol> parameter : parameters.entrySet()) {
+            params.add(parameter.getKey());
         }
 
         return params;
     }
 
     public void addLocalVariable(Symbol variable) {
-        localVariables.put(variable, false);
+        this.localVariables.put(variable.getName(), variable);
     }
 
     public void addParameter(Symbol param) {
-        this.parameters.add(Map.entry(param, "param"));
+        this.parameters.put(param.getName(), param);
     }
 
     public List<Symbol> getLocalVariables() {
-        return new ArrayList<>(this.localVariables.keySet());
+        return new ArrayList<>(this.localVariables.values());
     }
 
     public String getName() { return this.name; }
