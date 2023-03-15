@@ -47,19 +47,9 @@ public class Launcher {
         JmmSemanticsResult result = new AnalysisStage().semanticAnalysis(parserResult);
 
         System.out.println("\n\n\n\n");
-        System.out.println("Symbol Table: ");
-        System.out.println("imports: " + result.getSymbolTable().getImports());
 
-        System.out.println("className: " + result.getSymbolTable().getClassName());
-
-        System.out.println("SuperClassName: " + result.getSymbolTable().getSuper());
-
-
-
-        /*
         System.out.println("SymbolTable:");
         System.out.println(result.getSymbolTable().print());
-        */
 
         System.out.println("\n\n\n\n");
     }

@@ -72,7 +72,6 @@ public class JmmSymbolTable implements SymbolTable {
 
     @Override
     public List<String> getMethods() {
-        System.out.println("In file JmmSymbolTable in function getMethods()!");
         return List.copyOf(this.methods.keySet());
     }
 

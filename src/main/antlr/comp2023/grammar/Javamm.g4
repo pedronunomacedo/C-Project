@@ -5,7 +5,7 @@ grammar Javamm;
 }
 
 INT : [0] | [1-9][0-9]* ;
-ID : [_]?[a-zA-Z][a-zA-Z0-9_]*;
+ID : [a-zA-Z$_][a-zA-Z0-9_]*;
 
 WS : [ \t\n\r\f]+ -> skip;
 
