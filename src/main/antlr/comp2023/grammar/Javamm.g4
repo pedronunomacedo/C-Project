@@ -21,7 +21,7 @@ subImportDeclaration
     ;
 
 importDeclaration
-    : 'import' id=ID (subImportDeclaration)* ';'      #Import
+    : 'import' id=ID (subImportDeclaration)* ('.' '*')? ';'      #Import
     ;
 
 extendsClassDeclaration
@@ -42,7 +42,7 @@ classParameters
 
 
 methodDeclaration
-    : ('public')? returnType methodName=ID  '(' (classParameters ( ',' classParameters)*)?  ')' '{'
+    : ('public' | 'private' | 'static')? returnType methodName=ID  '(' (classParameters ( ',' classParameters)*)?  ')' '{'
             (localVariables)*
             (statement)*
 
@@ -80,6 +80,7 @@ type
     | typeName='int'                          #IntegerType
     | typeName='boolean'                      #BooleanType
     | typeName='String'                       #StringType
+    | typename='void'                         #VoidType
     | typeName=ID                             #IdType
     ;
 
