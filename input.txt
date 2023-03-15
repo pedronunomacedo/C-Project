@@ -2,7 +2,6 @@ import io.mmm;
 
 class classNameExample extends superClassNameExample {
     int $varrr;
-    int _test;
     int intVariable_Example;
     boolean booleanVariableExample;
     int [] arrayVariableExample;
