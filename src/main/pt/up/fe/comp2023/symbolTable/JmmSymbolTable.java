@@ -1,19 +1,21 @@
 package pt.up.fe.comp2023.symbolTable;
 
-import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
+import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
+import pt.up.fe.comp.jmm.ast.JmmNode;
 
+import java.lang.reflect.Parameter;
 import java.util.*;
 
 public class JmmSymbolTable implements SymbolTable {
 
     private String className;
     private String superClassName;
-
     private final List<String> imports;
     private final Map<String, Symbol> fields;
-    private final Map<String, JmmMethod> methods;
+    private final HashMap<String, JmmMethod> methods;
+    private JmmMethod currentMethod;
 
     public JmmSymbolTable() {
         this.className = "";
@@ -39,26 +41,43 @@ public class JmmSymbolTable implements SymbolTable {
     }
 
     @Override
-    public List<Symbol> getFields() {
-        return null;
+    public List<Symbol> getFields() { return new ArrayList<>(this.fields.values()); }
+
+    @Override
+    public Type getReturnType(String methodName) {
+        return this.methods.get(methodName).getReturnType();
     }
 
     @Override
-    public List<String> getMethods() {return null;}
-
-    @Override
-    public Type getReturnType(String s) {
-        return null;
+    public List<Symbol> getParameters(String methodName) {
+        return this.methods.get(methodName).getParameters();
     }
 
     @Override
-    public List<Symbol> getParameters(String s) {
-        return null;
+    public List<Symbol> getLocalVariables(String methodName) {
+        return this.methods.get(methodName).getLocalVariables();
+    }
+
+    public static Type getType(JmmNode node, String attribute) {
+        Type type;
+        if (node.getKind().equals("IntegerArrayType"))
+            type = new Type("int", true);
+        else if (node.get(attribute).equals("int"))
+            type = new Type("int", false);
+        else
+            type = new Type(node.get(attribute), false);
+
+        return type;
     }
 
     @Override
-    public List<Symbol> getLocalVariables(String s) {
-        return null;
+    public List<String> getMethods() {
+        System.out.println("In file JmmSymbolTable in function getMethods()!");
+        return List.copyOf(this.methods.keySet());
+    }
+
+    public JmmMethod getCurrentMethod() {
+        return this.currentMethod;
     }
 
     @Override
@@ -77,5 +96,15 @@ public class JmmSymbolTable implements SymbolTable {
 
     public void addSuperClassName(String superClassName) {
         this.superClassName = superClassName;
+    }
+
+    public void addClassField(Symbol field) {
+        this.fields.put(field.getName(), field);
+    }
+
+    public void addMethod(String name, Type returnType) {
+        this.currentMethod = new JmmMethod(name);
+        currentMethod.setReturnType(returnType);
+        this.methods.put(name, currentMethod);
     }
 }
