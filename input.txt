@@ -2,8 +2,8 @@ import io.mmm;
 
 class classNameExample extends superClassNameExample {
     int intVariableExample;
-    boolean booleanVariableExample
-    int [] arrayVariableExample
+    boolean booleanVariableExample;
+    int [] arrayVariableExample;
 
     public static void main ( String [] args ) {
 
