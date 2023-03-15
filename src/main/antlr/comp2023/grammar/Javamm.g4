@@ -31,30 +31,56 @@ extendsClassDeclaration
 classDeclaration
     : 'class' className=ID (extendsClassDeclaration)? '{'
             (varDeclaration)*
-            // (methodDeclaration)*
+            (methodDeclaration)*
       '}'                                              #Class
     ;
 
+classParameters
+    : type value=ID
+    ;
+
+
+
 methodDeclaration
-    : ('public')? type ID  '(' (type ID (',' type ID)*)? ')' '{'
-            (varDeclaration)* (statement)*
-            'return' expression ';'
-      '}'
+    : ('public')? returnType methodName=ID  '(' (classParameters ( ',' classParameters)*)?  ')' '{'
+            (localVariables)*
+            (statement)*
+
+            'return' returnObj ';'
+      '}'                                                               #MethodDeclarationOther
     | ('public')? 'static' 'void' 'main' '(' type '[' ']' ID ')' '{'
-            (varDeclaration)* (statement)*
-      '}'
+            (localVariables)*
+            (statement)*
+      '}'                                                               #MethodDeclarationMain
+    ;
+
+localVariables
+    : type varName=ID ';'
+    | varName=ID ('=' (ID | INT)) ';'
+    ;
+
+varType
+    : type
+    ;
+
+returnType
+    : type
+    ;
+
+returnObj
+    : expression
     ;
 
 varDeclaration
-    : type varName=ID ';'                    #VariableDeclaration
+    : type varName=ID ';'                     #VariableDeclaration
     ;
 
 type
-    : 'int' '[' ']'                  #IntegerArrayType
-    | 'boolean'                      #BooleanType
-    | 'int'                          #IntegerType
-    | 'String'                       #StringType
-    | typeName=ID                    #IdType
+    : typeName='int' '[' ']'                  #IntegerArrayType
+    | typeName='int'                          #IntegerType
+    | typeName='boolean'                      #BooleanType
+    | typeName='String'                       #StringType
+    | typeName=ID                             #IdType
     ;
 
 statement
@@ -67,27 +93,27 @@ statement
             ((type)? statement)*                    #Conditional
     | 'while' '(' expression ')'
             (statement)*                            #Loop
-    | ID '[' expression ']' '=' expression ';'      #Assignment
-    | ID '=' expression ';'                         #Assignment
-    | type expression ';'                           #ExprStmt
+    | varName=ID '[' expression ']' '=' expression ';'      #Assignment
+    | varName=ID '=' expression ';'                         #Assignment
+    | varDeclaration ';'                            #VarDeclare
     | expression ';'                                #ExprStmt
     ;
 
 
 
 expression
-    : '!' expression #UnaryOp
+    : '(' expression ')'                                            #ExprParentheses
+    | expression '[' expression ']'                                 #Array
+    | expression '.' 'length'                                       #Lenght
+    | expression '.' id=ID '(' (expression (',' expression)*)? ')'  #MemberAccess
+    | '!' expression                                                #UnaryOp
     | expression op=('*' | '/' | '%') expression                    #BinaryOp
     | expression op=('+' | '-') expression                          #BinaryOp
     | expression op=('<'|'<='|'>'|'>=') expression                  #BinaryOp
     | expression op='&&' expression                                 #BinaryOp
     | expression op='||' expression                                 #BinaryOp
-    | expression '[' expression ']'                                 #Array
-    | expression '.' 'length'                                       #Method
-    | expression '.' ID '(' (expression (',' expression)*)? ')'     #Method
     | 'new' 'int' '[' expression ']'                                #NewObject
     | 'new' ID '(' ')'                                              #NewObject
-    | '(' expression ')'                                            #Expr
     | INT                                                           #Integer
     | 'true'                                                        #Bool
     | 'false'                                                       #Bool
