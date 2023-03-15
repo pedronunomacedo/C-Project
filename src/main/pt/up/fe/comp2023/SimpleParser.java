@@ -64,14 +64,14 @@ public class SimpleParser extends Tool implements JmmParser {
                     .map(root -> new JmmParserResult(root, Collections.emptyList(), config))
                     // If there were errors, create an error JmmParserResult without root node
                     .orElseGet(() -> JmmParserResult.newError(new Report(ReportType.ERROR, Stage.SYNTATIC, -1,
-                            "There were syntax errors during parsing, terminating (" + parser.getNumberOfSyntaxErrors() + ")")));
+                            "There were syntax errors during parsing, terminating (" + parser.getNumberOfSyntaxErrors() + " errors found)")));
 
             // Check for syntax errors (ERRADO??????????)
             int numErrors = parser.getNumberOfSyntaxErrors();
             if (numErrors > 0) {
                 return JmmParserResult.newError(
                         new Report(ReportType.ERROR, Stage.SYNTATIC, -1,
-                                "There were syntax errors during parsing, terminating (" + parser.getNumberOfSyntaxErrors() + ")"));
+                                "There were syntax errors during parsing, terminating (" + parser.getNumberOfSyntaxErrors() + " errors found)"));
             }
 
             // If there were no errors and a root node was generated, create a JmmParserResult with the node
