@@ -9,6 +9,7 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
+import pt.up.fe.comp2023.JavammParser;
 import pt.up.fe.comp2023.symbolTable.JmmSymbolTable;
 import pt.up.fe.comp2023.symbolTable.SymbolTableVisitor;
 
