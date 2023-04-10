@@ -39,8 +39,6 @@ classParameters
     : type value=ID
     ;
 
-
-
 methodDeclaration
     : ('public' | 'private' | 'static')? returnType methodName=ID  '(' (classParameters ( ',' classParameters)*)?  ')' '{'
             (localVariables)*
@@ -56,12 +54,14 @@ methodDeclaration
 
 localVariables
     : type varName=ID ';'
-    | varName=ID ('=' (ID | INT)) ';'
+    | varName=ID ('=' val=(ID | INT)) ';'
     ;
-
-varType
-    : type
+/*
+localVariables
+    : type varName=ID ';'
+    | varName=ID ('=' returnObj) ';'
     ;
+*/
 
 returnType
     : type

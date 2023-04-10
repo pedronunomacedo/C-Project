@@ -1,11 +1,10 @@
-package pt.up.fe.comp2023.symbolTable;
+package pt.up.fe.comp2023.ast;
 
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
-import java.lang.reflect.Parameter;
 import java.util.*;
 
 public class JmmSymbolTable implements SymbolTable {
@@ -13,7 +12,7 @@ public class JmmSymbolTable implements SymbolTable {
     private String className;
     private String superClassName;
     private final List<String> imports;
-    private final Map<String, Symbol> fields;
+    private final HashMap<String, Symbol> fields;
     private final HashMap<String, JmmMethod> methods;
     private JmmMethod currentMethod;
 
@@ -77,6 +76,37 @@ public class JmmSymbolTable implements SymbolTable {
 
     public JmmMethod getCurrentMethod() {
         return this.currentMethod;
+    }
+
+    public Symbol getField(String name) {
+        for (Map.Entry<String, Symbol> field : this.fields.entrySet()) {
+            if (field.getKey().equals(name))
+                return field.getValue();
+        }
+        return null;
+    }
+
+    public boolean setField(String name, Symbol newSymbol) {
+        for (Map.Entry<String, Symbol> field : this.fields.entrySet()) {
+            if (field.getKey().equals(name)) {
+
+                field.setValue(newSymbol);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public JmmMethod getMethod(String name, List<Type> params, Type returnType) {
+        JmmMethod method = this.methods.get(name);
+
+        if (method.getName().equals(name) && returnType.equals(method.getReturnType()) && params.size() == method.getParameters().size()) {
+            if (JmmMethod.matchParameters(params, method.getParameterTypes())) {
+                return method;
+            }
+        }
+
+        throw new NoSuchMethodError();
     }
 
     @Override

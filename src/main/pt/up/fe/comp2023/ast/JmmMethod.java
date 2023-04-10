@@ -1,4 +1,4 @@
-package pt.up.fe.comp2023.symbolTable;
+package pt.up.fe.comp2023.ast;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
@@ -11,6 +11,7 @@ public class JmmMethod {
     private final Map<String, Symbol> parameters;
     // Map from Symbol to Value -> null if the field is not initialized yet
     private final Map<String, Symbol> localVariables;
+    private Symbol currentLocalVariable;
 
     public JmmMethod(String name) {
         this.name = name;
@@ -26,17 +27,18 @@ public class JmmMethod {
         return this.returnType;
     }
 
-    public List<String> getParameterTypes() {
-        List<String> params = new ArrayList<>();
+    public List<Type> getParameterTypes() {
+        List<Type> params = new ArrayList<>();
 
         for (Map.Entry<String, Symbol> parameter : parameters.entrySet()) {
-            params.add(parameter.getKey());
+            params.add(parameter.getValue().getType());
         }
 
         return params;
     }
 
     public void addLocalVariable(Symbol variable) {
+        this.currentLocalVariable = variable;
         this.localVariables.put(variable.getName(), variable);
     }
 
@@ -49,8 +51,28 @@ public class JmmMethod {
     }
 
     public String getName() { return this.name; }
+    public Symbol getCurrentLocalVariable() { return this.currentLocalVariable; }
 
     public void setReturnType(Type type) {
         this.returnType = type;
+    }
+
+    public static boolean matchParameters(List<Type> types1, List<Type> types2) {
+        for (int i = 0; i < types1.size(); i++) {
+            if (!types1.get(i).equals(types2.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public List<String> transformParametersToOllir() {
+        List<String> ollirParameters = new ArrayList<>();
+
+        for (Map.Entry<String, Symbol> parameter : this.parameters.entrySet()) {
+            ollirParameters.add(OllirTemplates.declareVariable(parameter.getValue()));
+        }
+
+        return ollirParameters;
     }
 }

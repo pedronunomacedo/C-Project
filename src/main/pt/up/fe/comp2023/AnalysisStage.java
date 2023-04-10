@@ -5,14 +5,10 @@ import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
-import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
-import pt.up.fe.comp2023.symbolTable.JmmSymbolTable;
-import pt.up.fe.comp2023.symbolTable.SymbolTableVisitor;
-
-import javax.lang.model.type.NullType;
+import pt.up.fe.comp2023.ast.SymbolTableVisitor;
 
 import java.util.*;
 

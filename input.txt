@@ -1,19 +1,24 @@
-import io.mmm;
+import io;
+import Quicksort;
 
-class classNameExample extends superClassNameExample {
-    int $varrr;
-    int intVariable_Example;
-    boolean booleanVariableExample;
-    int [] arrayVariableExample;
+class CompileBasic extends Quicksort {
 
-    public static void main ( String [] args ) {
+    int intField;
+    boolean boolField;
 
+    public int method1() {
+        int intLocal1;
+        boolean boolLocal1;
+        intLocal1 = 1;
+
+        return 0;
     }
 
-    public boolean MethodExample (String methodVariable1, int methodVariable2) {
-        int localIntegerVariableExample1;
-        localIntegerVariableExample2 = 11;
+    public boolean method2(int intParam1, boolean boolParam1) {
+        return boolParam1;
+    }
 
-        return true;
+
+    public static void main(String[] args) {
     }
 }
