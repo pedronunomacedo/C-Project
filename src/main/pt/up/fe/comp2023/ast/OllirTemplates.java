@@ -35,25 +35,29 @@ public class OllirTemplates {
     }
 
     public static String fieldTemplate(Symbol field) {
-        return ".field public " + field.getName() + ";\n";
+        return ".field private " + field.getName() + type(field.getType()) +  ";\n";
     }
 
-    public static String methodTemplate(String name, List<String> parameters, String returnType, boolean isMain) {
-        StringBuilder ollir = new StringBuilder(".method public ");
+    public static String methodTemplate(String name, List<String> parameters, Type returnType, boolean isMain) {
+        StringBuilder ollirCode = new StringBuilder(".method public ");
 
-        if (isMain) ollir.append("static ");
+        if (isMain) ollirCode.append("static ");
 
         // parameters
-        ollir.append(name).append("(");
-        ollir.append(String.join(", ", parameters)); // method parameters/arguments
-        ollir.append(")");
+        ollirCode.append(name).append("(");
+        if (isMain) {
+            ollirCode.append(parameters.get(0)).append(".array.String");
+        } else {
+            ollirCode.append(String.join(", ", parameters)); // method parameters/arguments
+        }
+        ollirCode.append(")");
 
         // return type
-        ollir.append(returnType);
+        ollirCode.append(type(returnType));
 
-        ollir.append(openBrackets());
+        ollirCode.append(openBrackets());
 
-        return ollir.toString();
+        return ollirCode.toString();
     }
 
     public static String type(Type type) {
@@ -79,5 +83,24 @@ public class OllirTemplates {
         param.append(type(variable.getType()));
 
         return param.toString();
+    }
+
+    public static String assignVariable(Symbol Variable, String newValue) {
+        StringBuilder param = new StringBuilder(variable.getName());
+
+
+    }
+
+    public static String defaultConstructor(String className) {
+        StringBuilder ollirCode = new StringBuilder("\n.construct " + className + "().V ");
+        ollirCode.append(OllirTemplates.openBrackets());
+        ollirCode.append(OllirTemplates.invokespecial(null, "<init>", new Type("void", false)));
+        ollirCode.append(OllirTemplates.closeBrackets());
+
+        return ollirCode.toString();
+    }
+
+    public static String invokespecial(String var, String method, Type returnType) {
+        return String.format("invokespecial(%s, \"%s\")%s;", var != null ? var : "this", method, type(returnType));
     }
 }

@@ -112,9 +112,10 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
             this.scope = "MAIN";
 
             this.symbolTable.addMethod("main", new Type("void", false));
-            node.put("params", "");
-
-        } else { // MethodDeclarationOther
+            Type type = new Type("String", true);
+            Symbol symbol = new Symbol(type, "args");
+            this.symbolTable.getCurrentMethod().addParameter(symbol);
+        } else if (nodeKind.equals("MethodDeclarationOther")){ // MethodDeclarationOther
             this.scope = "METHOD";
 
             String methodName = node.get("methodName");

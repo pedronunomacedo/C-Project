@@ -53,9 +53,9 @@ public class JmmSymbolTable implements SymbolTable {
     }
 
     @Override
-    public List<Symbol> getLocalVariables(String methodName) {
-        return this.methods.get(methodName).getLocalVariables();
-    }
+    public List<Symbol> getLocalVariables(String methodName) { return this.methods.get(methodName).getLocalVariables(); }
+
+    public JmmMethod getMethod(String methodName) { return this.methods.get(methodName);}
 
     public static Type getType(JmmNode node, String attribute) {
         Type type;
@@ -97,16 +97,21 @@ public class JmmSymbolTable implements SymbolTable {
         return false;
     }
 
-    public JmmMethod getMethod(String name, List<Type> params, Type returnType) {
-        JmmMethod method = this.methods.get(name);
+    public JmmMethod getMethod(String name, List<Symbol> params, Type returnType) {
+        JmmMethod method;
+        if ((method = this.methods.get(name)) == null) return null;
 
         if (method.getName().equals(name) && returnType.equals(method.getReturnType()) && params.size() == method.getParameters().size()) {
-            if (JmmMethod.matchParameters(params, method.getParameterTypes())) {
+            if (JmmMethod.matchParameters(params, method.getParameters())) {
                 return method;
             }
         }
 
-        throw new NoSuchMethodError();
+        return null;
+    }
+
+    public boolean setFieldValue(Symbol field, String newValue) {
+        
     }
 
     @Override
@@ -133,7 +138,12 @@ public class JmmSymbolTable implements SymbolTable {
 
     public void addMethod(String name, Type returnType) {
         this.currentMethod = new JmmMethod(name);
+
         currentMethod.setReturnType(returnType);
         this.methods.put(name, currentMethod);
+    }
+
+    public boolean classHasDefaultConstructor() {
+        return true;
     }
 }

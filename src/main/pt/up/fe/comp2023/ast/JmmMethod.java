@@ -23,6 +23,10 @@ public class JmmMethod {
         return new ArrayList<>(this.parameters.values());
     }
 
+    public List<String> getParametersNames() {
+        return new ArrayList<>(this.parameters.keySet());
+    }
+
     public Type getReturnType() {
         return this.returnType;
     }
@@ -57,7 +61,11 @@ public class JmmMethod {
         this.returnType = type;
     }
 
-    public static boolean matchParameters(List<Type> types1, List<Type> types2) {
+    public Symbol getLocalVariable(String varName) {
+        return this.localVariables.get(varName);
+    }
+
+    public static boolean matchParameters(List<Symbol> types1, List<Symbol> types2) {
         for (int i = 0; i < types1.size(); i++) {
             if (!types1.get(i).equals(types2.get(i))) {
                 return false;
