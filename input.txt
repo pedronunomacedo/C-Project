@@ -1,10 +1,9 @@
-import io;
+import io.mm;
 import Quicksort;
 
 class CompileBasic extends Quicksort {
-
-    int intField;
-    boolean boolField;
+    int field1;
+    boolean field2;
 
     public int method1() {
         int intLocal1;
@@ -14,11 +13,14 @@ class CompileBasic extends Quicksort {
         return 0;
     }
 
+    /*
     public boolean method2(int intParam1, boolean boolParam1) {
         return boolParam1;
     }
-
+    */
 
     public static void main(String[] args) {
+
     }
+
 }
