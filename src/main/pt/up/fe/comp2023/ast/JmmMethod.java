@@ -27,6 +27,10 @@ public class JmmMethod {
         return new ArrayList<>(this.parameters.keySet());
     }
 
+    public Symbol getParameter(String paramName) {
+        return this.parameters.get(paramName);
+    }
+
     public Type getReturnType() {
         return this.returnType;
     }

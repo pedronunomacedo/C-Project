@@ -150,7 +150,7 @@ public class OllirVisitor extends PreorderJmmVisitor<List<Object>, List<Object>>
         return Collections.singletonList(ollirCode.toString());
     }
 
-    public List<Object> dealWithLocalVariables(JmmNode node, List<Object> data) throws NoSuchFieldException {
+    public List<Object> dealWithLocalVariables(JmmNode node, List<Object> data) {
         if (this.nodesVisited.contains(node)) return Collections.singletonList("DEFAULT_VISIT");
         this.nodesVisited.add(node);
         StringBuilder ollirCode = new StringBuilder();
@@ -168,7 +168,13 @@ public class OllirVisitor extends PreorderJmmVisitor<List<Object>, List<Object>>
                 Boolean methodParamBool = this.currentMethod.getParametersNames().contains(varName);
                 // lookup
                 if (localVariable == null && !methodParamBool) { // class field
-                    // Update variable value
+                    if (this.currentMethod.getParametersNames().contains(varValue)) { // new value is a method parameter
+                        Symbol field = this.currentMethod.getParameter(varName);
+                        int parameterIndex = this.currentMethod.getParameters().indexOf(field);
+                        ollirCode.append(OllirTemplates.putField(classField, varValue, parameterIndex, varName));
+                    } else {
+                        ollirCode.append(OllirTemplates.putField(classField, varValue));
+                    }
                 }
             }
         }
@@ -202,9 +208,9 @@ public class OllirVisitor extends PreorderJmmVisitor<List<Object>, List<Object>>
                 e.printStackTrace();
             }
 
-            ollirCode = new StringBuilder(OllirTemplates.methodTemplate(
+            ollirCode.append(OllirTemplates.methodTemplate(
                     "main",
-                    currentMethod.transformParametersToOllir(),
+                    currentMethod.getParameters(),
                     currentMethod.getReturnType(),
                     true));
 
@@ -233,7 +239,7 @@ public class OllirVisitor extends PreorderJmmVisitor<List<Object>, List<Object>>
                 e.printStackTrace();
             }
 
-            ollirCode.append(OllirTemplates.methodTemplate(methodName, parameters, returnType, false));
+            ollirCode.append(OllirTemplates.methodTemplate(methodName, this.currentMethod.getParameters(), returnType, false));
 
             // Visit the children of the node
             for (JmmNode child: node.getChildren()) {

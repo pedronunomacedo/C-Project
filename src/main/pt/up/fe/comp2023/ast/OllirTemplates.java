@@ -38,7 +38,7 @@ public class OllirTemplates {
         return ".field private " + field.getName() + type(field.getType()) +  ";\n";
     }
 
-    public static String methodTemplate(String name, List<String> parameters, Type returnType, boolean isMain) {
+    public static String methodTemplate(String name, List<Symbol> parameters, Type returnType, boolean isMain) {
         StringBuilder ollirCode = new StringBuilder(".method public ");
 
         if (isMain) ollirCode.append("static ");
@@ -46,15 +46,19 @@ public class OllirTemplates {
         // parameters
         ollirCode.append(name).append("(");
         if (isMain) {
-            ollirCode.append(parameters.get(0)).append(".array.String");
+            ollirCode.append(declareVariable(parameters.get(0)));
         } else {
-            ollirCode.append(String.join(", ", parameters)); // method parameters/arguments
+            // method parameters/arguments
+            ollirCode.append(declareVariable(parameters.get(0)));
+            if (parameters.size() > 1) {
+                for (int i = 1; i < parameters.size(); i++) {
+                    ollirCode.append(", ").append(declareVariable(parameters.get(i)));
+                }
+            }
         }
+        
         ollirCode.append(")");
-
-        // return type
         ollirCode.append(type(returnType));
-
         ollirCode.append(openBrackets());
 
         return ollirCode.toString();
@@ -85,10 +89,21 @@ public class OllirTemplates {
         return param.toString();
     }
 
-    public static String assignVariable(Symbol Variable, String newValue) {
-        StringBuilder param = new StringBuilder(variable.getName());
+    public static String putField(Symbol variable, String newValue) {
+        StringBuilder ollirCode = new StringBuilder("putfield(");
+        ollirCode.append("this, ");
+        ollirCode.append(variable.getName() + type(variable.getType()));
 
+        return ollirCode.toString();
+    }
 
+    public static String putField(Symbol variable, String newValue, Integer parameterIndex, String parameterName) {
+        StringBuilder ollirCode = new StringBuilder("putfield()");
+        ollirCode.append("this, ");
+        ollirCode.append(variable.getName() + type(variable.getType()));
+        ollirCode.append("$" + parameterIndex + "." + parameterName + "." + type(variable.getType()));
+
+        return ollirCode.toString();
     }
 
     public static String defaultConstructor(String className) {

@@ -5,10 +5,10 @@ class CompileBasic extends Quicksort {
     int field1;
     boolean field2;
 
-    public int method1() {
+    public int method1(int n1, int n2) {
         int intLocal1;
         boolean boolLocal1;
-        intLocal1 = 1;
+        intLocal1 = n;
 
         return 0;
     }
