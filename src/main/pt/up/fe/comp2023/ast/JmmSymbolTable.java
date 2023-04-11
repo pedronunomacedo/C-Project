@@ -110,10 +110,6 @@ public class JmmSymbolTable implements SymbolTable {
         return null;
     }
 
-    public boolean setFieldValue(Symbol field, String newValue) {
-        
-    }
-
     @Override
     public String print() {
         return SymbolTable.super.print();
