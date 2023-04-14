@@ -1,5 +1,6 @@
 package pt.up.fe.comp2023.ast;
 
+import org.antlr.v4.runtime.misc.Pair;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
@@ -139,7 +140,15 @@ public class JmmSymbolTable implements SymbolTable {
         this.methods.put(name, currentMethod);
     }
 
-    public boolean classHasDefaultConstructor() {
-        return true;
+    public Pair<String, Symbol> variableScope(JmmMethod method, String variableStr) { // make the lookup
+        Symbol localVariable = method.getLocalVariable(variableStr);
+        Symbol parameterVariable = method.getParameter(variableStr);
+        Symbol fieldVariable = this.getField(variableStr);
+
+        if (localVariable != null) return new Pair<>("localVariable", localVariable);
+        else if (parameterVariable != null) return new Pair<>("parameterVariable", parameterVariable);
+        else if (fieldVariable != null) return new Pair<>("fieldVariable", fieldVariable);
+
+        return new Pair<>("", null);
     }
 }
