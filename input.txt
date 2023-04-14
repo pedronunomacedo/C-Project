@@ -1,19 +1,18 @@
-import io.mmm;
+import io;
 
-class classNameExample extends superClassNameExample {
-    int $varrr;
-    int intVariable_Example;
-    boolean booleanVariableExample;
-    int [] arrayVariableExample;
+class CompileMethodInvocation {
 
-    public static void main ( String [] args ) {
+    public static void main(String[] args) {
 
     }
 
-    public boolean MethodExample (String methodVariable1, int methodVariable2) {
-        int localIntegerVariableExample1;
-        localIntegerVariableExample2 = 11;
+    public int foo() {
+        int a;
 
-        return true;
+        a = 1;
+
+        io.println(a);
+
+        return 0;
     }
 }

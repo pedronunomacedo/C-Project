@@ -1,4 +1,4 @@
-package pt.up.fe.comp2023.symbolTable;
+package pt.up.fe.comp2023.ast;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
@@ -11,6 +11,7 @@ public class JmmMethod {
     private final Map<String, Symbol> parameters;
     // Map from Symbol to Value -> null if the field is not initialized yet
     private final Map<String, Symbol> localVariables;
+    private Symbol currentLocalVariable;
 
     public JmmMethod(String name) {
         this.name = name;
@@ -22,21 +23,42 @@ public class JmmMethod {
         return new ArrayList<>(this.parameters.values());
     }
 
+    public int getParameterIndex(String parameter) {
+        int index = 0;
+        Symbol param = this.parameters.get(parameter);
+
+        for (Map.Entry<String, Symbol> entry : this.parameters.entrySet()) {
+            if (entry.getValue().equals(param)) break;
+            index++;
+        }
+
+        return this.parameters.size() - index;
+    }
+
+    public List<String> getParametersNames() {
+        return new ArrayList<>(this.parameters.keySet());
+    }
+
+    public Symbol getParameter(String paramName) {
+        return this.parameters.get(paramName);
+    }
+
     public Type getReturnType() {
         return this.returnType;
     }
 
-    public List<String> getParameterTypes() {
-        List<String> params = new ArrayList<>();
+    public List<Type> getParameterTypes() {
+        List<Type> params = new ArrayList<>();
 
         for (Map.Entry<String, Symbol> parameter : parameters.entrySet()) {
-            params.add(parameter.getKey());
+            params.add(parameter.getValue().getType());
         }
 
         return params;
     }
 
     public void addLocalVariable(Symbol variable) {
+        this.currentLocalVariable = variable;
         this.localVariables.put(variable.getName(), variable);
     }
 
@@ -49,8 +71,22 @@ public class JmmMethod {
     }
 
     public String getName() { return this.name; }
+    public Symbol getCurrentLocalVariable() { return this.currentLocalVariable; }
 
     public void setReturnType(Type type) {
         this.returnType = type;
+    }
+
+    public Symbol getLocalVariable(String varName) {
+        return this.localVariables.get(varName);
+    }
+
+    public static boolean matchParameters(List<Symbol> types1, List<Symbol> types2) {
+        for (int i = 0; i < types1.size(); i++) {
+            if (!types1.get(i).equals(types2.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 }

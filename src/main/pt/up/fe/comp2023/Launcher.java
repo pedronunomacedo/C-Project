@@ -7,6 +7,7 @@ import java.util.Map;
 
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
@@ -52,6 +53,15 @@ public class Launcher {
         System.out.println(result.getSymbolTable().print());
 
         System.out.println("\n\n\n\n");
+
+        // Semantic Analysis
+
+
+        OllirResult ollirResult = new OptimizationStage().toOllir(result);
+
+        System.out.println("ollirResult: " + ollirResult.toString());
+
+
     }
 
     private static Map<String, String> parseArgs(String[] args) {

@@ -1,16 +1,12 @@
-package pt.up.fe.comp2023.symbolTable;
+package pt.up.fe.comp2023.ast;
 
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
-import pt.up.fe.specs.util.SpecsSystem;
-import pt.up.fe.specs.util.utilities.StringLines;
 
-import javax.lang.model.type.NullType;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class SymbolTableVisitor extends AJmmVisitor<String, String> {
     private JmmSymbolTable symbolTable;
@@ -30,6 +26,9 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
         addVisit("MethodDeclaration", this::dealWithMethodDeclaration);
         addVisit("ClassParameters", this::dealWithClassParameters);
         addVisit("LocalVariables", this::dealWithLocalVariables);
+
+        addVisit("returnObj", this::dealWithReturnObj);
+
         addVisit("Statement", this::dealWithStatement);
     }
 
@@ -113,9 +112,10 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
             this.scope = "MAIN";
 
             this.symbolTable.addMethod("main", new Type("void", false));
-            node.put("params", "");
-
-        } else { // MethodDeclarationOther
+            Type type = new Type("String", true);
+            Symbol symbol = new Symbol(type, "args");
+            this.symbolTable.getCurrentMethod().addParameter(symbol);
+        } else if (nodeKind.equals("MethodDeclarationOther")){ // MethodDeclarationOther
             this.scope = "METHOD";
 
             String methodName = node.get("methodName");
@@ -140,7 +140,6 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
         space = ((space != null) ? space : "");
 
         if (scope.equals("METHOD")) {
-            // this.symbolTable.getCurrentMethod().addParameter(new Symbol(new Type(node.get("keyType"), false), node.get("value")));
             var parameterType = node.getChildren().get(0);
             var parameterValue = node.get("value");
 
@@ -156,21 +155,43 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
 
     public String dealWithLocalVariables(JmmNode node, String space) {
         space = ((space != null) ? space : "");
-
         if (scope.equals("METHOD")) {
-            if (node.getChildren().size() > 0) {
+            if (!node.getAttributes().contains("val")) { // new variable declaration
                 String variableName = node.get("varName");
-
                 Type localVarType = JmmSymbolTable.getType(node.getChildren().get(0), "typeName");
                 Symbol localVarSymbol = new Symbol(localVarType, variableName);
                 this.symbolTable.getCurrentMethod().addLocalVariable(localVarSymbol);
-            } else {
-                String variableName = node.get("varName");
+            } else { // variable assignment
+                String variableName = node.get("varName"); // get the name of the variable
+                String value = node.get("val");
 
-                Symbol localVarSymbol = new Symbol(new Type("", false), variableName);
-                this.symbolTable.getCurrentMethod().addLocalVariable(localVarSymbol);
+                Symbol newSymbol = new Symbol(new Type(value, false), variableName);
+                if (!this.symbolTable.setField(variableName, newSymbol)) {
+                    return null;
+                }
+
+                // Symbol localVarSymbol = new Symbol(new Type(value, false), variableName);
+                // this.symbolTable.getCurrentMethod().addLocalVariable(localVarSymbol); // Change this! We don't want to add a local variable. We just need to change the value of the existing one!
             }
         }
+
+        return null;
+    }
+
+    public String dealWithExpression(JmmNode node, String space) {
+        space = ((space != null) ? space : "");
+
+        if (scope.equals("METHOD")) {
+            System.out.println("In dealWithExpression() with node = " + node);
+        }
+
+        return null;
+    }
+
+    public String dealWithReturnObj(JmmNode node, String space) {
+        space = ((space != null) ? space : "");
+
+        System.out.println("In returnObj");
 
         return null;
     }
