@@ -110,6 +110,7 @@ expression
     | expression '.' 'length'                                       #Lenght
     | expression '.' id=ID '(' ( expression (',' expression)*)? ')' #MemberAccess
     | '!' expression                                                #UnaryOp
+    | expression op=('+=' | '-=' | '*=' | '/=') expression          #BinaryOp
     | expression op=('*' | '/' | '%') expression                    #BinaryOp
     | expression op=('+' | '-') expression                          #BinaryOp
     | expression op=('<'|'<='|'>'|'>=') expression                  #BinaryOp

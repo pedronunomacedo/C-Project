@@ -1,5 +1,6 @@
 package pt.up.fe.comp2023.ast;
 
+import org.antlr.v4.runtime.misc.Pair;
 import org.specs.comp.ollir.Field;
 import org.specs.comp.ollir.Ollir;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
@@ -142,6 +143,16 @@ public class OllirVisitor extends PreorderJmmVisitor<List<Object>, List<Object>>
         // Add class name and extended class name to OLLIR code
         if (this.symbolTable.getSuper() == null) {
             ollirCode.append(OllirTemplates.classTemplate(this.symbolTable.getClassName(), ""));
+
+            // Deal with class fields
+            for (Symbol field : this.symbolTable.getFields()) {
+                ollirCode.append(OllirTemplates.fieldTemplate(field));
+            }
+
+            // Deal with class default constructor
+            if (this.symbolTable.getMethod(this.symbolTable.getClassName(), new ArrayList<>(), new Type("void", false)) == null) {
+                ollirCode.append(OllirTemplates.defaultConstructor(this.symbolTable.getClassName()));
+            }
         }
 
         for (JmmNode child : node.getChildren()) {
@@ -158,7 +169,6 @@ public class OllirVisitor extends PreorderJmmVisitor<List<Object>, List<Object>>
                 if (this.symbolTable.getMethod(this.symbolTable.getClassName(), new ArrayList<>(), new Type("void", false)) == null) {
                     ollirCode.append(OllirTemplates.defaultConstructor(this.symbolTable.getClassName()));
                 }
-
             } else if (child.getKind().equals("MethodDeclarationOther") || child.getKind().equals("MethodDeclarationMain")) {
                 String methodOllirCode = (String) visit(child, data).get(0);
                 ollirCode.append(methodOllirCode);
@@ -187,6 +197,7 @@ public class OllirVisitor extends PreorderJmmVisitor<List<Object>, List<Object>>
     public List<Object> dealWithLocalVariables(JmmNode node, List<Object> data) {
         if (this.nodesVisited.contains(node)) return Collections.singletonList("DEFAULT_VISIT");
         this.nodesVisited.add(node);
+        System.out.println("\n\n\n\n\n\n\n\n");
         System.out.println("-> In dealWithLocalVariables() function!");
         StringBuilder ollirCode = new StringBuilder();
 
@@ -200,20 +211,35 @@ public class OllirVisitor extends PreorderJmmVisitor<List<Object>, List<Object>>
                 Symbol classField = this.symbolTable.getField(varName);
                 Boolean methodParamBool = this.currentMethod.getParametersNames().contains(varName);
 
+                System.out.println("localVariable: " + localVariable);
+                System.out.println("methodParamBool: " + methodParamBool);
+                System.out.println("classField: " + classField);
+
                 // lookup for the localVariable
-                if (localVariable == null && !methodParamBool && classField != null) { // class field
+                if (classField != null) { // class field
                     String ollirVarCode = OllirTemplates.putField(classField, varValue);
                     ollirCode.append(ollirVarCode);
-                } else if (localVariable == null && methodParamBool) { // method parameter
+                } else if (methodParamBool) { // method parameter
                     Symbol parameter = this.currentMethod.getParameter(varName);
-                    String ollirVarCode = OllirTemplates.putField(classField, varValue, this.currentMethod.getParameters().indexOf(parameter) + 1);
+                    String ollirVarCode = OllirTemplates.parameterAssignment(parameter, varValue, this.currentMethod.getParameterIndex(varName));
+                    // String ollirVarCode = OllirTemplates.putField(parameter, varValue, this.currentMethod.getParameters().indexOf(parameter) + 1);
                     ollirCode.append(ollirVarCode);
                 } else if (localVariable != null) { // method local variables assignments
                     String ollirLocalVarCode = OllirTemplates.localVariableAssignment(localVariable, varValue);
                     ollirCode.append(ollirLocalVarCode);
                 }
+            } else if (node.getAttributes().contains("val2")) { // deal with inline varaible declarations
+                String varValue = node.get("val2"); // new variable value
+                JmmNode childNodeType = node.getChildren().get(0);
+                Type varType = JmmSymbolTable.getType(childNodeType, "typeName");
+                Symbol newLocalVariable = new Symbol(varType, varName);
+                String ollirLocalVarCode = OllirTemplates.localVariableAssignment(newLocalVariable, varValue);
+                ollirCode.append(ollirLocalVarCode);
             }
         }
+
+        System.out.println("ollirCode: " + ollirCode.toString());
+        System.out.println("\n\n\n\n\n\n\n\n");
 
         return Collections.singletonList(ollirCode.toString());
     }
@@ -381,15 +407,42 @@ public class OllirVisitor extends PreorderJmmVisitor<List<Object>, List<Object>>
     public List<Object> dealWithAssignment(JmmNode node, List<Object> data) {
         if (nodesVisited.contains(node)) return Collections.singletonList("DEFAULT_VISIT");
         this.nodesVisited.add(node);
+        System.out.println("In dealWithAssignment visitor (" + node +")!");
 
         StringBuilder ollirCode = new StringBuilder();
 
         String varName = node.get("varName");
         System.out.println("node.getChildren(): " + node.getChildren());
         String newValueOllirCode = (String) visit(node.getChildren().get(0), Collections.singletonList("")).get(0);
-        Symbol variable = this.currentMethod.getLocalVariable(varName);
-        ollirCode.append(OllirTemplates.variableAssignment(variable, null, newValueOllirCode));
 
+        System.out.println("varName = " + varName);
+        System.out.println("newValueOllirCode = " + newValueOllirCode);
+        Pair<String, Symbol> varScope = this.symbolTable.variableScope(this.currentMethod, varName);
+        String varSpot = varScope.a;
+        Symbol variable = varScope.b;
+
+        System.out.println("Dealing with binary operation: " + data.contains("BinaryOp"));
+        switch (varSpot) {
+            case "localVariable":
+                ollirCode.append(OllirTemplates.variableAssignment(variable, null, newValueOllirCode));
+                break;
+            case "parameterVariable":
+                int paramIndex = this.currentMethod.getParameterIndex(variable.getName());
+                ollirCode.append(OllirTemplates.variableAssignment(variable, newValueOllirCode, paramIndex));
+                break;
+            case "fieldVariable":
+                this.tempMethodParamNum++;
+                ollirCode.append(OllirTemplates.variableAssignment(this.tempMethodParamNum, variable, newValueOllirCode));
+                break;
+            default:
+                break;
+        }
+
+
+        System.out.println("variable: " + variable);
+        // ollirCode.append(OllirTemplates.variableAssignment(variable, null, newValueOllirCode));
+
+        System.out.println("ollirCode(dealWithAssignment): " + ollirCode.toString());
         return Collections.singletonList(ollirCode.toString());
     }
 
@@ -507,11 +560,11 @@ public class OllirVisitor extends PreorderJmmVisitor<List<Object>, List<Object>>
         switch (node.getKind()) {
             case "Integer" :
                 ollirCode.append(returnVal + ".i32");
-                this.currentArithType = (this.dealWithReturnType || data.get(0).equals("MemberAccess")) ? ".i32" : "";
+                this.currentArithType = (this.dealWithReturnType || data.get(0).equals("MemberAccess") || data.get(0).equals("BinaryOp")) ? ".i32" : "";
                 break;
             case "Bool":
                 ollirCode.append(returnVal + ".bool");
-                this.currentArithType = (this.dealWithReturnType || data.get(0).equals("MemberAccess")) ? ".bool" : "";
+                this.currentArithType = (this.dealWithReturnType || data.get(0).equals("MemberAccess") || data.get(0).equals("BinaryOp")) ? ".bool" : "";
                 break;
             case "Identifier":
                 // Check if returnVal corresponds to a local variable, or to a method parameter or to a class field
@@ -522,18 +575,18 @@ public class OllirVisitor extends PreorderJmmVisitor<List<Object>, List<Object>>
                 if (localVarSymbol != null) { // Local variable
                     ollirCode.append(OllirTemplates.variableCall(localVarSymbol.getType(), returnVal));
                     returnTypeObj = OllirTemplates.variableType(localVarSymbol.getType().getName());
-                    this.currentArithType = (this.dealWithReturnType || data.get(0).equals("MemberAccess")) ? returnTypeObj : "";
+                    this.currentArithType = (this.dealWithReturnType || data.get(0).equals("MemberAccess") || data.get(0).equals("BinaryOp")) ? returnTypeObj : "";
                 } else if (parameterSymbol != null) {  // Method parameter
                     this.tempMethodParamNum++;
                     int paramIndex = this.currentMethod.getParameterIndex(returnVal);
                     ollirCode.append(OllirTemplates.variableCall(parameterSymbol.getType(), returnVal, paramIndex));
                     returnTypeObj = OllirTemplates.variableType(parameterSymbol.getType().getName());
-                    this.currentArithType = (this.dealWithReturnType || data.get(0).equals("MemberAccess")) ? returnTypeObj : "";
+                    this.currentArithType = (this.dealWithReturnType || data.get(0).equals("MemberAccess") || data.get(0).equals("BinaryOp")) ? returnTypeObj : "";
                 } else if (classField != null) { // Class field
                     this.tempMethodParamNum++;
                     ollirCode.append(OllirTemplates.variableCall(classField.getType(), returnVal));
                     returnTypeObj = OllirTemplates.variableType(classField.getType().getName());
-                    this.currentArithType = (this.dealWithReturnType || data.get(0).equals("MemberAccess")) ? returnTypeObj : "";
+                    this.currentArithType = (this.dealWithReturnType || data.get(0).equals("MemberAccess") || data.get(0).equals("BinaryOp")) ? returnTypeObj : "";
                 } else {
                     ollirCode.append(returnVal);
                 }
