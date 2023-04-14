@@ -46,7 +46,7 @@ methodDeclaration
             (localVariables)*
             (statement)*
 
-            'return' returnObj ';'
+            ('return' returnObj ';')?
       '}'                                                               #MethodDeclarationOther
     | ('public')? 'static' 'void' 'main' '(' type '[' ']' ID ')' '{'
             (localVariables)*
@@ -55,7 +55,7 @@ methodDeclaration
     ;
 
 localVariables
-    : type varName=ID ';'
+    : type varName=ID ('=' val2=(ID | INT))? ';'
     | varName=ID ('=' val=(ID | INT)) ';'
     ;
 /*
@@ -82,7 +82,7 @@ type
     | typeName='int'                          #IntegerType
     | typeName='boolean'                      #BooleanType
     | typeName='String'                       #StringType
-    | typename='void'                         #VoidType
+    | typeName='void'                         #VoidType
     | typeName=ID                             #IdType
     ;
 
@@ -110,6 +110,7 @@ expression
     | expression '.' 'length'                                       #Lenght
     | expression '.' id=ID '(' ( expression (',' expression)*)? ')' #MemberAccess
     | '!' expression                                                #UnaryOp
+    | expression op=('+=' | '-=' | '*=' | '/=') expression          #BinaryOp
     | expression op=('*' | '/' | '%') expression                    #BinaryOp
     | expression op=('+' | '-') expression                          #BinaryOp
     | expression op=('<'|'<='|'>'|'>=') expression                  #BinaryOp
