@@ -1,11 +1,10 @@
-package pt.up.fe.comp2023.symbolTable;
+package pt.up.fe.comp2023.ast;
 
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
-import java.lang.reflect.Parameter;
 import java.util.*;
 
 public class JmmSymbolTable implements SymbolTable {
@@ -13,13 +12,13 @@ public class JmmSymbolTable implements SymbolTable {
     private String className;
     private String superClassName;
     private final List<String> imports;
-    private final Map<String, Symbol> fields;
+    private final HashMap<String, Symbol> fields;
     private final HashMap<String, JmmMethod> methods;
     private JmmMethod currentMethod;
 
     public JmmSymbolTable() {
         this.className = "";
-        this.superClassName = "";
+        this.superClassName = null;
         this.imports = new ArrayList<String>();
         this.fields = new HashMap<>();
         this.methods = new HashMap<>();
@@ -54,9 +53,9 @@ public class JmmSymbolTable implements SymbolTable {
     }
 
     @Override
-    public List<Symbol> getLocalVariables(String methodName) {
-        return this.methods.get(methodName).getLocalVariables();
-    }
+    public List<Symbol> getLocalVariables(String methodName) { return this.methods.get(methodName).getLocalVariables(); }
+
+    public JmmMethod getMethod(String methodName) { return this.methods.get(methodName);}
 
     public static Type getType(JmmNode node, String attribute) {
         Type type;
@@ -77,6 +76,38 @@ public class JmmSymbolTable implements SymbolTable {
 
     public JmmMethod getCurrentMethod() {
         return this.currentMethod;
+    }
+
+    public Symbol getField(String name) {
+        for (Map.Entry<String, Symbol> field : this.fields.entrySet()) {
+            if (field.getKey().equals(name))
+                return field.getValue();
+        }
+        return null;
+    }
+
+    public boolean setField(String name, Symbol newSymbol) {
+        for (Map.Entry<String, Symbol> field : this.fields.entrySet()) {
+            if (field.getKey().equals(name)) {
+
+                field.setValue(newSymbol);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public JmmMethod getMethod(String name, List<Symbol> params, Type returnType) {
+        JmmMethod method;
+        if ((method = this.methods.get(name)) == null) return null;
+
+        if (method.getName().equals(name) && returnType.equals(method.getReturnType()) && params.size() == method.getParameters().size()) {
+            if (JmmMethod.matchParameters(params, method.getParameters())) {
+                return method;
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -103,7 +134,12 @@ public class JmmSymbolTable implements SymbolTable {
 
     public void addMethod(String name, Type returnType) {
         this.currentMethod = new JmmMethod(name);
+
         currentMethod.setReturnType(returnType);
         this.methods.put(name, currentMethod);
+    }
+
+    public boolean classHasDefaultConstructor() {
+        return true;
     }
 }

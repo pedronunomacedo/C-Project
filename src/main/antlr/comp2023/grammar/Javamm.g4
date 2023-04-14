@@ -12,6 +12,8 @@ WS : [ \t\n\r\f]+ -> skip;
 COMMENT : '//' ~[\n]* -> skip;
 LINE_COMMENT: '/*' .*? '*/' -> skip;
 
+// STRING: '"' .*? '"';
+
 program
     : (importDeclaration)* (classDeclaration) EOF
     ;
@@ -39,8 +41,6 @@ classParameters
     : type value=ID
     ;
 
-
-
 methodDeclaration
     : ('public' | 'private' | 'static')? returnType methodName=ID  '(' (classParameters ( ',' classParameters)*)?  ')' '{'
             (localVariables)*
@@ -56,12 +56,14 @@ methodDeclaration
 
 localVariables
     : type varName=ID ';'
-    | varName=ID ('=' (ID | INT)) ';'
+    | varName=ID ('=' val=(ID | INT)) ';'
     ;
-
-varType
-    : type
+/*
+localVariables
+    : type varName=ID ';'
+    | varName=ID ('=' returnObj) ';'
     ;
+*/
 
 returnType
     : type
@@ -87,17 +89,17 @@ type
 statement
     : '{'
             (statement)*
-      '}'                                           #ExprStmt
+      '}'                                                   #Brackets
     | 'if' '(' expression ')'
             ((type)? statement)*
       'else'
-            ((type)? statement)*                    #Conditional
+            ((type)? statement)*                            #Conditional
     | 'while' '(' expression ')'
-            (statement)*                            #Loop
-    | varName=ID '[' expression ']' '=' expression ';'      #Assignment
+            (statement)*                                    #Loop
+    | varName=ID '[' expression ']' '=' expression ';'      #ArrayAssignment
     | varName=ID '=' expression ';'                         #Assignment
-    | varDeclaration ';'                            #VarDeclare
-    | expression ';'                                #ExprStmt
+    | varDeclaration                                        #VarDeclar
+    | expression ';'                                        #Expr
     ;
 
 
@@ -106,18 +108,18 @@ expression
     : '(' expression ')'                                            #ExprParentheses
     | expression '[' expression ']'                                 #Array
     | expression '.' 'length'                                       #Lenght
-    | expression '.' id=ID '(' (expression (',' expression)*)? ')'  #MemberAccess
+    | expression '.' id=ID '(' ( expression (',' expression)*)? ')' #MemberAccess
     | '!' expression                                                #UnaryOp
     | expression op=('*' | '/' | '%') expression                    #BinaryOp
     | expression op=('+' | '-') expression                          #BinaryOp
     | expression op=('<'|'<='|'>'|'>=') expression                  #BinaryOp
     | expression op='&&' expression                                 #BinaryOp
     | expression op='||' expression                                 #BinaryOp
-    | 'new' 'int' '[' expression ']'                                #NewObject
-    | 'new' ID '(' ')'                                              #NewObject
-    | INT                                                           #Integer
-    | 'true'                                                        #Bool
-    | 'false'                                                       #Bool
-    | ID                                                            #Identifier
-    | 'this'                                                        #SelfCall
+    | 'new' 'int' '[' expression ']'                                #NewArrayObject
+    | 'new' val=ID '(' ')'                                          #NewObject
+    | val=INT                                                       #Integer
+    | val='true'                                                    #Bool
+    | val='false'                                                   #Bool
+    | val='this'                                                    #SelfCall
+    | val=ID                                                        #Identifier
     ;

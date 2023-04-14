@@ -5,7 +5,6 @@ classArray {
 	
 	.method public check(A.array.i32, N.i32, T.i32).bool {
 		all.bool :=.bool 2.bool;
-		
 
 		ret.bool all.bool;
 	}
