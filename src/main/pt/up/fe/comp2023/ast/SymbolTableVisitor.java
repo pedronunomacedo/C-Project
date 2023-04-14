@@ -39,6 +39,7 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
 
 
     private String dealWithProgram(JmmNode node, String space) {
+        System.out.println("-> In dealWithProgram() visitor!");
         space = ((space != null) ? space : "");
 
         for (JmmNode child : node.getChildren()) {
