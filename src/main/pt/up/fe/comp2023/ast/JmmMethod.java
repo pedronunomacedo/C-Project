@@ -23,6 +23,18 @@ public class JmmMethod {
         return new ArrayList<>(this.parameters.values());
     }
 
+    public int getParameterIndex(String parameter) {
+        int index = 0;
+        Symbol param = this.parameters.get(parameter);
+
+        for (Map.Entry<String, Symbol> entry : this.parameters.entrySet()) {
+            if (entry.getValue().equals(param)) break;
+            index++;
+        }
+
+        return this.parameters.size() - index;
+    }
+
     public List<String> getParametersNames() {
         return new ArrayList<>(this.parameters.keySet());
     }
@@ -76,15 +88,5 @@ public class JmmMethod {
             }
         }
         return true;
-    }
-
-    public List<String> transformParametersToOllir() {
-        List<String> ollirParameters = new ArrayList<>();
-
-        for (Map.Entry<String, Symbol> parameter : this.parameters.entrySet()) {
-            ollirParameters.add(OllirTemplates.declareVariable(parameter.getValue()));
-        }
-
-        return ollirParameters;
     }
 }

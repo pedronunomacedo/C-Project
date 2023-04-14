@@ -16,8 +16,11 @@ public class OptimizationStage implements JmmOptimization {
         JmmNode rootNode = semanticsResult.getRootNode();
         OllirVisitor visitor = new OllirVisitor((JmmSymbolTable) semanticsResult.getSymbolTable(), semanticsResult.getReports());
 
-        System.out.println("Generating OLLIR ...");
+        System.out.println("\n\n\nGenerating OLLIR ...");
         String ollirCode = (String) visitor.visit(rootNode).get(0);
+
+        System.out.println("\nOllir code: ");
+        System.out.println(ollirCode);
 
         return new OllirResult(semanticsResult, ollirCode, semanticsResult.getReports());
     }
