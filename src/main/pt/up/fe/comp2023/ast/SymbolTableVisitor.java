@@ -39,6 +39,7 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
 
 
     private String dealWithProgram(JmmNode node, String space) {
+        System.out.println("-> In dealWithProgram() visitor!");
         space = ((space != null) ? space : "");
 
         for (JmmNode child : node.getChildren()) {
@@ -164,11 +165,12 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
             } else { // variable assignment
                 String variableName = node.get("varName"); // get the name of the variable
                 String value = node.get("val");
-
+                /*
                 Symbol newSymbol = new Symbol(new Type(value, false), variableName);
                 if (!this.symbolTable.setField(variableName, newSymbol)) {
                     return null;
                 }
+                 */
 
                 // Symbol localVarSymbol = new Symbol(new Type(value, false), variableName);
                 // this.symbolTable.getCurrentMethod().addLocalVariable(localVarSymbol); // Change this! We don't want to add a local variable. We just need to change the value of the existing one!

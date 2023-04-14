@@ -100,9 +100,14 @@ public class OllirTemplates {
     }
 
     public static String putField(Symbol variable, String newValue) {
+        System.out.println("variable (putField): " + variable);
+        String typeAcc = type(variable.getType());
         StringBuilder ollirCode = new StringBuilder("putfield(");
         ollirCode.append("this, ");
-        ollirCode.append(variable.getName()).append(type(variable.getType()));
+        ollirCode.append(variable.getName()).append(typeAcc).append(", ");
+        ollirCode.append(newValue + typeAcc);
+        ollirCode.append(")" + typeAcc);
+        ollirCode.append(";\n");
 
         return ollirCode.toString();
     }
@@ -126,12 +131,12 @@ public class OllirTemplates {
     }
 
     public static String invokespecial(String var, String method, Type returnType) {
-        return String.format("invokespecial(%s, \"%s\")%s;", var != null ? var : "this", method, type(returnType));
+        return String.format("invokespecial(%s, \"%s\")%s;\n", var != null ? var : "this", method, type(returnType));
     }
 
     public static String invokestatic(String importStmt) { // methods imported (method, libraries, other classes)
 
-        //return String.format("invokestatic(%s, \"%s\").V;", importStmt, method, type(returnType));
+        //return String.format("invokestatic(%s, \"%s\").V;\n", importStmt, method, type(returnType));
         return null;
     }
 
@@ -147,21 +152,57 @@ public class OllirTemplates {
         return ollirCode.toString();
     }
 
+    public static String parameterAssignment(Symbol variable, String newValue, int paramIndex) {
+        // Here iwe need to distinguish between array and other type of variable
+        StringBuilder ollirCode = new StringBuilder();
+        String varType = type(variable.getType());
+        ollirCode.append("$" + paramIndex + "." + variable.getName() + varType);
+        ollirCode.append(" :=" + varType + " ");
+        ollirCode.append(newValue + varType);
+        ollirCode.append(";\n");
+
+        return ollirCode.toString();
+    }
+
     public static String variableAssignment(Symbol variable, String index, String value) {
         StringBuilder ollirCode = new StringBuilder();
+        String varType = type(variable.getType());
         if (variable.getType().isArray()) {
             // list[0] = 2;
-            // list[0.i32].i32 :=.i32 2.i32;
+            // list[0.i3
 
-            String variableTypeExt = variableType(variable.getType().getName());
-            ollirCode.append(variable.getName() + "[" + index + ".i32]" + variableTypeExt);
-            ollirCode.append(" :=" + variableType(variable.getType().getName()) + " ");
-            ollirCode.append(value + variableType(variable.getType().getName()) + ";\n");
+            ollirCode.append(variable.getName() + "[" + index + ".i32]" + varType);
+            ollirCode.append(" :=" + varType + " ");
+            ollirCode.append(value + ";\n");
         } else {
-            ollirCode.append(variable.getName() + type(variable.getType()));
-            ollirCode.append(" :=" + type(variable.getType()) + " ");
-            ollirCode.append(value + type(variable.getType()) + ";\n");
+            ollirCode.append(variable.getName() + varType);
+            ollirCode.append(" :=" + varType + " ");
+            ollirCode.append(value + ";\n");
         }
+
+        return ollirCode.toString();
+    }
+
+    public static String variableAssignment(Symbol variable, String value, int paramIndex) { // method parameter assignment
+        StringBuilder ollirCode = new StringBuilder();
+        String varType = type(variable.getType());
+        ollirCode.append("$" + paramIndex + "." + variable.getName() + varType);
+        ollirCode.append(" :=" + varType + " ");
+        ollirCode.append(value + "");
+        ollirCode.append(";\n");
+
+        return ollirCode.toString();
+    }
+
+    public static String variableAssignment(int tempVariableIndex, Symbol variable, String value) { // class field assignment
+        StringBuilder ollirCode = new StringBuilder();
+        String varType = type(variable.getType());
+
+        ollirCode.append("t" + tempVariableIndex + varType);
+        ollirCode.append(" :=" + varType + " ");
+        ollirCode.append(value + ";\n");
+
+        ollirCode.append(putField(variable, "t" + tempVariableIndex));
 
         return ollirCode.toString();
     }

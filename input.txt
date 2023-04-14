@@ -1,7 +1,7 @@
 import io;
 
 class CompileMethodInvocation {
-
+    int fieldVariableExample;
     public static void main(String[] args) {
 
     }
@@ -14,5 +14,16 @@ class CompileMethodInvocation {
         io.println(a);
 
         return 0;
+    }
+
+    public void setInlineAndPrintOtherClassFromParam(int value, MyClass myClass) {
+        // Set value inline to a variable
+        int test;
+        fieldVariableExample = 6 + test;
+
+        // Print information about myClass
+        // System.out.println("MyClass information:");
+        // System.out.println("Name: " + myClass.getName());
+        // System.out.println("ID: " + myClass.getID());
     }
 }
