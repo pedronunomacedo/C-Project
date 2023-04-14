@@ -18,7 +18,7 @@ public class JmmSymbolTable implements SymbolTable {
 
     public JmmSymbolTable() {
         this.className = "";
-        this.superClassName = "";
+        this.superClassName = null;
         this.imports = new ArrayList<String>();
         this.fields = new HashMap<>();
         this.methods = new HashMap<>();

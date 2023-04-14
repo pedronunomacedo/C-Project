@@ -1,26 +1,18 @@
-import io.mm;
-import Quicksort;
+import io;
 
-class CompileBasic extends Quicksort {
-    int field1;
-    boolean field2;
-
-    public int method1(int n1, int n2) {
-        int intLocal1;
-        boolean boolLocal1;
-        intLocal1 = n;
-
-        return 0;
-    }
-
-    /*
-    public boolean method2(int intParam1, boolean boolParam1) {
-        return boolParam1;
-    }
-    */
+class CompileMethodInvocation {
 
     public static void main(String[] args) {
 
     }
 
+    public int foo() {
+        int a;
+
+        a = 1;
+
+        io.println(a);
+
+        return 0;
+    }
 }

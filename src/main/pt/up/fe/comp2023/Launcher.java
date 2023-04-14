@@ -54,6 +54,8 @@ public class Launcher {
 
         System.out.println("\n\n\n\n");
 
+        // Semantic Analysis
+
 
         OllirResult ollirResult = new OptimizationStage().toOllir(result);
 
