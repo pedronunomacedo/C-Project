@@ -55,8 +55,8 @@ methodDeclaration
     ;
 
 localVariables
-    : type varName=ID ('=' val2=(ID | INT))? ';'
-    | varName=ID ('=' val=(ID | INT)) ';'
+    : type varName=ID ('=' expression)? ';'                           // inline variable declaration
+    //| varName=ID (op='=' expression) ';'                              // variable assignment
     ;
 /*
 localVariables
