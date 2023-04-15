@@ -289,4 +289,14 @@ public class OllirTemplates {
 
         return ollirCode.toString();
     }
+
+    public static String temporaryVariableTemplate(int tempVariableNum, String typeAcc, String rightSide) {
+        StringBuilder ollirCode = new StringBuilder();
+
+        ollirCode.append("t" + tempVariableNum + typeAcc);
+        ollirCode.append(" :=" + typeAcc + " ");
+        ollirCode.append(rightSide + ";\n");
+
+        return ollirCode.toString();
+    }
 }
