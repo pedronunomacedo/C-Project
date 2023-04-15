@@ -494,7 +494,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
         StringBuilder ollirCode = new StringBuilder();
 
-        String childOllirCode = (String) visit(node.getChildren().get(0)).get(0);
+        String childOllirCode = (String) visit(node.getChildren().get(0), Collections.singletonList("Expr")).get(0);
         ollirCode.append(childOllirCode);
 
         System.out.println("ollirCode(dealWithExpression): " + ollirCode.toString());
@@ -530,14 +530,19 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         for (int i = 1; i < node.getChildren().size(); i++) {
             this.tempMethodParamNum++;
             String paramOllirCode = (String) visit(node.getChildren().get(i), Collections.singletonList("MemberAccess")).get(0);
+            System.out.println("paramOllirCode:" + paramOllirCode);
             String tempVariableString = OllirTemplates.createOpAssignment(this.currentArithType, this.tempMethodParamNum, paramOllirCode);
             parameters.add("t" + this.tempMethodParamNum + this.currentArithType);
             parametersTempVariables.add(tempVariableString);
         }
         parametersString = String.join(", ", parameters);
 
+        if (this.symbolTable.getImports().contains(firstChildStr)) {
+            ollirCode.append(OllirTemplates.createMemberAccess(parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
+        } else {
+            ollirCode.append(OllirTemplates.createMemberAccess(parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, ""));
+        }
 
-        ollirCode.append(OllirTemplates.createMemberAccess(parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType));
 
         System.out.println("ollirCode(dealWithMemberAccess): " + ollirCode.toString());
         return Collections.singletonList(ollirCode.toString());
