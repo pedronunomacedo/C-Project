@@ -4,7 +4,6 @@ class CompileMethodInvocation {
     int fieldVariableExample;
 
     public void setInlineAndPrintOtherClassFromParam(int value, MyClass myClass) {
-        int val = 3;
-        fieldVariableExample = val;
+        int x = 3 + 1;
     }
 }
