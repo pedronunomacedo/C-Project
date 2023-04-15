@@ -16,7 +16,6 @@ public class AnalysisStage implements JmmAnalysis {
 
     public JmmSemanticsResult semanticAnalysis(JmmParserResult parserResult) {
         // 1. Create the errors report
-        // 2. Create the SymbolTable
 
         if (TestUtils.getNumReports(parserResult.getReports(), ReportType.ERROR) > 0) {
             var errorReport = new Report(ReportType.ERROR, Stage.SEMANTIC, -1,
