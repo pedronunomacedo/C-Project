@@ -5,6 +5,6 @@ class CompileMethodInvocation {
 
     public void setInlineAndPrintOtherClassFromParam(int value, MyClass myClass) {
         int val = 3;
-        fieldVariableExample = (val * (10 + 2)) * 2;
+        value = (val * (10 + 2)) * val;
     }
 }

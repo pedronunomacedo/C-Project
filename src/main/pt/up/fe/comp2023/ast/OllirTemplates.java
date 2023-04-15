@@ -144,7 +144,7 @@ public class OllirTemplates {
         StringBuilder ollirCode = new StringBuilder();
         ollirCode.append(variable.getName() + type(variable.getType()));
         ollirCode.append(" :=" + type(variable.getType()) + " ");
-        ollirCode.append(value + type(variable.getType()) + ";\n");
+        ollirCode.append(value + ";\n");
 
         // list[0] = 2;
         // list[0.i32].i32 :=.i32 2.i32;
