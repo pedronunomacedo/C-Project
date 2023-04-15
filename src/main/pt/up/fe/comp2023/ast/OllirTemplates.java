@@ -105,7 +105,7 @@ public class OllirTemplates {
         StringBuilder ollirCode = new StringBuilder("putfield(");
         ollirCode.append("this, ");
         ollirCode.append(variable.getName()).append(typeAcc).append(", ");
-        ollirCode.append(newValue + typeAcc);
+        ollirCode.append(newValue);
         ollirCode.append(")" + typeAcc);
         ollirCode.append(";\n");
 
@@ -146,9 +146,6 @@ public class OllirTemplates {
         ollirCode.append(" :=" + type(variable.getType()) + " ");
         ollirCode.append(value + ";\n");
 
-        // list[0] = 2;
-        // list[0.i32].i32 :=.i32 2.i32;
-
         return ollirCode.toString();
     }
 
@@ -168,9 +165,6 @@ public class OllirTemplates {
         StringBuilder ollirCode = new StringBuilder();
         String varType = type(variable.getType());
         if (variable.getType().isArray()) {
-            // list[0] = 2;
-            // list[0.i3
-
             ollirCode.append(variable.getName() + "[" + index + ".i32]" + varType);
             ollirCode.append(" :=" + varType + " ");
             ollirCode.append(value + ";\n");
@@ -198,11 +192,7 @@ public class OllirTemplates {
         StringBuilder ollirCode = new StringBuilder();
         String varType = type(variable.getType());
 
-        ollirCode.append("t" + tempVariableIndex + varType);
-        ollirCode.append(" :=" + varType + " ");
-        ollirCode.append(value + ";\n");
-
-        ollirCode.append(putField(variable, "t" + tempVariableIndex));
+        ollirCode.append(putField(variable, value));
 
         return ollirCode.toString();
     }

@@ -465,13 +465,11 @@ public class OllirVisitor extends PreorderJmmVisitor<List<Object>, List<Object>>
                 break;
             case "fieldVariable":
                 if (valueNodeIsTerminalSymbol) {
-                    this.tempMethodParamNum++;
                     ollirCode.append(OllirTemplates.variableAssignment(this.tempMethodParamNum, variable, newValueOllirCode));
                 } else {
                     ollirCode.append(newValueOllirCode);
                     Type varType = variable.getType();
                     String newValueTempVar = "t" + this.tempMethodParamNum + OllirTemplates.type(varType);
-                    this.tempMethodParamNum++;
                     ollirCode.append(OllirTemplates.variableAssignment(this.tempMethodParamNum, variable, newValueTempVar));
                 }
                 break;
