@@ -3,6 +3,11 @@ import io;
 class CompileMethodInvocation {
     int fieldVariableExample;
 
+    public static void main(String[] args) {
+    		int b;
+    		b = 2 + 1;
+    }
+
     public void setInlineAndPrintOtherClassFromParam(int value, MyClass myClass) {
         int x = 3 + 1;
     }

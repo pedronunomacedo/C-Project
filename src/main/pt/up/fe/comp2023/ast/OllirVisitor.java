@@ -6,6 +6,7 @@ import org.specs.comp.ollir.Ollir;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
+import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
@@ -14,7 +15,7 @@ import pt.up.fe.specs.util.utilities.StringLines;
 import javax.management.ObjectName;
 import java.util.*;
 
-public class OllirVisitor extends PreorderJmmVisitor<List<Object>, List<Object>> {
+public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
     private final JmmSymbolTable symbolTable;
     private final List<Report> reports;
     List<JmmNode> nodesVisited;
@@ -264,8 +265,11 @@ public class OllirVisitor extends PreorderJmmVisitor<List<Object>, List<Object>>
                 if (Arrays.asList("IntegerArrayType", "IntegerType", "BooleanType", "StringType", "VoidType", "IdType").contains(child.getKind())) {
                     visit(child);
                 } else if (child.getKind().equals("LocalVariables")) {
-                    String localVarOllirCode = (String) visit(child, Collections.singletonList("")).get(0);
+                    String localVarOllirCode = (String) visit(child, Collections.singletonList("LocalVariables")).get(0);
                     ollirCode.append(localVarOllirCode);
+                } else {
+                    String statementsOllirCode = (String) visit(child, Collections.singletonList("LocalVariables")).get(0);
+                    ollirCode.append(statementsOllirCode);
                 }
             }
             ollirCode.append(OllirTemplates.closeBrackets());

@@ -116,6 +116,11 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
             Type type = new Type("String", true);
             Symbol symbol = new Symbol(type, "args");
             this.symbolTable.getCurrentMethod().addParameter(symbol);
+            List<JmmNode> localVariablesList = new ArrayList<>(node.getChildren());
+            localVariablesList.remove(0);
+            for (JmmNode child: localVariablesList) {
+                visit(child);
+            }
         } else if (nodeKind.equals("MethodDeclarationOther")){ // MethodDeclarationOther
             this.scope = "METHOD";
 
@@ -156,8 +161,9 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
 
     public String dealWithLocalVariables(JmmNode node, String space) {
         space = ((space != null) ? space : "");
-        if (scope.equals("METHOD")) {
+        if (this.scope.equals("METHOD") || this.scope.equals("MAIN")) {
             if (!node.getAttributes().contains("val")) { // new variable declaration
+
                 String variableName = node.get("varName");
                 Type localVarType = JmmSymbolTable.getType(node.getChildren().get(0), "typeName");
                 Symbol localVarSymbol = new Symbol(localVarType, variableName);
