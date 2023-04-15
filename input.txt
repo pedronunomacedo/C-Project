@@ -2,28 +2,9 @@ import io;
 
 class CompileMethodInvocation {
     int fieldVariableExample;
-    public static void main(String[] args) {
-
-    }
-
-    public int foo() {
-        int a;
-
-        a = 1;
-
-        io.println(a);
-
-        return 0;
-    }
 
     public void setInlineAndPrintOtherClassFromParam(int value, MyClass myClass) {
-        // Set value inline to a variable
-        int test;
-        fieldVariableExample = 6 + test;
-
-        // Print information about myClass
-        // System.out.println("MyClass information:");
-        // System.out.println("Name: " + myClass.getName());
-        // System.out.println("ID: " + myClass.getID());
+        int val = 3;
+        fieldVariableExample = (val * (10 + 2)) * 2;
     }
 }
