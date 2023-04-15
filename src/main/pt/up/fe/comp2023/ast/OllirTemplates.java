@@ -267,12 +267,15 @@ public class OllirTemplates {
         return ollirCode.toString();
     }
 
-    public static String createMemberAccess(List<String> parametersTempVariables, String first, String method, String parameters, String currentArithType) {
+    public static String createMemberAccess(List<String> parametersTempVariables, String first, String method, String parameters, String currentArithType, String varScope) {
         StringBuilder ollirCode = new StringBuilder();
 
         ollirCode.append(String.join("", parametersTempVariables));
-        // ollirCode.append("invokestatic(" + "\"" + first + "\", ");
-        ollirCode.append("invokestatic(" + first + ", ");
+        if (varScope.equals("import")) {
+            ollirCode.append("invokestatic(" + first + ", ");
+        } else {
+            ollirCode.append("invokevirtual(" + first + ", ");
+        }
         ollirCode.append("\"" + method + "\"" + ", ");
         ollirCode.append(parameters);
         ollirCode.append(")" + currentArithType + ";\n");
