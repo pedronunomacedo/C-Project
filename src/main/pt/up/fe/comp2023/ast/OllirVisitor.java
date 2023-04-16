@@ -556,7 +556,13 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         System.out.println("-> firstChildStr: " + firstChildStr); // if it's the name of an import, you don't need to add the type of the variable. Else add it.
         System.out.println("parametersTempVariables: " + parametersTempVariables);
         if (this.symbolTable.getImports().contains(firstChildStr)) { // use invokestatic
-            ollirCode.append(OllirTemplates.createMemberAccess("", parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
+            String tempVarSent = new String("");
+            if (data.get(0).equals("BinaryOp")) { // save the result of invokestatic to a temporary variable
+                this.tempMethodParamNum++;
+                tempVarSent = "t" + this.tempMethodParamNum + this.currentArithType + " :=" + this.currentArithType + " ";
+            }
+            ollirCode.append(OllirTemplates.createMemberAccess(tempVarSent, parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
+
         } else {
             this.tempMethodParamNum++;
             String tempVarSent = "t" + this.tempMethodParamNum + this.currentArithType + " :=" + this.currentArithType + " ";
@@ -681,7 +687,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                     this.tempMethodParamNum++;
                     int paramIndex = this.currentMethod.getParameterIndex(returnVal);
                     ollirCode.append(OllirTemplates.variableCall(parameterSymbol.getType(), returnVal, paramIndex));
-                    System.out.println("->- ->- ->- ->- ->- parameterSymbol.getType().getName(): " + parameterSymbol.getType().getName());
                     returnTypeObj = OllirTemplates.variableType(parameterSymbol.getType().getName());
                     this.currentArithType = (this.dealWithReturnType || data.get(0).equals("MemberAccess") || data.get(0).equals("BinaryOp")) ? returnTypeObj : "";
                 } else if (classField != null) { // Class field
