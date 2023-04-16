@@ -200,26 +200,100 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         StringBuilder ollirCode = new StringBuilder();
 
         String varName = node.get("varName");
+        Symbol localVarSymbol = this.currentMethod.getLocalVariable(varName);
+        Symbol methodParam = this.currentMethod.getParameter(varName);
+        Symbol classField = this.symbolTable.getField(varName);
+        String varscope = new String();
+        if (localVarSymbol != null) varscope = "localVariable";
+        else if (methodParam != null) varscope = "paramVariable";
+        else {
+            varscope = "classField";
+        }
         if (this.scope.equals("METHOD")) {
             // If it's a variable declaration inside a method, you are not supposed to add it in the OLLIR code
             JmmNode childNodeType = node.getChildren().get(0);
             Type varType = JmmSymbolTable.getType(childNodeType, "typeName");
             Symbol newLocalVariable = new Symbol(varType, varName);
             if (node.getChildren().size() > 1) { // node with variable declaration and assignment
-                JmmNode exprNode = node.getJmmChild(node.getChildren().size() - 1);
-                String expressionOLLIRCode = (String) visit(exprNode, Collections.singletonList("LocalVariable")).get(0);
-                boolean expressionIsTerminalSymbol = (exprNode.getChildren().size() == 0);
+                JmmNode exprNode = node.getJmmChild(node.getChildren().size() - 1); // Expression node
+                String expressionOLLIRCode = (String) visit(exprNode, Collections.singletonList("LocalVariable")).get(0); // get the newValue OLLIR code
+                System.out.println("exprNode.getChildren(): " + exprNode.getChildren());
+                System.out.println("expressionOLLIRCode: " + expressionOLLIRCode);
+                boolean simpleAssignment = (exprNode.getChildren().size() == 0); // simple assignment
 
-                System.out.println("HERERERERERERREE: " + expressionOLLIRCode);
-                if (expressionIsTerminalSymbol || (exprNode.getJmmChild(0).getChildren().size() == 0 && exprNode.getJmmChild(1).getChildren().size() == 0)) {
-                    String ollirLocalVarCode = OllirTemplates.localVariableAssignment(newLocalVariable, expressionIsTerminalSymbol? expressionOLLIRCode : expressionOLLIRCode.substring(0, expressionOLLIRCode.length()-2));
-                    ollirCode.append(ollirLocalVarCode);
-                } else {
-                    ollirCode.append(expressionOLLIRCode);
-                    String tempVar = "t" + this.tempMethodParamNum + OllirTemplates.type(varType);
-                    this.tempMethodParamNum++;
-                    String ollirLocalVarCode = OllirTemplates.localVariableAssignment(newLocalVariable, tempVar);
-                    ollirCode.append(ollirLocalVarCode);
+                if (simpleAssignment) {
+                    System.out.println("Simple Assignment!");
+                    System.out.println("exprNode: " + exprNode);
+                    if (exprNode.getChildren().size() == 0) {
+                        if (localVarSymbol != null) {
+                            ollirCode.append(OllirTemplates.variableAssignment(localVarSymbol, "-1", expressionOLLIRCode));
+                        } else if (methodParam != null) {
+                            int paramIndex = this.currentMethod.getParameterIndex(methodParam.getName());
+                            ollirCode.append(OllirTemplates.variableAssignment(localVarSymbol, Integer.toString(paramIndex), expressionOLLIRCode));
+                        } else {
+                            ollirCode.append(OllirTemplates.variableAssignment(-1, classField, expressionOLLIRCode));
+                        }
+                    } else {
+                        ollirCode.append(expressionOLLIRCode);
+                        String tempVar = "t" + this.tempMethodParamNum + OllirTemplates.type(varType);
+                        this.tempMethodParamNum++;
+                        ollirCode.append(OllirTemplates.localVariableAssignment(newLocalVariable, tempVar));
+                    }
+
+                } else { // not a simple assignment (non-terminal symbols)
+                    System.out.println("exprNode: " + exprNode);
+                    System.out.println("exprNode.getChidlren(): " + exprNode.getChildren());
+
+                    if (exprNode.getKind().equals("MemberAccess")) {
+                        ollirCode.append(expressionOLLIRCode);
+                        // Assign the new temporary variable to the correspondent variable name
+                        String typeAcc = new String();
+                        switch (varscope) {
+                            case "localVariable":
+                                typeAcc = OllirTemplates.type(localVarSymbol.getType());
+                                String rightSide = "t" + this.tempMethodParamNum + typeAcc;
+                                this.tempMethodParamNum++;
+                                ollirCode.append(OllirTemplates.variableAssignment(localVarSymbol, typeAcc, rightSide));
+                                break;
+                            case "paramVariable":
+                                typeAcc = OllirTemplates.type(methodParam.getType());
+                                int paramIndex = this.currentMethod.getParameterIndex(varName);
+                                String rightSide2 = "t" + this.tempMethodParamNum + typeAcc;
+                                ollirCode.append(OllirTemplates.variableAssignment(methodParam, rightSide2, paramIndex));
+                                break;
+                            case "classField":
+                                String rightSide3 = "t" + this.tempMethodParamNum + typeAcc;
+                                ollirCode.append(OllirTemplates.putField(classField, rightSide3));
+                                break;
+                            default:
+                                break;
+                        }
+                    } else {
+                        for (JmmNode child : exprNode.getChildren()) {
+                            if (child.getChildren().size() != 0) {
+                                ollirCode.append(expressionOLLIRCode);
+                                String tempVar = "t" + this.tempMethodParamNum + OllirTemplates.type(varType);
+                                this.tempMethodParamNum++;
+                                System.out.println("OllirTemplates.localVariableAssignment(newLocalVariable, tempVar): " + OllirTemplates.localVariableAssignment(newLocalVariable, tempVar));
+                                ollirCode.append(OllirTemplates.localVariableAssignment(newLocalVariable, tempVar));
+                            } else {
+                                String newValue = child.get("val");
+                            }
+                        }
+                    }
+
+                    /*
+                    if (exprNode.getJmmChild(0).getChildren().size() == 0 && exprNode.getJmmChild(1).getChildren().size() == 0) {
+                        String ollirLocalVarCode = OllirTemplates.localVariableAssignment(newLocalVariable, expressionIsTerminalSymbol? expressionOLLIRCode : expressionOLLIRCode.substring(0, expressionOLLIRCode.length()-2));
+                        ollirCode.append(ollirLocalVarCode);
+                    } else {
+                        ollirCode.append(expressionOLLIRCode);
+                        String tempVar = "t" + this.tempMethodParamNum + OllirTemplates.type(varType);
+                        this.tempMethodParamNum++;
+                        String ollirLocalVarCode = OllirTemplates.localVariableAssignment(newLocalVariable, tempVar);
+                        ollirCode.append(ollirLocalVarCode);
+                    }
+                     */
                 }
             }
         }
@@ -541,7 +615,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             String paramOllirCode = (String) visit(node.getChildren().get(i), Collections.singletonList("MemberAccess")).get(0);
             System.out.println("paramOllirCode:" + paramOllirCode);
             System.out.println("data.get(0) = " + data.get(0));
-            if (data.get(0).equals("BinaryOp")) {
+            if ((data.get(0).equals("BinaryOp") || data.get(0).equals("LocalVariable")) && node.getJmmChild(i).getChildren().size() > 0) { // complex parameters
                 this.tempMethodParamNum++;
                 String tempVariableString = OllirTemplates.createOpAssignment(this.currentArithType, this.tempMethodParamNum, paramOllirCode);
                 parameters.add("t" + this.tempMethodParamNum + this.currentArithType);
@@ -552,28 +626,30 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         }
 
         parametersString = String.join(", ", parameters);
-        System.out.println("parametersString: " + parametersString);
-        System.out.println("-> firstChildStr: " + firstChildStr); // if it's the name of an import, you don't need to add the type of the variable. Else add it.
-        System.out.println("parametersTempVariables: " + parametersTempVariables);
-        if (this.symbolTable.getImports().contains(firstChildStr)) { // use invokestatic
+
+        if (firstChild.getChildren().size() == 0 && this.symbolTable.getImports().contains(firstChild.get("val"))) { // use invokestatic
             String tempVarSent = new String("");
             if (data.get(0).equals("BinaryOp")) { // save the result of invokestatic to a temporary variable
                 this.tempMethodParamNum++;
                 tempVarSent = "t" + this.tempMethodParamNum + this.currentArithType + " :=" + this.currentArithType + " ";
             }
-            ollirCode.append(OllirTemplates.createMemberAccess(tempVarSent, parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
+            System.out.println("HEERRERERERERERERE");
+            if (data.get(0).equals("LocalVariable")) {
+                ollirCode.append(OllirTemplates.createMemberAccess(tempVarSent, parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
+            } else {
+                ollirCode.append(OllirTemplates.createMemberAccess("", new ArrayList<String>(), firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
+            }
+
 
         } else {
             this.tempMethodParamNum++;
             String tempVarSent = "t" + this.tempMethodParamNum + this.currentArithType + " :=" + this.currentArithType + " ";
+            if (data.get(0).equals("LocalVariable")) {
+                ollirCode.append(OllirTemplates.createMemberAccess(tempVarSent, parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, ""));
+            } else {
+                ollirCode.append(OllirTemplates.createMemberAccess("", new ArrayList<String>(), firstChildStr, memberAccessed, parametersString, this.currentArithType, ""));
+            }
 
-
-            ollirCode.append(OllirTemplates.createMemberAccess(tempVarSent, parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, ""));
-
-            System.out.println("\n\n\n\n\n\n\n\n\n");
-            System.out.println("ollir_code:\n" + ollirCode);
-            System.out.println("parametersTempVariables: " + parametersTempVariables);
-            System.out.println("\n\n\n\n\n\n\n\n\n");
         }
 
 
@@ -615,13 +691,9 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             ollirCode.append(OllirTemplates.temporaryVariableTemplate(this.tempMethodParamNum, this.currentArithType, rightSide));
         } else if (leftIsTerminalSymbol && !rightIsTerminalSymbol) {
             ollirCode.append(rightExpressOllirStr);
-            System.out.println("11) ollirCode = " + ollirCode);
             String rightSide = leftExpressOllirStr + " " + (binaryOp + this.currentArithType) + " " + ("t" + this.tempMethodParamNum + this.currentArithType);
             this.tempMethodParamNum++;
             ollirCode.append(OllirTemplates.temporaryVariableTemplate(this.tempMethodParamNum, this.currentArithType, rightSide));
-            System.out.println("--------");
-            System.out.println("AFTETRTETRTR: " + ollirCode);
-            System.out.println("--------");
         } else { // both sides are not terminal symbols
             ollirCode.append(leftExpr);
             ollirCode.append(rightExpr);
@@ -647,8 +719,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String expressionOllirCode = (String) visit(node.getChildren().get(0), data).get(0);
 
         ollirCode.append(expressionOllirCode); // (temp<num>.type :=.type leftChild + op + rightChild;\n) OR (io.println())
-        ollirCode.append((data.get(0).equals("BinaryOp") || data.get(0).equals("LocalVariable")) ? "" : (ollirCode.append(")") + this.currentArithType)
-        );
+        ollirCode.append((data.get(0).equals("BinaryOp") || data.get(0).equals("LocalVariable")) ? "" : (ollirCode.append(")") + this.currentArithType));
 
         System.out.println("ollirCode(dealWithExprParentheses): " + ollirCode);
         return Collections.singletonList(ollirCode.toString());
@@ -672,6 +743,9 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             case "Bool":
                 ollirCode.append(returnVal + ".bool");
                 this.currentArithType = (this.dealWithReturnType || data.get(0).equals("MemberAccess") || data.get(0).equals("BinaryOp")) ? ".bool" : "";
+                break;
+            case "SelfCall":
+                ollirCode.append(returnVal);
                 break;
             case "Identifier":
                 // Check if returnVal corresponds to a local variable, or to a method parameter or to a class field
@@ -697,8 +771,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 } else {
                     ollirCode.append(returnVal);
                 }
-
-                break;
             default :
                 break;
         }

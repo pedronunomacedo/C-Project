@@ -1,16 +1,8 @@
 import io;
 
 class CompileMethodInvocation {
-    MyClass fieldVariableExample;
-
-    public static void main(String[] args) {
-    		int b;
-    		int c;
-    		b = 2 + b;
-    }
-
     public void setInlineAndPrintOtherClassFromParam(int value, MyClass myClass) {
-        MyClass class2;
-        int y = 2 + fieldVariableExample.get();
+        int x = 2;
+        int y = myClass.get(2);
     }
 }
