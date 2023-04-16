@@ -274,10 +274,10 @@ public class OllirTemplates {
         StringBuilder ollirCode = new StringBuilder();
 
         ollirCode.append(String.join("\n", parametersTempVariables));
+        ollirCode.append(tempVar);
         if (varScope.equals("import")) {
             ollirCode.append("invokestatic(" + first + ", ");
         } else {
-            ollirCode.append(tempVar);
             ollirCode.append("invokevirtual(" + first + ", ");
         }
         ollirCode.append("\"" + method + "\"" + ", ");
