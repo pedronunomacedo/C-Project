@@ -452,12 +452,16 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                         String typeAcc = OllirTemplates.type(variable.getType());
                         ollirCode.append(varName + typeAcc + " :=" + typeAcc + " ");
                         ollirCode.append(newValueOllirCode);
+                    }
+                    else if (node.getJmmChild(0).getKind().equals("BinaryOp")) {
+                        ollirCode.append(newValueOllirCode);
                     } else {
                         ollirCode.append(newValueOllirCode);
                         Type varType = variable.getType();
+                        this.tempMethodParamNum++;
                         String newValueTempVar = "t" + this.tempMethodParamNum + OllirTemplates.type(varType);
                         this.tempMethodParamNum++;
-                        ollirCode.append(OllirTemplates.variableAssignment(variable, null, newValueTempVar));
+                        //ollirCode.append(OllirTemplates.variableAssignment(variable, null, newValueTempVar));
                     }
                 }
                 break;
@@ -534,7 +538,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String firstChildStr = (String) visit(firstChild, Collections.singletonList("MemberAccess")).get(0);
 
         for (int i = 1; i < node.getChildren().size(); i++) {
-
             String paramOllirCode = (String) visit(node.getChildren().get(i), Collections.singletonList("MemberAccess")).get(0);
             System.out.println("paramOllirCode:" + paramOllirCode);
             System.out.println("data.get(0) = " + data.get(0));
@@ -549,19 +552,27 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         }
 
         parametersString = String.join(", ", parameters);
+        System.out.println("parametersString: " + parametersString);
         System.out.println("-> firstChildStr: " + firstChildStr);
+        System.out.println("parametersTempVariables: " + parametersTempVariables);
         if (this.symbolTable.getImports().contains(firstChildStr)) { // use invokestatic
-            if (data.get(0).equals("BinaryOp")) {
-                this.tempMethodParamNum++;
-                ollirCode.append("t" + this.tempMethodParamNum + this.currentArithType + " :=" + this.currentArithType + " ");
-            }
-            ollirCode.append(OllirTemplates.createMemberAccess(parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
+            ollirCode.append(OllirTemplates.createMemberAccess("", parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
         } else {
+            /*
             if (data.get(0).equals("BinaryOp")) {
                 this.tempMethodParamNum++;
                 ollirCode.append("t" + this.tempMethodParamNum + this.currentArithType + " :=" + this.currentArithType + " ");
             }
-            ollirCode.append(OllirTemplates.createMemberAccess(parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, ""));
+
+             */
+            this.tempMethodParamNum++;
+            String tempVarSent = "t" + this.tempMethodParamNum + this.currentArithType + " :=" + this.currentArithType + " ";
+            ollirCode.append(OllirTemplates.createMemberAccess(tempVarSent, parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, ""));
+
+            System.out.println("\n\n\n\n\n\n\n\n\n");
+            System.out.println("ollir_code:\n" + ollirCode);
+            System.out.println("parametersTempVariables: " + parametersTempVariables);
+            System.out.println("\n\n\n\n\n\n\n\n\n");
         }
 
 
@@ -582,6 +593,9 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String leftExpressOllirStr = (String) visit(leftExpr, Collections.singletonList("BinaryOp")).get(0);
         String rightExpressOllirStr = (String) visit(rightExpr, Collections.singletonList("BinaryOp")).get(0);
 
+        System.out.println("leftExpressOllirStr: " + leftExpressOllirStr);
+        System.out.println("rightExpressOllirStr: " + rightExpressOllirStr);
+
         boolean leftIsTerminalSymbol = (leftExpr.getKind().equals("Integer") || leftExpr.getKind().equals("Identifier"));
         boolean rightIsTerminalSymbol = (rightExpr.getKind().equals("Integer") || rightExpr.getKind().equals("Identifier"));
 
@@ -593,7 +607,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 String rightSide = leftExpressOllirStr + " " + binaryOp + this.currentArithType + " " + rightExpressOllirStr;
                 ollirCode.append(OllirTemplates.temporaryVariableTemplate(this.tempMethodParamNum,  this.currentArithType, rightSide));
             }
-
         } else if (!leftIsTerminalSymbol && rightIsTerminalSymbol) {
             ollirCode.append(leftExpressOllirStr);
             String rightSide = ("t" + this.tempMethodParamNum + this.currentArithType) + " " + (binaryOp + this.currentArithType) + " " + rightExpressOllirStr;
@@ -601,9 +614,13 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             ollirCode.append(OllirTemplates.temporaryVariableTemplate(this.tempMethodParamNum, this.currentArithType, rightSide));
         } else if (leftIsTerminalSymbol && !rightIsTerminalSymbol) {
             ollirCode.append(rightExpressOllirStr);
+            System.out.println("11) ollirCode = " + ollirCode);
             String rightSide = leftExpressOllirStr + " " + (binaryOp + this.currentArithType) + " " + ("t" + this.tempMethodParamNum + this.currentArithType);
             this.tempMethodParamNum++;
             ollirCode.append(OllirTemplates.temporaryVariableTemplate(this.tempMethodParamNum, this.currentArithType, rightSide));
+            System.out.println("--------");
+            System.out.println("AFTETRTETRTR: " + ollirCode);
+            System.out.println("--------");
         } else { // both sides are not terminal symbols
             ollirCode.append(leftExpr);
             ollirCode.append(rightExpr);

@@ -5,9 +5,9 @@ class CompileMethodInvocation {
 
     public static void main(String[] args) {
     		int b;
+    		CompileMethodInvocation test;
     		int c;
-    		c = 2 + 1;
-    		b = c.get(10);
+    		b = 2 + b;
     }
 
     public void setInlineAndPrintOtherClassFromParam(int value, MyClass myClass) {
