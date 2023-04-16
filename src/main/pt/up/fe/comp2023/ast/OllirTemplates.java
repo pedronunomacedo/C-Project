@@ -164,7 +164,7 @@ public class OllirTemplates {
         return ollirCode.toString();
     }
 
-    public static String variableAssignment(Symbol variable, String index, String value) {
+    public static String variableAssignment(Symbol variable, String index, String value) { // local variable assignment
         StringBuilder ollirCode = new StringBuilder();
         String varType = type(variable.getType());
         if (variable.getType().isArray()) {
@@ -185,7 +185,7 @@ public class OllirTemplates {
         String varType = type(variable.getType());
         ollirCode.append("$" + paramIndex + "." + variable.getName() + varType);
         ollirCode.append(" :=" + varType + " ");
-        ollirCode.append(value + "");
+        ollirCode.append(value);
         ollirCode.append(";\n");
 
         return ollirCode.toString();
