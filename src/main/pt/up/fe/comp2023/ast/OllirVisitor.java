@@ -434,7 +434,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         System.out.println("node.getChildren(): " + node.getChildren());
         JmmNode valueNode = node.getJmmChild(0);
         boolean valueNodeIsTerminalSymbol = (valueNode.getChildren().size() == 0);
-        String newValueOllirCode = (String) visit(valueNode, Collections.singletonList("")).get(0); // Change beacause you are already receveing the ollir string with the tmeporary variables over here!!!!
+        String newValueOllirCode = (String) visit(valueNode, Collections.singletonList("Assignment")).get(0); // Change because you are already receveing the ollir string with the tmeporary variables over here!!!!
 
         System.out.println("varName = " + varName);
         System.out.println("newValueOllirCode = " + newValueOllirCode);
@@ -448,11 +448,17 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 if (valueNodeIsTerminalSymbol) {
                     ollirCode.append(OllirTemplates.variableAssignment(variable, null, newValueOllirCode));
                 } else {
-                    ollirCode.append(newValueOllirCode);
-                    Type varType = variable.getType();
-                    String newValueTempVar = "t" + this.tempMethodParamNum + OllirTemplates.type(varType);
-                    this.tempMethodParamNum++;
-                    ollirCode.append(OllirTemplates.variableAssignment(variable, null, newValueTempVar));
+                    if (node.getJmmChild(0).getKind().equals("MemberAccess")) {
+                        String typeAcc = OllirTemplates.type(variable.getType());
+                        ollirCode.append(varName + typeAcc + " :=" + typeAcc + " ");
+                        ollirCode.append(newValueOllirCode);
+                    } else {
+                        ollirCode.append(newValueOllirCode);
+                        Type varType = variable.getType();
+                        String newValueTempVar = "t" + this.tempMethodParamNum + OllirTemplates.type(varType);
+                        this.tempMethodParamNum++;
+                        ollirCode.append(OllirTemplates.variableAssignment(variable, null, newValueTempVar));
+                    }
                 }
                 break;
             case "parameterVariable":
@@ -525,21 +531,36 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String parametersString = new String();
         List<String> parametersTempVariables = new ArrayList<String>();
 
-        String firstChildStr = (String) visit(firstChild).get(0);
+        String firstChildStr = (String) visit(firstChild, Collections.singletonList("MemberAccess")).get(0);
 
         for (int i = 1; i < node.getChildren().size(); i++) {
-            this.tempMethodParamNum++;
+
             String paramOllirCode = (String) visit(node.getChildren().get(i), Collections.singletonList("MemberAccess")).get(0);
             System.out.println("paramOllirCode:" + paramOllirCode);
-            String tempVariableString = OllirTemplates.createOpAssignment(this.currentArithType, this.tempMethodParamNum, paramOllirCode);
-            parameters.add("t" + this.tempMethodParamNum + this.currentArithType);
-            parametersTempVariables.add(tempVariableString);
+            System.out.println("data.get(0) = " + data.get(0));
+            if (data.get(0).equals("BinaryOp")) {
+                this.tempMethodParamNum++;
+                String tempVariableString = OllirTemplates.createOpAssignment(this.currentArithType, this.tempMethodParamNum, paramOllirCode);
+                parameters.add("t" + this.tempMethodParamNum + this.currentArithType);
+                parametersTempVariables.add(tempVariableString);
+            } else {
+                parameters.add(paramOllirCode);
+            }
         }
-        parametersString = String.join(", ", parameters);
 
-        if (this.symbolTable.getImports().contains(firstChildStr)) {
+        parametersString = String.join(", ", parameters);
+        System.out.println("-> firstChildStr: " + firstChildStr);
+        if (this.symbolTable.getImports().contains(firstChildStr)) { // use invokestatic
+            if (data.get(0).equals("BinaryOp")) {
+                this.tempMethodParamNum++;
+                ollirCode.append("t" + this.tempMethodParamNum + this.currentArithType + " :=" + this.currentArithType + " ");
+            }
             ollirCode.append(OllirTemplates.createMemberAccess(parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
         } else {
+            if (data.get(0).equals("BinaryOp")) {
+                this.tempMethodParamNum++;
+                ollirCode.append("t" + this.tempMethodParamNum + this.currentArithType + " :=" + this.currentArithType + " ");
+            }
             ollirCode.append(OllirTemplates.createMemberAccess(parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, ""));
         }
 
