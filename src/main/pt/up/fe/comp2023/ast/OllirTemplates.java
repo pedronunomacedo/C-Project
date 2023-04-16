@@ -280,8 +280,12 @@ public class OllirTemplates {
         } else {
             ollirCode.append("invokevirtual(" + first + ", ");
         }
-        ollirCode.append("\"" + method + "\"" + ", ");
-        ollirCode.append(parameters);
+        ollirCode.append("\"" + method + "\"");
+        if (!parameters.equals("")) {
+            ollirCode.append( ", ");
+            ollirCode.append(parameters);
+        }
+
         ollirCode.append(")" + currentArithType + ";\n");
 
         return ollirCode.toString();

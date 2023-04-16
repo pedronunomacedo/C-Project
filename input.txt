@@ -11,6 +11,6 @@ class CompileMethodInvocation {
 
     public void setInlineAndPrintOtherClassFromParam(int value, MyClass myClass) {
         MyClass class2;
-        int y = 2 + fieldVariableExample.get(value);
+        int y = 2 + fieldVariableExample.get();
     }
 }
