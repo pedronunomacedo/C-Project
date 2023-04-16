@@ -553,20 +553,15 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
         parametersString = String.join(", ", parameters);
         System.out.println("parametersString: " + parametersString);
-        System.out.println("-> firstChildStr: " + firstChildStr);
+        System.out.println("-> firstChildStr: " + firstChildStr); // if it's the name of an import, you don't need to add the type of the variable. Else add it.
         System.out.println("parametersTempVariables: " + parametersTempVariables);
         if (this.symbolTable.getImports().contains(firstChildStr)) { // use invokestatic
             ollirCode.append(OllirTemplates.createMemberAccess("", parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
         } else {
-            /*
-            if (data.get(0).equals("BinaryOp")) {
-                this.tempMethodParamNum++;
-                ollirCode.append("t" + this.tempMethodParamNum + this.currentArithType + " :=" + this.currentArithType + " ");
-            }
-
-             */
             this.tempMethodParamNum++;
             String tempVarSent = "t" + this.tempMethodParamNum + this.currentArithType + " :=" + this.currentArithType + " ";
+
+
             ollirCode.append(OllirTemplates.createMemberAccess(tempVarSent, parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, ""));
 
             System.out.println("\n\n\n\n\n\n\n\n\n");
@@ -686,6 +681,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                     this.tempMethodParamNum++;
                     int paramIndex = this.currentMethod.getParameterIndex(returnVal);
                     ollirCode.append(OllirTemplates.variableCall(parameterSymbol.getType(), returnVal, paramIndex));
+                    System.out.println("->- ->- ->- ->- ->- parameterSymbol.getType().getName(): " + parameterSymbol.getType().getName());
                     returnTypeObj = OllirTemplates.variableType(parameterSymbol.getType().getName());
                     this.currentArithType = (this.dealWithReturnType || data.get(0).equals("MemberAccess") || data.get(0).equals("BinaryOp")) ? returnTypeObj : "";
                 } else if (classField != null) { // Class field

@@ -88,6 +88,9 @@ public class OllirTemplates {
         StringBuilder ollirCode = new StringBuilder("");
         if (type.equals("Integer") || type.equals("int")) ollirCode.append(".i32");
         else if (type.equals("Bool") || type.equals("bool") || type.equals("boolean")) ollirCode.append(".bool");
+        else {
+            ollirCode.append("." + type);
+        }
 
         return ollirCode.toString();
     }
