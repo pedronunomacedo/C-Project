@@ -5,10 +5,35 @@ class CompileMethodInvocation {
     int fieldVariableExample;
     bool fieldVariableExample2;
 
-    public int setInlineAndPrintOtherClassFromParam(MyClass a) {
+    public int func() {
+        return 11;
+    }
+
+    public int setInlineAndPrintOtherClassFromParam(MyClass a, int[] b) {
+        /*
         MyClass b = new MyClass();
-        // int a = 2 * (1 + 2);
-        // io.println(a);
+        int a = 2 * (1 + 2);
+        io.println(a);
+        int b;
+        io.println();
         return b.calcStuff(3 * 7);
+        */
+        // int b;
+        // b = (4 + 6) * (7 + 8) + 7;
+        // a = a + 10;
+        // a = a / 10;
+        // int c = b[2]; (It's giving me this: "c.i32 :=.i32 t0.i32;") -> WRONG
+
+        // int x = 10;
+        // byte b = x;
+
+        // String str;
+        // int len = str.len();
+        // bool test = fieldVariableExample2;
+
+        // int[] c;
+        // return c;
+
+        int a = io.get();
     }
 }

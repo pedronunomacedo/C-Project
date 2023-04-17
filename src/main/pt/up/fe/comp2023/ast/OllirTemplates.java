@@ -137,9 +137,15 @@ public class OllirTemplates {
 
     public static String localVariableAssignment(Symbol variable, String value) {
         StringBuilder ollirCode = new StringBuilder();
-        ollirCode.append(variable.getName() + type(variable.getType()));
-        ollirCode.append(" :=" + type(variable.getType()) + " ");
-        ollirCode.append(value + ";\n");
+        try {
+
+            ollirCode.append(variable.getName() + type(variable.getType()));
+            ollirCode.append(" :=" + type(variable.getType()) + " ");
+            ollirCode.append(value + ";\n");
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
 
         return ollirCode.toString();
     }
@@ -158,7 +164,8 @@ public class OllirTemplates {
 
     public static String variableAssignment(Symbol variable, String index, String value) { // local variable assignment
         StringBuilder ollirCode = new StringBuilder();
-        String varType = type(variable.getType());
+        //String varType = type(variable.getType());
+        String varType = type(new Type(variable.getType().getName(), false));
         if (variable.getType().isArray()) {
             ollirCode.append(variable.getName() + "[" + index + ".i32]" + varType);
             ollirCode.append(" :=" + varType + " ");
@@ -278,7 +285,7 @@ public class OllirTemplates {
             ollirCode.append(parameters);
         }
 
-        ollirCode.append(")" + currentArithType + ";\n");
+        ollirCode.append(")" + (varScope.equals("import") ? ".V" : "") + currentArithType + ";\n");
 
         return ollirCode.toString();
     }
