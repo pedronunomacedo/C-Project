@@ -476,14 +476,14 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         boolean indexNodeIsTerminalSymbol = indexNode.getAttributes().contains("val");
         boolean valueNodeIsTerminalSymbol = valueNode.getAttributes().contains("val");
         Symbol variable = this.currentMethod.getLocalVariable(varName);
-
+        System.out.println("this.currentArithType: " + this.currentArithType);
         if (indexNodeIsTerminalSymbol && valueNodeIsTerminalSymbol) {
-            ollirCode.append(OllirTemplates.variableAssignment(variable, indexValue, value));
+            ollirCode.append(OllirTemplates.variableAssignment(variable, indexValue, value + OllirTemplates.type(new Type(variable.getType().getName(), false))));
         } else if (!indexNodeIsTerminalSymbol && valueNodeIsTerminalSymbol) {
             ollirCode.append(indexOllirCode);
             String tempVar = "t" + this.tempMethodParamNum;
             this.tempMethodParamNum++;
-            ollirCode.append(OllirTemplates.variableAssignment(variable, tempVar, value));
+            ollirCode.append(OllirTemplates.variableAssignment(variable, tempVar, value + OllirTemplates.type(new Type(variable.getType().getName(), false))));
         } else if (indexNodeIsTerminalSymbol && !valueNodeIsTerminalSymbol) {
             ollirCode.append(valueOllirCode);
             String tempVar = "t" + this.tempMethodParamNum;
@@ -525,7 +525,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         switch (varSpot) {
             case "localVariable":
                 if (valueNodeIsTerminalSymbol) {
-                    ollirCode.append(OllirTemplates.variableAssignment(variable, null, newValueOllirCode));
+                    ollirCode.append(OllirTemplates.variableAssignment(variable, "-1", newValueOllirCode));
                 } else {
                     if (node.getJmmChild(0).getKind().equals("MemberAccess")) {
                         String typeAcc = OllirTemplates.type(variable.getType());
@@ -640,7 +640,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 this.tempMethodParamNum++;
                 tempVarSent = "t" + this.tempMethodParamNum + this.currentArithType + " :=" + this.currentArithType + " ";
             }
-            System.out.println("HEERRERERERERERERE");
             if (data.get(0).equals("LocalVariable")) {
                 ollirCode.append(OllirTemplates.createMemberAccess(tempVarSent, parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
             }
@@ -708,7 +707,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             ollirCode.append(rightExpr);
             int temporaryVar1 = this.tempMethodParamNum - 1; // left temporary variable
             int temporaryVar2 = this.tempMethodParamNum;
-            String rightSide = ("t" + temporaryVar1) + " " + (binaryOp + this.currentArithType) + " " + ("t" + temporaryVar2);
+            String rightSide = ("t" + temporaryVar1 + this.currentArithType) + " " + (binaryOp + this.currentArithType) + " " + ("t" + temporaryVar2 + this.currentArithType);
             this.tempMethodParamNum++;
             ollirCode.append(OllirTemplates.temporaryVariableTemplate(this.tempMethodParamNum, this.currentArithType, rightSide));
         }
@@ -780,7 +779,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 } else {
                     ollirCode.append(returnVal);
                 }
-            default :
+            default:
                 break;
         }
 
