@@ -292,4 +292,14 @@ public class OllirTemplates {
 
         return ollirCode.toString();
     }
+
+    public static String newObjectTemplate(int tempVariableNum, String objClassName) {
+        StringBuilder ollirCode = new StringBuilder();
+
+        ollirCode.append("t" + tempVariableNum + "." + objClassName);
+        ollirCode.append(" :=." + objClassName);
+        ollirCode.append(" new(" + objClassName + ")." + objClassName + ";\n");
+
+        return ollirCode.toString();
+    }
 }

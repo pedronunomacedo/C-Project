@@ -6,8 +6,9 @@ class CompileMethodInvocation {
     bool fieldVariableExample2;
 
     public int setInlineAndPrintOtherClassFromParam(MyClass a) {
-        MyClass b = a;
-        io.println(b);
-        return b.calcStuff(3 * 7);
+        MyClass b = new MyClass();
+        int a = 2 * (1 + 2);
+        // io.println(a);
+        // return b.calcStuff(3 * 7);
     }
 }
