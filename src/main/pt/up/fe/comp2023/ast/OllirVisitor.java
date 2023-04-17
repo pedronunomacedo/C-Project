@@ -232,10 +232,10 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 if (simpleAssignment) {
                     System.out.println("Simple Assignment!");
                     System.out.println("exprNode: " + exprNode);
-                    if (exprNode.getChildren().size() == 0) {
-                        ollirCode.append(expressionOLLIRCode);
-
+                    if (exprNode.getNumChildren() == 0) {
                         if (localVarSymbol != null) {
+                            System.out.println("expressionOLLIRCode: " + expressionOLLIRCode);
+                            System.out.println("localVarSymbol: " + localVarSymbol);
                             ollirCode.append(OllirTemplates.variableAssignment(localVarSymbol, "-1", expressionOLLIRCode));
                         } else if (methodParam != null) {
                             int paramIndex = this.currentMethod.getParameterIndex(methodParam.getName());
@@ -643,7 +643,11 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             System.out.println("HEERRERERERERERERE");
             if (data.get(0).equals("LocalVariable")) {
                 ollirCode.append(OllirTemplates.createMemberAccess(tempVarSent, parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
-            } else {
+            }
+            else if (data.get(0).equals("ReturnObj")) {
+                ollirCode.append(OllirTemplates.createMemberAccess(tempVarSent, parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
+            }
+            else {
                 ollirCode.append(OllirTemplates.createMemberAccess("", new ArrayList<String>(), firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
             }
         } else {
