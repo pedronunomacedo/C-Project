@@ -49,10 +49,11 @@ public class OllirTemplates {
             ollirCode.append(declareVariable(parameters.get(0), true));
         } else {
             // method parameters/arguments
+
             if (parameters.size() != 0) {
-                ollirCode.append(declareVariable(parameters.get(parameters.size() - 1), true));
+                ollirCode.append(declareVariable(parameters.get(0), true));
                 if (parameters.size() > 1) {
-                    for (int i = parameters.size() - 2; i >= 0; i--) {
+                    for (int i = 1; i < parameters.size(); i++) {
                         ollirCode.append(", ").append(declareVariable(parameters.get(i), true));
                     }
                 }
@@ -111,15 +112,6 @@ public class OllirTemplates {
         ollirCode.append(newValue);
         ollirCode.append(")" + typeAcc);
         ollirCode.append(";\n");
-
-        return ollirCode.toString();
-    }
-
-    public static String putField(Symbol variable, String newValue, Integer parameterIndex) {
-        StringBuilder ollirCode = new StringBuilder("putfield(");
-        ollirCode.append("this, ");
-        ollirCode.append(variable.getName() + type(variable.getType()));
-        ollirCode.append("$" + parameterIndex + "." + newValue + "." + type(variable.getType()) + ");\n");
 
         return ollirCode.toString();
     }
@@ -297,6 +289,16 @@ public class OllirTemplates {
         ollirCode.append("t" + tempVariableNum + typeAcc);
         ollirCode.append(" :=" + typeAcc + " ");
         ollirCode.append(rightSide + ";\n");
+
+        return ollirCode.toString();
+    }
+
+    public static String newObjectTemplate(int tempVariableNum, String objClassName) {
+        StringBuilder ollirCode = new StringBuilder();
+
+        ollirCode.append("t" + tempVariableNum + "." + objClassName);
+        ollirCode.append(" :=." + objClassName);
+        ollirCode.append(" new(" + objClassName + ")." + objClassName + ";\n");
 
         return ollirCode.toString();
     }

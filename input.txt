@@ -1,8 +1,14 @@
 import io;
+import test;
 
 class CompileMethodInvocation {
-    public void setInlineAndPrintOtherClassFromParam(int value, MyClass myClass) {
-        int x = 2;
-        int y = myClass.get(2);
+    int fieldVariableExample;
+    bool fieldVariableExample2;
+
+    public int setInlineAndPrintOtherClassFromParam(MyClass a) {
+        MyClass b = new MyClass();
+        int a = 2 * (1 + 2);
+        // io.println(a);
+        // return b.calcStuff(3 * 7);
     }
 }
