@@ -1,25 +1,13 @@
-import ioPlus;
-class HelloWorld {
-    int field1;
-	boolean field2;
-	MethodsAndFields field3;
+import io;
+import test;
 
-	public static void main(String[] args) {
+class CompileMethodInvocation {
+    int fieldVariableExample;
+    bool fieldVariableExample2;
 
-	}
-
-    public boolean getField2(){
-        return field2;
-    }
-
-    public MethodsAndFields getField3(){
-        return field3;
-    }
-
-    public int[] all(int a, boolean b, MethodsAndFields maf) {
-        int[] c;
-        a = true;
-
-        return c;
+    public int setInlineAndPrintOtherClassFromParam(MyClass a) {
+        MyClass b = a;
+        io.println(b);
+        return b.calcStuff(3*7);
     }
 }
