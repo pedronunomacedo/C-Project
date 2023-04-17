@@ -281,19 +281,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                             }
                         }
                     }
-
-                    /*
-                    if (exprNode.getJmmChild(0).getChildren().size() == 0 && exprNode.getJmmChild(1).getChildren().size() == 0) {
-                        String ollirLocalVarCode = OllirTemplates.localVariableAssignment(newLocalVariable, expressionIsTerminalSymbol? expressionOLLIRCode : expressionOLLIRCode.substring(0, expressionOLLIRCode.length()-2));
-                        ollirCode.append(ollirLocalVarCode);
-                    } else {
-                        ollirCode.append(expressionOLLIRCode);
-                        String tempVar = "t" + this.tempMethodParamNum + OllirTemplates.type(varType);
-                        this.tempMethodParamNum++;
-                        String ollirLocalVarCode = OllirTemplates.localVariableAssignment(newLocalVariable, tempVar);
-                        ollirCode.append(ollirLocalVarCode);
-                    }
-                     */
                 }
             }
         }
@@ -359,6 +346,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 e.printStackTrace();
             }
 
+
             ollirCode.append(OllirTemplates.methodTemplate(
                     methodName,
                     this.currentMethod.getParameters(),
@@ -403,10 +391,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         System.out.println("-> In dealWithClassParameters() function! (" + node + ")");
 
         StringBuilder ollirCode = new StringBuilder();
-
-        if (this.scope.equals("METHOD")) {
-
-        }
 
         System.out.println("ollirCode(dealWithClassParameters): " + ollirCode.toString());
         return Collections.singletonList(ollirCode.toString());
