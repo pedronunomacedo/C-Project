@@ -198,6 +198,7 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
 
     public String dealWithReturnObj(JmmNode node, String space) {
         space = ((space != null) ? space : "");
+        System.out.println("In dealWithReturnObj() function!");
 
         System.out.println("In returnObj");
 
