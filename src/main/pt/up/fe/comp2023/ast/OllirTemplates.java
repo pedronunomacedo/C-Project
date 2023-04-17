@@ -137,15 +137,9 @@ public class OllirTemplates {
 
     public static String localVariableAssignment(Symbol variable, String value) {
         StringBuilder ollirCode = new StringBuilder();
-        try {
-
-            ollirCode.append(variable.getName() + type(variable.getType()));
-            ollirCode.append(" :=" + type(variable.getType()) + " ");
-            ollirCode.append(value + ";\n");
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-
+        ollirCode.append(variable.getName() + type(variable.getType()));
+        ollirCode.append(" :=" + type(variable.getType()) + " ");
+        ollirCode.append(value + ";\n");
 
         return ollirCode.toString();
     }
