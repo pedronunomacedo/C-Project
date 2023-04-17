@@ -621,8 +621,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             System.out.println("paramOllirCode:" + paramOllirCode);
             System.out.println("data.get(0) = " + data.get(0));
             if ((data.get(0).equals("ArrayAssignment") || data.get(0).equals("Assignment") || data.get(0).equals("Expr") || data.get(0).equals("ReturnObj")) && node.getJmmChild(i).getNumChildren() > 0) { // complex parameters
-                String tempVar = "t" + this.tempMethodParamNum + this.currentArithType;
-                parameters.add(tempVar);
+                parameters.add("t" + this.tempMethodParamNum + this.currentArithType);
                 parametersTempVariables.add(paramOllirCode);
             } else {
                 parameters.add(paramOllirCode);
@@ -643,23 +642,21 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             }
             System.out.println("HEERRERERERERERERE");
             if (data.get(0).equals("LocalVariable")) {
-                ollirCode.append(OllirTemplates.createMemberAccess(tempVarSent, parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, "import", 0));
+                ollirCode.append(OllirTemplates.createMemberAccess(tempVarSent, parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
             }
             else if (data.get(0).equals("ReturnObj")) {
                 this.tempMethodParamNum++;
-                System.out.println("this.tempMethodParamNum: " + this.tempMethodParamNum);
                 ollirCode.append(OllirTemplates.createMemberAccess(tempVarSent, parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, "import", this.tempMethodParamNum));
             }
             else {
-                ollirCode.append(OllirTemplates.createMemberAccess("", new ArrayList<String>(), firstChildStr, memberAccessed, parametersString, this.currentArithType, "import", 0));
+                ollirCode.append(OllirTemplates.createMemberAccess("", new ArrayList<String>(), firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
             }
         } else {
             String tempVarSent = "t" + this.tempMethodParamNum + this.currentArithType + " :=" + this.currentArithType + " ";
             if (data.get(0).equals("LocalVariable")) {
-                ollirCode.append(OllirTemplates.createMemberAccess(tempVarSent, parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, "", 0));
+                ollirCode.append(OllirTemplates.createMemberAccess(tempVarSent, parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, ""));
             } else {
-                this.tempMethodParamNum++;
-                ollirCode.append(OllirTemplates.createMemberAccess("", new ArrayList<String>(), firstChildStr, memberAccessed, parametersString, this.currentArithType, "", this.tempMethodParamNum));
+                ollirCode.append(OllirTemplates.createMemberAccess("", new ArrayList<String>(), firstChildStr, memberAccessed, parametersString, this.currentArithType, ""));
             }
 
         }
