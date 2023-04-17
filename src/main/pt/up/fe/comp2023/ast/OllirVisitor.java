@@ -607,7 +607,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             System.out.println("paramOllirCode:" + paramOllirCode);
             System.out.println("data.get(0) = " + data.get(0));
             if ((data.get(0).equals("ArrayAssignment") || data.get(0).equals("Assignment") || data.get(0).equals("Expr") || data.get(0).equals("ReturnObj")) && node.getJmmChild(i).getNumChildren() > 0) { // complex parameters
-                this.tempMethodParamNum++;
                 parameters.add("t" + this.tempMethodParamNum + this.currentArithType);
                 parametersTempVariables.add(paramOllirCode);
             } else {
@@ -618,6 +617,8 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         System.out.println("parametersTempVariables: " + parametersTempVariables);
 
         parametersString = String.join(", ", parameters);
+
+        ollirCode.append(String.join("\n", parametersTempVariables));
 
         if (firstChild.getChildren().size() == 0 && this.symbolTable.getImports().contains(firstChild.get("val"))) { // use invokestatic
             String tempVarSent = new String("");
@@ -631,10 +632,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             } else {
                 ollirCode.append(OllirTemplates.createMemberAccess("", new ArrayList<String>(), firstChildStr, memberAccessed, parametersString, this.currentArithType, "import"));
             }
-
-
         } else {
-            this.tempMethodParamNum++;
             String tempVarSent = "t" + this.tempMethodParamNum + this.currentArithType + " :=" + this.currentArithType + " ";
             if (data.get(0).equals("LocalVariable")) {
                 ollirCode.append(OllirTemplates.createMemberAccess(tempVarSent, parametersTempVariables, firstChildStr, memberAccessed, parametersString, this.currentArithType, ""));

@@ -8,6 +8,6 @@ class CompileMethodInvocation {
     public int setInlineAndPrintOtherClassFromParam(MyClass a) {
         MyClass b = a;
         io.println(b);
-        return b.calcStuff(3*7);
+        return b.calcStuff(3 * 7);
     }
 }
