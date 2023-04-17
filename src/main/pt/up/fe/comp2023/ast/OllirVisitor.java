@@ -346,7 +346,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 e.printStackTrace();
             }
 
-
             ollirCode.append(OllirTemplates.methodTemplate(
                     methodName,
                     this.currentMethod.getParameters(),
@@ -357,13 +356,21 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 if (child.getKind().equals("ReturnType") || child.getKind().equals("ClassParameters")) {
                     visit(child, Collections.singletonList("")); // ignore the child
                 } else if (child.getKind().equals("ReturnObj")) {
-                    JmmNode expressionNode = child.getChildren().get(0);
+                    JmmNode expressionNode = child.getJmmChild(0);
                     this.dealWithReturnType = true;
-                    String returnObjStr = (String) visit(child.getChildren().get(0), Collections.singletonList("")).get(0);
-                    if (Arrays.asList("Array", "Lenght", "MemberAccess", "UnaryOp", "BinaryOp", "NewArrayObject", "NewObject").contains(expressionNode.getKind())) {
-                        this.tempMethodParamNum++;
-                        ollirCode.append(OllirTemplates.createOpAssignment(this.currentArithType, this.tempMethodParamNum, returnObjStr));
-                        ollirCode.append(OllirTemplates.returnTemplate(this.currentArithType + " t" + this.tempMethodParamNum + this.currentArithType));
+                    System.out.println("expressionNode: " + expressionNode);
+                    String returnObjStr = (String) visit(expressionNode, Collections.singletonList("ReturnObj")).get(0);
+                    if (Arrays.asList("Array", "Lenght", "MemberAccess", "UnaryOp", "BinaryOp", "NewArrayObject", "NewObject").contains(expressionNode.getKind())) { // complex return types (returnObjStr has already the OLLIR code with the temp variables)
+                        System.out.println("returnObjStr: " + returnObjStr);
+                        if (expressionNode.getNumChildren() == 0) { // simple returns
+                            this.tempMethodParamNum++;
+                            ollirCode.append(OllirTemplates.createOpAssignment(this.currentArithType, this.tempMethodParamNum, returnObjStr));
+                            ollirCode.append(OllirTemplates.returnTemplate(this.currentArithType + " t" + this.tempMethodParamNum + this.currentArithType));
+                        } else { // complex return
+                            ollirCode.append(returnObjStr);
+                            String tempVariable = "t" + this.tempMethodParamNum + this.currentArithType;
+                            ollirCode.append(OllirTemplates.returnTemplate(this.currentArithType + " " + tempVariable));
+                        }
                     } else {
                         ollirCode.append(OllirTemplates.returnTemplate(this.currentArithType, returnObjStr));
                     }
@@ -439,7 +446,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             indexValue = indexNode.get("val");
         } else {
             // Deal with the other "expression" types
-            indexOllirCode = (String) visit(indexNode).get(0); // The string returned has the temporary variables and the OLLIR code already implemented
+            indexOllirCode = (String) visit(indexNode, Collections.singletonList("ArrayAssignment")).get(0); // The string returned has the temporary variables and the OLLIR code already implemented
             ollirCode.append(indexOllirCode);
         }
 
@@ -448,7 +455,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             value = valueNode.get("val");
         } else {
             // Deal with the other "expression" types
-            valueOllirCode = (String) visit(valueNode).get(0); // The string returned has the temporary variables and the OLLIR code already implemented
+            valueOllirCode = (String) visit(valueNode, Collections.singletonList("ArrayAssignment")).get(0); // The string returned has the temporary variables and the OLLIR code already implemented
             ollirCode.append(valueOllirCode);
         }
 
@@ -596,18 +603,19 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String firstChildStr = (String) visit(firstChild, Collections.singletonList("MemberAccess")).get(0);
 
         for (int i = 1; i < node.getChildren().size(); i++) {
-            String paramOllirCode = (String) visit(node.getChildren().get(i), Collections.singletonList("MemberAccess")).get(0);
+            String paramOllirCode = (String) visit(node.getJmmChild(i), Collections.singletonList("MemberAccess")).get(0);
             System.out.println("paramOllirCode:" + paramOllirCode);
             System.out.println("data.get(0) = " + data.get(0));
-            if ((data.get(0).equals("BinaryOp") || data.get(0).equals("LocalVariable")) && node.getJmmChild(i).getChildren().size() > 0) { // complex parameters
+            if ((data.get(0).equals("ArrayAssignment") || data.get(0).equals("Assignment") || data.get(0).equals("Expr") || data.get(0).equals("ReturnObj")) && node.getJmmChild(i).getNumChildren() > 0) { // complex parameters
                 this.tempMethodParamNum++;
-                String tempVariableString = OllirTemplates.createOpAssignment(this.currentArithType, this.tempMethodParamNum, paramOllirCode);
                 parameters.add("t" + this.tempMethodParamNum + this.currentArithType);
-                parametersTempVariables.add(tempVariableString);
+                parametersTempVariables.add(paramOllirCode);
             } else {
                 parameters.add(paramOllirCode);
             }
         }
+        System.out.println("parameters: " + parameters);
+        System.out.println("parametersTempVariables: " + parametersTempVariables);
 
         parametersString = String.join(", ", parameters);
 
@@ -635,7 +643,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             }
 
         }
-
 
         System.out.println("ollirCode(dealWithMemberAccess): " + ollirCode.toString());
         return Collections.singletonList(ollirCode.toString());
