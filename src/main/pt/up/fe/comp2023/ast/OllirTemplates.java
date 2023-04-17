@@ -300,6 +300,8 @@ public class OllirTemplates {
         ollirCode.append("t" + tempVariableNum + "." + objClassName);
         ollirCode.append(" :=." + objClassName);
         ollirCode.append(" new(" + objClassName + ")." + objClassName + ";\n");
+        // invokespecial(aux1.Fac,"<init>").V;
+        ollirCode.append("invokespecial(t" + tempVariableNum + "." + objClassName + ", \"<init>\").V;\n");
 
         return ollirCode.toString();
     }

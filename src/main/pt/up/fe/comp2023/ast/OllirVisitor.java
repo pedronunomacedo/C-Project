@@ -205,11 +205,11 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         Symbol methodParam = this.currentMethod.getParameter(varName);
         Symbol classField = this.symbolTable.getField(varName);
         String varscope = new String();
+
         if (localVarSymbol != null) varscope = "localVariable";
         else if (methodParam != null) varscope = "paramVariable";
-        else {
-            varscope = "classField";
-        }
+        else varscope = "classField";
+
         if (this.scope.equals("METHOD")) {
             // If it's a variable declaration inside a method, you are not supposed to add it in the OLLIR code
             JmmNode childNodeType = node.getChildren().get(0);
@@ -253,8 +253,15 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 } else { // not a simple assignment (non-terminal symbols)
                     System.out.println("exprNode: " + exprNode);
                     System.out.println("exprNode.getChidlren(): " + exprNode.getChildren());
-
-                    if (exprNode.getKind().equals("MemberAccess") || true) {
+                    if (exprNode.getKind().equals("NewObject")) {
+                        ollirCode.append(expressionOLLIRCode);
+                        String tempVar = "t" + (this.tempMethodParamNum - 1) + OllirTemplates.type(varType);
+                        System.out.println("HERERERERE: " + OllirTemplates.temporaryVariableTemplate(this.tempMethodParamNum, OllirTemplates.type(varType), "t" + this.tempMethodParamNum + OllirTemplates.type(varType)));
+                        Pair<String, Symbol> variableScope = this.symbolTable.variableScope(this.currentMethod, varName);
+                        Symbol variable = variableScope.b;
+                        ollirCode.append(OllirTemplates.variableAssignment(variable, "0", tempVar));
+                        // ollirCode.append(OllirTemplates.temporaryVariableTemplate(this.tempMethodParamNum, OllirTemplates.type(varType), "t" + this.tempMethodParamNum + OllirTemplates.type(varType)));
+                    } else {
                         ollirCode.append(expressionOLLIRCode);
                         // Assign the new temporary variable to the correspondent variable name
                         String typeAcc = new String();
@@ -279,6 +286,34 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                                 break;
                         }
                     }
+                    /*
+                    if (exprNode.getKind().equals("MemberAccess")) {
+                        ollirCode.append(expressionOLLIRCode);
+                        // Assign the new temporary variable to the correspondent variable name
+                        String typeAcc = new String();
+                        switch (varscope) {
+                            case "localVariable":
+                                typeAcc = OllirTemplates.type(localVarSymbol.getType());
+                                String rightSide = "t" + this.tempMethodParamNum + typeAcc;
+                                this.tempMethodParamNum++;
+                                ollirCode.append(OllirTemplates.variableAssignment(localVarSymbol, typeAcc, rightSide));
+                                break;
+                            case "paramVariable":
+                                typeAcc = OllirTemplates.type(methodParam.getType());
+                                int paramIndex = this.currentMethod.getParameterIndex(varName);
+                                String rightSide2 = "t" + this.tempMethodParamNum + typeAcc;
+                                ollirCode.append(OllirTemplates.variableAssignment(methodParam, rightSide2, paramIndex));
+                                break;
+                            case "classField":
+                                String rightSide3 = "t" + this.tempMethodParamNum + typeAcc;
+                                ollirCode.append(OllirTemplates.putField(classField, rightSide3));
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                     */
                     /*
                     else {
                         for (JmmNode child : exprNode.getChildren()) {
@@ -796,6 +831,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String objClassName = node.get("val");
         this.tempMethodParamNum++;
         ollirCode.append(OllirTemplates.newObjectTemplate(this.tempMethodParamNum, objClassName));
+        this.tempMethodParamNum++;
 
         System.out.println("ollirCode(dealWithNewObject): " + ollirCode.toString());
         return Collections.singletonList(ollirCode.toString());

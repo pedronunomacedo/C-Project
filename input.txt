@@ -1,4 +1,4 @@
-import io;
+import io.mm;
 import test;
 
 class CompileMethodInvocation {
@@ -9,7 +9,7 @@ class CompileMethodInvocation {
         return 11;
     }
 
-    public int setInlineAndPrintOtherClassFromParam(MyClass a, int[] b) {
+    public int setInlineAndPrintOtherClassFromParam(MyClass a, int b) {
         /*
         MyClass b = new MyClass();
         int a = 2 * (1 + 2);
@@ -34,6 +34,12 @@ class CompileMethodInvocation {
         // int[] c;
         // return c;
 
-        int a = io.get();
+        // MyClass d = new MyClass();
+        // MyClass e = new MyClass();
+        // d = e;
+
+        MyClass a = new MyClass();
+        MyClass b = new MyClass();
+        // a = b;
     }
 }
