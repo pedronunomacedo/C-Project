@@ -109,7 +109,7 @@ expression
     | expression '[' expression ']'                                 #Array
     | expression '.' 'length'                                       #Lenght
     | expression '.' id=ID '(' ( expression (',' expression)*)? ')' #MemberAccess
-    | '!' expression                                                #UnaryOp
+    | op='!' expression                                             #UnaryOp
     | expression op=('+=' | '-=' | '*=' | '/=') expression          #BinaryOp
     | expression op=('*' | '/' | '%') expression                    #BinaryOp
     | expression op=('+' | '-') expression                          #BinaryOp

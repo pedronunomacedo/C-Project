@@ -24,7 +24,7 @@ public class JmmMethod {
     }
 
     public int getParameterIndex(String parameter) {
-        int index = 0;
+        int index = 1;
         Symbol param = this.parameters.get(parameter);
 
         for (Map.Entry<String, Symbol> entry : this.parameters.entrySet()) {
@@ -32,7 +32,7 @@ public class JmmMethod {
             index++;
         }
 
-        return this.parameters.size() - index;
+        return index;
     }
 
     public List<String> getParametersNames() {
