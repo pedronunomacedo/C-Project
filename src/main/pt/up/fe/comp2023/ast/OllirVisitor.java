@@ -560,14 +560,20 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         switch (varSpot) {
             case "localVariable":
                 if (valueNodeIsTerminalSymbol) {
-                    ollirCode.append(OllirTemplates.variableAssignment(variable, "-1", newValueOllirCode));
+                    if (valueNode.getKind().equals("NewObject")) {
+                        ollirCode.append(newValueOllirCode);
+                        String tempVar = "t" + (this.tempMethodParamNum - 1) + OllirTemplates.type(variable.getType());
+                        ollirCode.append(OllirTemplates.variableAssignment(variable, "-1", tempVar));
+                    } else {
+                        ollirCode.append(OllirTemplates.variableAssignment(variable, "-1", newValueOllirCode));
+                    }
                 } else {
-                    if (node.getJmmChild(0).getKind().equals("MemberAccess")) {
+                    if (valueNode.getKind().equals("MemberAccess")) {
                         String typeAcc = OllirTemplates.type(variable.getType());
                         ollirCode.append(varName + typeAcc + " :=" + typeAcc + " ");
                         ollirCode.append(newValueOllirCode);
                     }
-                    else if (node.getJmmChild(0).getKind().equals("BinaryOp")) {
+                    else if (valueNode.getKind().equals("BinaryOp")) {
                         ollirCode.append(newValueOllirCode);
                     } else {
                         ollirCode.append(newValueOllirCode);
@@ -583,7 +589,13 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 int paramIndex = this.currentMethod.getParameterIndex(variable.getName());
 
                 if (valueNodeIsTerminalSymbol) {
-                    ollirCode.append(OllirTemplates.variableAssignment(variable, newValueOllirCode, paramIndex));
+                    if (valueNode.getKind().equals("NewObject")) {
+                        ollirCode.append(newValueOllirCode);
+                        String tempVar = "t" + (this.tempMethodParamNum - 1) + OllirTemplates.type(variable.getType());
+                        ollirCode.append(OllirTemplates.variableAssignment(variable, tempVar, paramIndex));
+                    } else {
+                        ollirCode.append(OllirTemplates.variableAssignment(variable, newValueOllirCode, paramIndex));
+                    }
                 } else {
                     ollirCode.append(newValueOllirCode);
                     Type varType = variable.getType();
@@ -594,7 +606,13 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 break;
             case "fieldVariable":
                 if (valueNodeIsTerminalSymbol) {
-                    ollirCode.append(OllirTemplates.variableAssignment(this.tempMethodParamNum, variable, newValueOllirCode));
+                    if (valueNode.getKind().equals("NewObject")) {
+                        ollirCode.append(newValueOllirCode);
+                        String tempVar = "t" + (this.tempMethodParamNum - 1) + OllirTemplates.type(variable.getType());
+                        ollirCode.append(OllirTemplates.variableAssignment(this.tempMethodParamNum, variable, tempVar));
+                    } else {
+                        ollirCode.append(OllirTemplates.variableAssignment(this.tempMethodParamNum, variable, newValueOllirCode));
+                    }
                 } else {
                     ollirCode.append(newValueOllirCode);
                     Type varType = variable.getType();

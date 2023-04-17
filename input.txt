@@ -4,6 +4,7 @@ import test;
 class CompileMethodInvocation {
     int fieldVariableExample;
     bool fieldVariableExample2;
+    MyClass myClassField;
 
     public int func() {
         return 11;
@@ -38,8 +39,11 @@ class CompileMethodInvocation {
         // MyClass e = new MyClass();
         // d = e;
 
-        MyClass a = new MyClass();
-        MyClass b = new MyClass();
+        // MyClass a = new MyClass();
+        // MyClass b = new MyClass();
         // a = b;
+
+        MyClass c;
+        myClassField = new MyClass();
     }
 }
