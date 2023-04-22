@@ -279,7 +279,7 @@ public class OllirTemplates {
             ollirCode.append(parameters);
         }
 
-        ollirCode.append(")" + (varScope.equals("import") ? ".V" : "") + currentArithType + ";\n");
+        ollirCode.append(")" + (varScope.equals("import") ? ".V" : currentArithType) + ";\n");
 
         return ollirCode.toString();
     }

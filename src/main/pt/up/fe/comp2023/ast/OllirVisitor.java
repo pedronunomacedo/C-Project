@@ -48,13 +48,24 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         setDefaultVisit(this::defaultVisit);
     }
 
+    private String fillImports() {
+        StringBuilder ollirCode = new StringBuilder();
+        for (String imp : symbolTable.getImports()) {
+            ollirCode.append("import ").append(imp).append(";\n");
+        }
+
+        return ollirCode.toString();
+    }
+
     private List<Object> dealWithProgramDeclaration(JmmNode node, List<Object> data) {
         // Check if node was already visited
         if (this.nodesVisited.contains(node)) return Collections.singletonList("DEFAULT_VISIT");
         this.nodesVisited.add(node);
         StringBuilder ollirCode = new StringBuilder();
 
-        for (JmmNode child : node.getChildren())
+        ollirCode.append(this.fillImports());
+
+        for (JmmNode child : node.getChildren().stream().filter(c -> c.getKind().equals("Class")).toList())
             ollirCode.append((String) visit(child, Collections.singletonList("PROGRAM")).get(0));
 
         return Collections.singletonList(ollirCode.toString());
@@ -426,7 +437,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 break;
             case "parameterVariable":
                 int paramIndex = this.exprVisitor.currentMethod.getParameterIndex(variable.getName());
-
                 if (valueNodeIsTerminalSymbol) {
                     if (valueNode.getKind().equals("NewObject")) {
                         ollirCode.append(newValueOllirCode);
