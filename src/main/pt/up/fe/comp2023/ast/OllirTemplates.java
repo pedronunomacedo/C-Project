@@ -271,7 +271,7 @@ public class OllirTemplates {
         if (varScope.equals("import")) {
             ollirCode.append("invokestatic(" + first + ", ");
         } else {
-            ollirCode.append("invokevirtual(" + first + currentArithType + ", ");
+            ollirCode.append("invokevirtual(" + first + ", ");
         }
         ollirCode.append("\"" + method + "\"");
         if (!parameters.equals("")) {
