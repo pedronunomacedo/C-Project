@@ -1,23 +1,30 @@
+/*
+// 1 test
 import io;
-class Simple {
+class Test {
 
-    public int add(int a, int b){
-        int[] test;
-        int c;
-        c = test[0];
+    public int compFac(int num) {
+        return num;
     }
 
     public static void main(String[] args){
         int a;
-        int b;
-        int c;
-        Simple s;
-        a = 20;
-        b = 10;
-        s = new Simple();
-        c = s.add(a,b);
-        test.println(c);
+        a = io.println(new Test().compFac(10));
+    }
+}
+*/
+
+// 2nd test
+import io;
+class myClass {
+    public int bar(int c) {
+        return c;
     }
 
-
+    public int teste() {
+        io.bar(4);
+        MyClass v;
+        v = new MyClass();
+        v.bar(1);
+    }
 }
