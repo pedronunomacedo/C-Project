@@ -57,11 +57,6 @@ public class Launcher {
         // Semantic Analysis
 
 
-        // Transform to OLLIR code
-        OllirResult ollirResult = new OptimizationStage().toOllir(result);
-        System.out.println("ollirResult: " + ollirResult.toString());
-
-
     }
 
     private static Map<String, String> parseArgs(String[] args) {
