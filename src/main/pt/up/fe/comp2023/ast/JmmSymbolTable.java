@@ -79,6 +79,8 @@ public class JmmSymbolTable implements SymbolTable {
         return this.currentMethod;
     }
 
+    public void setCurrentMethod(JmmMethod method) {this.currentMethod = method; }
+
     public Symbol getField(String name) {
         for (Map.Entry<String, Symbol> field : this.fields.entrySet()) {
             if (field.getKey().equals(name))

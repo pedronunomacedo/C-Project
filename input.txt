@@ -1,16 +1,18 @@
-import io;
+import A;
 
-class CompileMethodInvocation {
-    MyClass fieldVariableExample;
+class AssumeArguments {
 
     public static void main(String[] args) {
-    		int b;
-    		int c;
-    		b = 2 + b;
+
     }
 
-    public void setInlineAndPrintOtherClassFromParam(int value, MyClass myClass) {
-        MyClass class2;
-        int y = 2 + fieldVariableExample.get();
+    public int bar() {
+        A a;
+        boolean b;
+
+        a = new A();
+        b = true;
+
+        return a.foo(b);
     }
 }
