@@ -46,12 +46,10 @@ class CompileMethodInvocation {
 
     public int setInlineAndPrintOtherClassFromParam (X xObj) {
         int c;
-        int d;
         c = xObj.foo();
+        c = fieldXobj.foo();
 
-        d = fieldXobj.foo();
-
-        io.println(10);
+        io.println(xObj.foo());
     }
 
 
