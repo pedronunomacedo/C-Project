@@ -208,14 +208,16 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         ollirCode.append(String.join("", this.exprVisitor.tempVariablesOllirCode));
         this.exprVisitor.resetTempVariables();
 
+        System.out.println("pair.a: " + pair.a);
+
         switch (pair.a) {
             case "localVariable":
                 ollirCode.append(OllirTemplates.variableAssignment(variable, "", valueOllirCode));
                 break;
             case "parameterVariable":
                 int paramIndex = this.exprVisitor.currentMethod.getParameterIndex(varName);
-                Symbol symbol = new Symbol(variable.getType(), "$" + paramIndex + "." + variable.getName());
-                ollirCode.append(OllirTemplates.variableAssignment(variable, "", valueOllirCode));
+                Symbol newVariable = new Symbol(variable.getType(), "$" + paramIndex + "." + variable.getName());
+                ollirCode.append(OllirTemplates.variableAssignment(newVariable, "", valueOllirCode));
                 break;
             case "fieldVariable":
                 ollirCode.append(OllirTemplates.putField(variable, valueOllirCode));
