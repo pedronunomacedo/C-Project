@@ -99,47 +99,47 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
     }
 
     private List<Object> dealWithMemberAccess(JmmNode node, List<Object> data) {
+        System.out.println("In dealWithMemberAccess() function!");
         if (nodesVisited.contains(node)) return Collections.singletonList("DEFAULT_VISIT");
         this.nodesVisited.add(node);
         StringBuilder ollirCode = new StringBuilder();
 
-        String objExpr = (String) visit(node.getJmmChild(0), Collections.singletonList("MEMBER_ACCESS")).get(0);
-        Pair<String, Symbol> objExprPair = this.symbolTable.variableScope(this.currentMethod, objExpr);
         String funcName = node.get("id");
-
         List<JmmNode> parameters = node.getChildren().subList(1, node.getNumChildren());
-
         List<String> parameterString = new ArrayList<>();
         for (JmmNode parameter : parameters) {
             String paramOllirCode = (String) visit(parameter, Collections.singletonList("MEMBER_ACCESS")).get(0); // value or the temporary variable
             parameterString.add(paramOllirCode);
         }
 
-        if (objExprPair.b == null) { // comes from the imports (there is no variable - local, parameter, field - that corresponds to objExpr)
-            if (data.get(0).equals("Expr")) {
-                this.tempVariablesOllirCode.add(OllirTemplates.invokestatic(objExpr, funcName, parameterString, ".V"));
-            }
-            else if (data.get(0).equals("RETURN")) {
-                String tempVar = "t" + (++this.tempMethodParamNum) + OllirTemplates.type(this.currentMethod.getReturnType());
-                this.tempVariablesOllirCode.add(tempVar +  " :=" +  OllirTemplates.type(this.currentMethod.getReturnType()) + " " + OllirTemplates.invokevirtual(objExpr, funcName, parameterString));
-                ollirCode.append(tempVar);
+        String objExpr = (String) visit(node.getJmmChild(0), Collections.singletonList("MEMBER_ACCESS")).get(0);
+        int dotIndex = objExpr.indexOf(".");
+        String retAcc = OllirTemplates.type(this.currentMethod.getReturnType());
+        if (dotIndex == -1) { // objExpr it's an import, use invokestatic
+            if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
+                String invokeStaticStr = OllirTemplates.invokestatic(objExpr, funcName, parameterString, retAcc);
+                ollirCode.append(invokeStaticStr.substring(0, invokeStaticStr.length() - 2));
             } else {
-                ollirCode.append(OllirTemplates.invokestatic(objExpr, funcName, parameterString, ".V"));
-            }
-        } else { // comes from the class or the 'this' keyword
-            JmmMethod funcMethod = this.symbolTable.getMethod(funcName);
-            this.tempMethodParamNum++;
-            this.tempVariables.add("t" + this.tempMethodParamNum + OllirTemplates.type(funcMethod.getReturnType()));
-            if (data.get(0).equals("Expr")) {
-                this.tempVariablesOllirCode.add(OllirTemplates.invokevirtual(objExpr, funcName, parameterString));
-            } else if (data.get(0).equals("RETURN")) {
-                String tempVar = "t" + (++this.tempMethodParamNum) + OllirTemplates.type(this.currentMethod.getReturnType());
-                this.tempVariablesOllirCode.add(tempVar +  " :=" +  OllirTemplates.type(this.currentMethod.getReturnType()) + " " + OllirTemplates.invokevirtual(objExpr, funcName, parameterString));
+                String tempVar = "t" + (++this.tempMethodParamNum) + retAcc;
+                this.tempVariables.add(tempVar);
+                this.tempVariablesOllirCode.add(((data.get(0).equals("BINARY_OP")) ? (tempVar + " :=" + retAcc + " ") : "") + OllirTemplates.invokestatic(objExpr, funcName, parameterString, retAcc));
                 ollirCode.append(tempVar);
+            }
+        } else { // use invokevirtual
+            String objExprName = objExpr.substring(0, dotIndex);
+            Pair<String, Symbol> objExprPair = this.symbolTable.variableScope(this.currentMethod, objExprName);
+            retAcc = OllirTemplates.type(objExprPair.b.getType());
+            if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
+                String invokeStaticStr = OllirTemplates.invokevirtual(objExpr, funcName, parameterString, retAcc);
+                ollirCode.append(invokeStaticStr.substring(0, invokeStaticStr.length() - 2));
             } else {
-                ollirCode.append(OllirTemplates.invokevirtual(objExpr, funcName, parameterString));
+                String tempVar = "t" + (++this.tempMethodParamNum) + retAcc;
+                this.tempVariables.add(tempVar);
+                this.tempVariablesOllirCode.add(((data.get(0).equals("BINARY_OP")) ? (tempVar + " :=" + retAcc + " ") : "") + OllirTemplates.invokevirtual(objExpr, funcName, parameterString, retAcc));
+                ollirCode.append(tempVar);
             }
         }
+
 
         return Collections.singletonList(ollirCode.toString());
     }
@@ -173,7 +173,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 ollirCode.append(val); // "this" keyword
                 break;
             case "Identifier":
-                System.out.println("-> Identifier");
                 Pair<String, Symbol> varScope = this.symbolTable.variableScope(this.currentMethod, val);
 
                 switch (varScope.a) {
@@ -192,7 +191,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                         ollirCode.append(OllirTemplates.variableCall(tempSymbol));
                         this.currentArithType = varScope.b.getType();
                         break;
-                    default: // Access members
+                    default: // Access members (imports)
                         ollirCode.append(val);
                         break;
                 }
