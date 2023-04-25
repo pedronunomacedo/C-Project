@@ -1,66 +1,25 @@
 import io;
-import OtherClass;
-import MyClass;
-import GetterAndSetter;
-import X;
 
+class A {
+    int a;
 
-class CompileMethodInvocation {
-    int fieldVariable;
-    X fieldXobj;
-    public static void main(String[] args) {
-
+    public int x(){
+        a = 10;
+        return a;
     }
-
-    public int foo(int c) {
+    public int x2(int a){
+        a = 10;
+        return a;
+    }
+    public int x3(int a){
         int a;
-        // int b = (10 * 3) + 7; -> WORKING!
-
-        // a = 10/2 + 6; -> WORKING!
-
-        // return (10 + 2) * 7; -> WORKING!
-        // return 7; -> WORKING!
-        // return a; -> WORKING!
-        // return c + 1; -> WORKING!
-        // return c; -> WORKING!
-        // return (2 + 5) * (fieldVariable + (3 * 6)); -> WORKING!
-        // return fieldVariable; -> WORKING!
-
-        // OtherClass otherClass = new OtherClass();
-
-         // io.println(fieldVariable); // -> WORKING!
-
-         /* -> WORKING!
-         MyClass b;
-         b = new MyClass();
-         a = this.cal(2);
-         */
-
-         // int test;
-         // test = 1 + io.get(10 + 2); // -> WORKING!
-
-         // MyClass b; -> WORKING!
-         // return b.get(1);
+        a = 10;
+        return a;
     }
 
 
-    public int setInlineAndPrintOtherClassFromParam (X xObj) {
-        int c;
-        c = xObj.foo();
-        c = fieldXobj.foo();
+    public static void main(String[] args){
 
-        io.println(xObj.foo());
+
     }
-
-
-    /*
-    public int test2 () {
-        GetterAndSetter b;
-        int content;
-        b = new GetterAndSetter();
-        content = b.setA(10);
-        content = b.getA();
-        io.print(content);
-    }
-    */
 }
