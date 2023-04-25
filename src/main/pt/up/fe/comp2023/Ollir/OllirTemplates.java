@@ -136,11 +136,11 @@ public class OllirTemplates {
         return String.format("invokestatic(%s, \"%s\", %s)" + retAcc + ";\n", importStmt, funcName, String.join(", ", parameters));
     }
 
-    public static String invokevirtual(String objName, String funcName, List<String> parameters) {
+    public static String invokevirtual(String objName, String funcName, List<String> parameters, String retAcc) {
         if (parameters.isEmpty()) {
-            return String.format("invokevirtual(%s, \"%s\").V;\n", objName, funcName);
+            return String.format("invokevirtual(%s, \"%s\")" + retAcc + ";\n", objName, funcName);
         }
-        return String.format("invokevirtual(%s, \"%s\", %s).V;\n", objName, funcName, String.join(", ", parameters));
+        return String.format("invokevirtual(%s, \"%s\", %s)" + retAcc + ";\n", objName, funcName, String.join(", ", parameters));
     }
 
     public static String localVariableAssignment(Symbol variable, String value) {

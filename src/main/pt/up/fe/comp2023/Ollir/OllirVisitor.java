@@ -183,6 +183,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         StringBuilder ollirCode = new StringBuilder();
 
         String varName = node.get("varName");
+
         Symbol variable = this.exprVisitor.currentMethod.getLocalVariable(varName);
         JmmNode valueNode = node.getJmmChild(0);
 
