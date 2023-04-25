@@ -131,12 +131,12 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             Symbol variable = this.symbolTable.getCurrentMethod().getLocalVariable(node.getJmmParent().get("varName"));
             retAcc = OllirTemplates.type(variable.getType());
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
-                String invokeStaticStr = OllirTemplates.invokevirtual(objExpr, funcName, parameterString, retAcc);
+                String invokeStaticStr = OllirTemplates.invokevirtual(objExprName, funcName, parameterString, retAcc);
                 ollirCode.append(invokeStaticStr.substring(0, invokeStaticStr.length() - 2));
             } else {
                 String tempVar = "t" + (++this.tempMethodParamNum) + retAcc;
                 this.tempVariables.add(tempVar);
-                this.tempVariablesOllirCode.add(((data.get(0).equals("BINARY_OP") || data.get(0).equals("RETURN")) ? (tempVar + " :=" + retAcc + " ") : "") + OllirTemplates.invokevirtual(objExpr, funcName, parameterString, retAcc));
+                this.tempVariablesOllirCode.add(((data.get(0).equals("BINARY_OP") || data.get(0).equals("RETURN")) ? (tempVar + " :=" + retAcc + " ") : "") + OllirTemplates.invokevirtual(objExprName, funcName, parameterString, retAcc));
                 ollirCode.append(tempVar);
             }
         }
