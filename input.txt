@@ -30,7 +30,7 @@ class CompileMethodInvocation {
          /* -> WORKING!
          MyClass b;
          b = new MyClass();
-         a = b.cal(2);
+         a = this.cal(2);
          */
 
          // int test;
@@ -40,7 +40,7 @@ class CompileMethodInvocation {
          // return b.get(1);
     }
 
-    /*
+
     public int setInlineAndPrintOtherClassFromParam (MyClass a) {
         MyClass b;
         int c;
@@ -50,7 +50,7 @@ class CompileMethodInvocation {
 
         io.println(10);
     }
-    */
+
 
     /*
     public int test2 () {
