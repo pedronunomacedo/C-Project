@@ -161,7 +161,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         StringBuilder ollirCode = new StringBuilder();
 
         String varName = node.get("varName"); // Name of the List
-        Pair<String, Symbol> variable = this.symbolTable.variableScope(this.exprVisitor.currentMethod, varName);
+        Pair<String, Symbol> pair = this.symbolTable.variableScope(this.exprVisitor.currentMethod, varName);
 
         JmmNode indexNode = node.getChildren().get(0);
         JmmNode valueNode = node.getChildren().get(1);
@@ -172,7 +172,23 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String valueOllirCode = (String) this.exprVisitor.visit(valueNode, Collections.singletonList("ASSIGNMENT")).get(0);
         ollirCode.append(String.join("", this.exprVisitor.tempVariablesOllirCode));
         this.exprVisitor.resetTempVariables();
-        ollirCode.append(OllirTemplates.variableAssignment(variable.b, indexOllirCode, valueOllirCode));
+
+        switch (pair.a) {
+            case "localVariable":
+                ollirCode.append(OllirTemplates.variableAssignment(pair.b, indexOllirCode, valueOllirCode));
+                break;
+            case "parameterVariable":
+                int paramIndex = this.exprVisitor.currentMethod.getParameterIndex(varName);
+                String newVarName = "$" + paramIndex + "." + varName;
+                Symbol newVariable2 = new Symbol(pair.b.getType(), newVarName);
+                ollirCode.append(OllirTemplates.variableAssignment(newVariable2, indexOllirCode, valueOllirCode));
+                break;
+            case "fieldVariable":
+                ollirCode.append(OllirTemplates.getField((++this.exprVisitor.tempMethodParamNum), pair.b));
+                String tempVar = "t" + this.exprVisitor.tempMethodParamNum + OllirTemplates.type(pair.b.getType());
+                Symbol newVariable3 = new Symbol(pair.b.getType(), tempVar);
+                ollirCode.append(OllirTemplates.variableAssignment(newVariable3, indexOllirCode, valueOllirCode));
+        }
 
         return Collections.singletonList(ollirCode.toString());
     }
