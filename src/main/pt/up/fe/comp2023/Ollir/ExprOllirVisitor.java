@@ -140,8 +140,12 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             if (objExpr.charAt(0) == 't') { // temporary variable
                 retAcc = OllirTemplates.type(this.currentArithType);
             } else {
-                Symbol variable = this.symbolTable.getCurrentMethod().getLocalVariable(node.getJmmParent().get("varName"));
-                retAcc = OllirTemplates.type(variable.getType());
+                if (!node.getJmmParent().getAttributes().contains("varName")) {
+                    retAcc = ".V";
+                } else {
+                    Symbol variable = this.symbolTable.getCurrentMethod().getLocalVariable(node.getJmmParent().get("varName"));
+                    retAcc = OllirTemplates.type(variable.getType());
+                }
             }
 
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
