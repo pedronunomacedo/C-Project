@@ -1,5 +1,6 @@
 import io;
 import OtherClass;
+import MyClass;
 
 class CompileMethodInvocation {
     int fieldVariable;
@@ -24,6 +25,13 @@ class CompileMethodInvocation {
         // return (2 + 5) * (fieldVariable + (3 * 6)); -> WORKING!
         // return fieldVariable; -> WORKING!
 
-        OtherClass otherClass = new OtherClass();
+        // OtherClass otherClass = new OtherClass();
+    }
+
+    public int setInlineAndPrintOtherClassFromParam (MyClass a) {
+        MyClass b;
+        b = new MyClass();
+        b = a;
+        return b.calcStuff(3*7);
     }
 }
