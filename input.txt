@@ -4,7 +4,9 @@ class A {
     int a;
 
     public int x(){
+        int c;
         a = 10;
+        c = a + 10;
         return a;
     }
     public int x2(int a){
