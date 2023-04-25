@@ -32,6 +32,8 @@ class CompileMethodInvocation {
         MyClass b;
         b = new MyClass();
         b = a;
-        return b.calcStuff(3*7);
+        int c;
+        c = b.calcStuff(3*7);
+        return c;
     }
 }
