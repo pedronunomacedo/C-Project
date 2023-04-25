@@ -1,30 +1,29 @@
-/*
-// 1 test
 import io;
-class Test {
+import OtherClass;
 
-    public int compFac(int num) {
-        return num;
+class CompileMethodInvocation {
+    int fieldVariable;
+    public static void main(String[] args) {
+
     }
 
-    public static void main(String[] args){
+    public int foo(int c) {
         int a;
-        a = io.println(new Test().compFac(10));
-    }
-}
-*/
+        // int b = (10 * 3) + 7; -> WORKING!
 
-// 2nd test
-import io;
-class myClass {
-    public int bar(int c) {
-        return c;
-    }
+        // a = 10/2 + 6; -> WORKING!
 
-    public int teste() {
-        io.bar(4);
-        MyClass v;
-        v = new MyClass();
-        v.bar(1);
+        // io.println(fieldVariable); -> WORKING!
+        // io.println(10 + 2); -> WORKING!
+
+        // return (10 + 2) * 7; -> WORKING!
+        // return 7; -> WORKING!
+        // return a; -> WORKING!
+        // return c + 1; -> WORKING!
+        // return c; -> WORKING!
+        // return (2 + 5) * (fieldVariable + (3 * 6)); -> WORKING!
+        // return fieldVariable; -> WORKING!
+
+        OtherClass otherClass = new OtherClass();
     }
 }

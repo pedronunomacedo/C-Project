@@ -2,7 +2,7 @@ package pt.up.fe.comp2023.ast;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
-
+import java.util.Arrays;
 import java.util.*;
 
 public class JmmMethod {
@@ -28,7 +28,7 @@ public class JmmMethod {
         Symbol param = this.parameters.get(parameter);
 
         for (Map.Entry<String, Symbol> entry : this.parameters.entrySet()) {
-            if (entry.getValue().equals(param)) break;
+            if (entry.getValue().equals(param)) return index;
             index++;
         }
 

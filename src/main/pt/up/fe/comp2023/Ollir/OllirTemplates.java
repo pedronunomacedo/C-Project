@@ -1,4 +1,4 @@
-package pt.up.fe.comp2023.ast;
+package pt.up.fe.comp2023.Ollir;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
@@ -16,7 +16,7 @@ public class OllirTemplates {
 
     public static String classTemplate(String name, String extendedClass) {
         StringBuilder ollir = new StringBuilder();
-        ollir.append(name).append(extendedClass).append(openBrackets());
+        ollir.append(name).append(extendedClass + " ").append(openBrackets());
         return ollir.toString();
     }
 
@@ -38,8 +38,9 @@ public class OllirTemplates {
         return ".field private " + field.getName() + type(field.getType()) +  ";\n";
     }
 
-    public static String methodTemplate(String name, List<Symbol> parameters, Type returnType, boolean isMain) {
+    public static String methodTemplate(String name, List<Symbol> parameters, Type returnType) {
         StringBuilder ollirCode = new StringBuilder(".method public ");
+        boolean isMain = name.equals("main");
 
         if (isMain) ollirCode.append("static ");
 
@@ -49,7 +50,6 @@ public class OllirTemplates {
             ollirCode.append(declareVariable(parameters.get(0), true));
         } else {
             // method parameters/arguments
-
             if (parameters.size() != 0) {
                 ollirCode.append(declareVariable(parameters.get(0), true));
                 if (parameters.size() > 1) {
@@ -129,10 +129,18 @@ public class OllirTemplates {
         return String.format("invokespecial(%s, \"%s\")%s;\n", var != null ? var : "this", method, type(returnType));
     }
 
-    public static String invokestatic(String importStmt) { // methods imported (method, libraries, other classes)
+    public static String invokestatic(String importStmt, String funcName, List<String> parameters) { // methods imported (method, libraries, other classes)
+        if (parameters.isEmpty()) {
+            return String.format("invokestatic(%s, \"%s\").V;\n", importStmt, funcName);
+        }
+        return String.format("invokestatic(%s, \"%s\", %s).V;\n", importStmt, funcName, String.join(", ", parameters));
+    }
 
-        //return String.format("invokestatic(%s, \"%s\").V;\n", importStmt, method, type(returnType));
-        return null;
+    public static String invokevirtual(String objName, String funcName, List<String> parameters) {
+        if (parameters.isEmpty()) {
+            return String.format("invokevirtual(%s, \"%s\").V;\n", objName, funcName);
+        }
+        return String.format("invokevirtual(%s, \"%s\", %s).V;\n", objName, funcName, String.join(", ", parameters));
     }
 
     public static String localVariableAssignment(Symbol variable, String value) {
@@ -161,7 +169,7 @@ public class OllirTemplates {
         //String varType = type(variable.getType());
         String varType = type(new Type(variable.getType().getName(), false));
         if (variable.getType().isArray()) {
-            ollirCode.append(variable.getName() + "[" + index + ".i32]" + varType);
+            ollirCode.append(variable.getName() + "[" + index + "]" + varType);
             ollirCode.append(" :=" + varType + " ");
             ollirCode.append(value + ";\n");
         } else {
@@ -204,14 +212,10 @@ public class OllirTemplates {
         return ollirCode.toString();
     }
 
-    public static String returnTemplate(String returnObj) {
-        return "ret" + returnObj + ";\n";
-    }
-
-    public static String returnTemplate(String type, String returnObj) { // Local Variable
+    public static String returnTemplate(String expr, Type retType) { // Local Variable
         StringBuilder ollirCode = new StringBuilder();
-        ollirCode.append("ret" + type + " ");
-        ollirCode.append(returnObj);
+        ollirCode.append("ret" + type(retType) + " ");
+        ollirCode.append(expr);
         ollirCode.append(";\n");
 
         return ollirCode.toString();
@@ -241,16 +245,16 @@ public class OllirTemplates {
         return ollirCode.toString();
     }
 
-    public static String variableCall(Type type, String returnObj) { // Local Variable
+    public static String variableCall(Symbol variable) { // Local Variable
         StringBuilder ollirCode = new StringBuilder();
-        ollirCode.append(returnObj + variableType(type.getName()));
+        ollirCode.append(variable.getName() + variableType(variable.getType().getName()));
 
         return ollirCode.toString();
     }
 
-    public static String variableCall(Type type, String returnObj, Integer index) { // MethodParameter or ClassField
+    public static String variableCall(Symbol variable, Integer index) { // MethodParameter or ClassField
         StringBuilder ollirCode = new StringBuilder();
-        ollirCode.append("$" + index + "." + returnObj + variableType(type.getName()));
+        ollirCode.append("$" + index + "." + variable.getName() + variableType(variable.getType().getName()));
 
         return ollirCode.toString();
     }
@@ -259,27 +263,6 @@ public class OllirTemplates {
         StringBuilder ollirCode = new StringBuilder();
         ollirCode.append("t" + tempIndex + type + " :=" + type + " ");
         ollirCode.append(returnValueStr + ";\n");
-
-        return ollirCode.toString();
-    }
-
-    public static String createMemberAccess(String tempVar, List<String> parametersTempVariables, String first, String method, String parameters, String currentArithType, String varScope) {
-        StringBuilder ollirCode = new StringBuilder();
-
-        ollirCode.append(String.join("\n", parametersTempVariables));
-        ollirCode.append(tempVar);
-        if (varScope.equals("import")) {
-            ollirCode.append("invokestatic(" + first + ", ");
-        } else {
-            ollirCode.append("invokevirtual(" + first + ", ");
-        }
-        ollirCode.append("\"" + method + "\"");
-        if (!parameters.equals("")) {
-            ollirCode.append( ", ");
-            ollirCode.append(parameters);
-        }
-
-        ollirCode.append(")" + (varScope.equals("import") ? ".V" : currentArithType) + ";\n");
 
         return ollirCode.toString();
     }
@@ -300,8 +283,18 @@ public class OllirTemplates {
         ollirCode.append("t" + tempVariableNum + "." + objClassName);
         ollirCode.append(" :=." + objClassName);
         ollirCode.append(" new(" + objClassName + ")." + objClassName + ";\n");
-        // invokespecial(aux1.Fac,"<init>").V;
         ollirCode.append("invokespecial(t" + tempVariableNum + "." + objClassName + ", \"<init>\").V;\n");
+
+        return ollirCode.toString();
+    }
+
+    public static String getField(int tempVariableNum, Symbol field) {
+        StringBuilder ollirCode = new StringBuilder();
+        ollirCode.append("t" + tempVariableNum + type(field.getType()));
+        ollirCode.append(" :=" + type(field.getType()) + " ");
+        ollirCode.append("getfield(this, ");
+        ollirCode.append(field.getName() + type(field.getType()));
+        ollirCode.append(")" + type(field.getType()) + ";\n");
 
         return ollirCode.toString();
     }
