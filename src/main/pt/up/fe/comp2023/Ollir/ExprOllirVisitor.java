@@ -143,7 +143,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 if (!node.getJmmParent().getAttributes().contains("varName")) {
                     retAcc = ".V";
                 } else {
-                    Symbol variable = this.symbolTable.getCurrentMethod().getLocalVariable(node.getJmmParent().get("varName"));
+                    Symbol variable = this.currentMethod.getLocalVariable(node.getJmmParent().get("varName"));
                     retAcc = OllirTemplates.type(variable.getType());
                 }
             }
@@ -200,7 +200,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                         this.currentArithType = varScope.b.getType();
                         break;
                     case "parameterVariable":
-                        int paramIndex = this.symbolTable.getCurrentMethod().getParameterIndex(val);
+                        int paramIndex = this.currentMethod.getParameterIndex(val);
                         ollirCode.append(OllirTemplates.variableCall(varScope.b, paramIndex)); // returns the variable
                         this.currentArithType = varScope.b.getType();
                         break;
