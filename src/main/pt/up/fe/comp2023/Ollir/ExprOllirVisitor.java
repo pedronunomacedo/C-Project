@@ -201,7 +201,9 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                         break;
                     case "parameterVariable":
                         int paramIndex = this.currentMethod.getParameterIndex(val);
-                        ollirCode.append(OllirTemplates.variableCall(varScope.b, paramIndex)); // returns the variable
+                        String tempVar = "t" + this.tempMethodParamNum + OllirTemplates.type(varScope.b.getType());
+                        Symbol newVariable2 = new Symbol(varScope.b.getType(), tempVar);
+                        ollirCode.append(OllirTemplates.variableCall(newVariable2, paramIndex)); // returns the variable
                         this.currentArithType = varScope.b.getType();
                         break;
                     case "fieldVariable":
