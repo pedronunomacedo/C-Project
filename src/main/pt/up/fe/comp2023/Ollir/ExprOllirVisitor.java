@@ -122,7 +122,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             } else {
                 String tempVar = "t" + (++this.tempMethodParamNum) + retAcc;
                 this.tempVariables.add(tempVar);
-                this.tempVariablesOllirCode.add(((data.get(0).equals("BINARY_OP")) ? (tempVar + " :=" + retAcc + " ") : "") + OllirTemplates.invokestatic(objExpr, funcName, parameterString, retAcc));
+                this.tempVariablesOllirCode.add(((data.get(0).equals("BINARY_OP") || data.get(0).equals("RETURN")) ? (tempVar + " :=" + retAcc + " ") : "") + OllirTemplates.invokestatic(objExpr, funcName, parameterString, retAcc));
                 ollirCode.append(tempVar);
             }
         } else { // use invokevirtual
@@ -135,7 +135,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             } else {
                 String tempVar = "t" + (++this.tempMethodParamNum) + retAcc;
                 this.tempVariables.add(tempVar);
-                this.tempVariablesOllirCode.add(((data.get(0).equals("BINARY_OP")) ? (tempVar + " :=" + retAcc + " ") : "") + OllirTemplates.invokevirtual(objExpr, funcName, parameterString, retAcc));
+                this.tempVariablesOllirCode.add(((data.get(0).equals("BINARY_OP") || data.get(0).equals("RETURN")) ? (tempVar + " :=" + retAcc + " ") : "") + OllirTemplates.invokevirtual(objExpr, funcName, parameterString, retAcc));
                 ollirCode.append(tempVar);
             }
         }

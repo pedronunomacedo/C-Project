@@ -36,6 +36,8 @@ class CompileMethodInvocation {
          // int test;
          // test = 1 + io.get(10 + 2); // -> WORKING!
 
+         MyClass b;
+         return b.get(1);
     }
 
     /*
