@@ -1,13 +1,11 @@
-package pt.up.fe.comp2023;
+package pt.up.fe.comp2023.Ollir;
 
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp2023.ast.JmmSymbolTable;
-import pt.up.fe.comp2023.ast.OllirVisitor;
-
-import java.util.Arrays;
+import pt.up.fe.comp2023.Ollir.OllirVisitor;
 
 public class OptimizationStage implements JmmOptimization {
 

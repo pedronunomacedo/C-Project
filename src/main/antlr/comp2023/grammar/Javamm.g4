@@ -48,7 +48,7 @@ methodDeclaration
 
             ('return' returnObj ';')?
       '}'                                                               #MethodDeclarationOther
-    | ('public')? 'static' 'void' 'main' '(' type '[' ']' ID ')' '{'
+    | ('public')? 'static' 'void' methodName='main' '(' type '[' ']' ID ')' '{'
             (localVariables)*
             (statement)*
       '}'                                                               #MethodDeclarationMain
@@ -56,14 +56,7 @@ methodDeclaration
 
 localVariables
     : type varName=ID ('=' expression)? ';'                           // inline variable declaration
-    //| varName=ID (op='=' expression) ';'                              // variable assignment
     ;
-/*
-localVariables
-    : type varName=ID ';'
-    | varName=ID ('=' returnObj) ';'
-    ;
-*/
 
 returnType
     : type
