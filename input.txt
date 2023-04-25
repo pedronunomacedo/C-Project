@@ -2,6 +2,8 @@ import io;
 import OtherClass;
 import MyClass;
 import GetterAndSetter;
+import X;
+
 
 class CompileMethodInvocation {
     int fieldVariable;
@@ -41,12 +43,9 @@ class CompileMethodInvocation {
     }
 
 
-    public int setInlineAndPrintOtherClassFromParam (MyClass a) {
-        MyClass b;
+    public int setInlineAndPrintOtherClassFromParam (X xObj) {
         int c;
-        b = new MyClass();
-        // b = a;
-        c = b.cal(2);
+        c = xObj.foo();
 
         io.println(10);
     }

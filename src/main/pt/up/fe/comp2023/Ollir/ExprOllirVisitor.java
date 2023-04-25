@@ -113,6 +113,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         }
 
         String objExpr = (String) visit(node.getJmmChild(0), Collections.singletonList("MEMBER_ACCESS")).get(0);
+        System.out.println("objExpr: " + objExpr);
         int dotIndex = objExpr.indexOf("."); // has the type integrated in the objExpr
         String retAcc = OllirTemplates.type(this.currentMethod.getReturnType());
         if (dotIndex == -1) { // objExpr it's an import, use invokestatic
@@ -126,7 +127,17 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 ollirCode.append(tempVar);
             }
         } else { // use invokevirtual
-            String objExprName = objExpr.substring(0, dotIndex);
+            String objExprName = new String();
+            if (objExpr.chars().filter(ch -> ch == '.').count() == 2) { // parameter (remove the )
+                objExprName = objExpr.substring(dotIndex + 1, objExpr.length());
+                dotIndex = objExprName.indexOf("."); // index of the 2nd "."
+                objExprName = objExprName.substring(0, dotIndex);
+            } else {
+                objExprName = objExpr.substring(0, dotIndex);
+            }
+
+            System.out.println("objExprName: " + objExprName);
+
             Pair<String, Symbol> objExprPair = this.symbolTable.variableScope(this.currentMethod, objExprName);
             Symbol variable = this.symbolTable.getCurrentMethod().getLocalVariable(node.getJmmParent().get("varName"));
             retAcc = OllirTemplates.type(variable.getType());
