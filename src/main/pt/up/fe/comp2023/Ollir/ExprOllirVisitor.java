@@ -128,7 +128,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             }
         } else { // use invokevirtual
             String objExprName = new String();
-            if (objExpr.chars().filter(ch -> ch == '.').count() == 2) { // parameter (remove the )
+            if (objExpr.chars().filter(ch -> ch == '.').count() == 2) { // parameter (remove the param index and param type)
                 objExprName = objExpr.substring(dotIndex + 1, objExpr.length());
                 dotIndex = objExprName.indexOf("."); // index of the 2nd "."
                 objExprName = objExprName.substring(0, dotIndex);
@@ -136,11 +136,14 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 objExprName = objExpr.substring(0, dotIndex);
             }
 
-            System.out.println("objExprName: " + objExprName);
 
-            Pair<String, Symbol> objExprPair = this.symbolTable.variableScope(this.currentMethod, objExprName);
-            Symbol variable = this.symbolTable.getCurrentMethod().getLocalVariable(node.getJmmParent().get("varName"));
-            retAcc = OllirTemplates.type(variable.getType());
+            if (objExpr.charAt(0) == 't') { // temporary variable
+                retAcc = OllirTemplates.type(this.currentArithType);
+            } else {
+                Symbol variable = this.symbolTable.getCurrentMethod().getLocalVariable(node.getJmmParent().get("varName"));
+                retAcc = OllirTemplates.type(variable.getType());
+            }
+
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
                 String invokeStaticStr = OllirTemplates.invokevirtual(objExpr, funcName, parameterString, retAcc);
                 ollirCode.append(invokeStaticStr.substring(0, invokeStaticStr.length() - 2));

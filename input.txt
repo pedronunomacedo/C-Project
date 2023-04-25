@@ -7,6 +7,7 @@ import X;
 
 class CompileMethodInvocation {
     int fieldVariable;
+    X fieldXobj;
     public static void main(String[] args) {
 
     }
@@ -45,7 +46,10 @@ class CompileMethodInvocation {
 
     public int setInlineAndPrintOtherClassFromParam (X xObj) {
         int c;
+        int d;
         c = xObj.foo();
+
+        d = fieldXobj.foo();
 
         io.println(10);
     }
