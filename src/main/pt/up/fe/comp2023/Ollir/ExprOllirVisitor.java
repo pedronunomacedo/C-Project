@@ -115,7 +115,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String objExpr = (String) visit(node.getJmmChild(0), Collections.singletonList("MEMBER_ACCESS")).get(0);
         int dotIndex = objExpr.indexOf(".");
         String retAcc = OllirTemplates.type(this.currentMethod.getReturnType());
-        if (dotIndex == -1) { // objExpr it's an import, use invokestatic
+        if (dotIndex == -1 || this.symbolTable.getImports().contains(objExpr)) { // objExpr it's an import, use invokestatic
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
                 String invokeStaticStr = OllirTemplates.invokestatic(objExpr, funcName, parameterString, retAcc);
                 ollirCode.append(invokeStaticStr.substring(0, invokeStaticStr.length() - 2));
