@@ -129,11 +129,11 @@ public class OllirTemplates {
         return String.format("invokespecial(%s, \"%s\")%s;\n", var != null ? var : "this", method, type(returnType));
     }
 
-    public static String invokestatic(String importStmt, String funcName, List<String> parameters) { // methods imported (method, libraries, other classes)
+    public static String invokestatic(String importStmt, String funcName, List<String> parameters, String retAcc) { // methods imported (method, libraries, other classes)
         if (parameters.isEmpty()) {
-            return String.format("invokestatic(%s, \"%s\").V;\n", importStmt, funcName);
+            return String.format("invokestatic(%s, \"%s\")" + retAcc + ";\n", importStmt, funcName);
         }
-        return String.format("invokestatic(%s, \"%s\", %s).V;\n", importStmt, funcName, String.join(", ", parameters));
+        return String.format("invokestatic(%s, \"%s\", %s)" + retAcc + ";\n", importStmt, funcName, String.join(", ", parameters));
     }
 
     public static String invokevirtual(String objName, String funcName, List<String> parameters) {

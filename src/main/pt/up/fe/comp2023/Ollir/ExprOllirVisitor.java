@@ -63,7 +63,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
         if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
             ollirCode.append("new(" + objClassName + ")." + objClassName + ";\n");
-            ollirCode.append("invokespecial(" + tempVar + ", \"<init>\").V");
+            ollirCode.append("invokespecial(" + node.getJmmParent().get("varName") + "." + objClassName + ", \"<init>\").V");
         } else {
             this.tempVariables.add(tempVar);
             this.tempVariablesOllirCode.add(OllirTemplates.newObjectTemplate((++this.tempMethodParamNum), objClassName));
@@ -117,9 +117,14 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
         if (objExprPair.b == null) { // comes from the imports (there is no variable - local, parameter, field - that corresponds to objExpr)
             if (data.get(0).equals("Expr")) {
-                this.tempVariablesOllirCode.add(OllirTemplates.invokestatic(objExpr, funcName, parameterString));
+                this.tempVariablesOllirCode.add(OllirTemplates.invokestatic(objExpr, funcName, parameterString, ".V"));
+            }
+            else if (data.get(0).equals("RETURN")) {
+                String tempVar = "t" + (++this.tempMethodParamNum) + OllirTemplates.type(this.currentMethod.getReturnType());
+                this.tempVariablesOllirCode.add(tempVar +  " :=" +  OllirTemplates.type(this.currentMethod.getReturnType()) + " " + OllirTemplates.invokevirtual(objExpr, funcName, parameterString));
+                ollirCode.append(tempVar);
             } else {
-                ollirCode.append(OllirTemplates.invokestatic(objExpr, funcName, parameterString));
+                ollirCode.append(OllirTemplates.invokestatic(objExpr, funcName, parameterString, ".V"));
             }
         } else { // comes from the class or the 'this' keyword
             JmmMethod funcMethod = this.symbolTable.getMethod(funcName);
@@ -127,6 +132,10 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             this.tempVariables.add("t" + this.tempMethodParamNum + OllirTemplates.type(funcMethod.getReturnType()));
             if (data.get(0).equals("Expr")) {
                 this.tempVariablesOllirCode.add(OllirTemplates.invokevirtual(objExpr, funcName, parameterString));
+            } else if (data.get(0).equals("RETURN")) {
+                String tempVar = "t" + (++this.tempMethodParamNum) + OllirTemplates.type(this.currentMethod.getReturnType());
+                this.tempVariablesOllirCode.add(tempVar +  " :=" +  OllirTemplates.type(this.currentMethod.getReturnType()) + " " + OllirTemplates.invokevirtual(objExpr, funcName, parameterString));
+                ollirCode.append(tempVar);
             } else {
                 ollirCode.append(OllirTemplates.invokevirtual(objExpr, funcName, parameterString));
             }
