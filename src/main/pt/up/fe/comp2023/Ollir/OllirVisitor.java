@@ -107,6 +107,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         for (JmmNode child : node.getChildren()) {
             if (child.getKind().equals("ReturnObj")) {
                 String childExpr = (String) this.exprVisitor.visit(child.getJmmChild(0), Collections.singletonList("RETURN")).get(0);
+                System.out.println("childExpr: " + childExpr);
                 ollirCode.append(String.join("", this.exprVisitor.tempVariablesOllirCode)); // append the temporary variables ollir code
                 ollirCode.append(OllirTemplates.returnTemplate(childExpr, this.exprVisitor.currentArithType)); // Or chidlExpr = terminalSymbol OR childExpr = tempVariable
                 this.exprVisitor.resetTempVariables();
