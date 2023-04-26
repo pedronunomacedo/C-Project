@@ -1,9 +1,13 @@
 import io;
+import MyClass;
 
 class A {
     int a;
 
-    public int x(){
+    public int x(MyClass myClass){
+
+        int localVariable = 10 + myClass.getNum();
+        int test = io.getNum();
         a = 10;
         return a;
     }
@@ -11,7 +15,7 @@ class A {
         a = 10;
         return a;
     }
-    public int x3(int a){
+    public int x3(int b){
         int a;
         a = b;
         return a;
