@@ -82,8 +82,11 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
                 break;
             case "Identifier":
                 String val = node.get("val");
+                System.out.println("val: " + val);
                 Pair<String, Symbol> pair = analysis.getSymbolTable().variableScope(analysis.getSymbolTable().getCurrentMethod(), val);
                 Symbol variable = pair.b;
+
+                System.out.println("variable: " + variable);
 
                 if (variable == null) {
                     // Check if it comes from the imports
@@ -136,8 +139,8 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
 
     private Type dealWithMemberAccess(JmmNode node, Type method) {
         Type objectType = visit(node.getJmmChild(0), method);
-        System.out.println("Gonzallito ---> " + objectType);
-        System.out.println("child: " + node.getJmmChild(0));
+
+        System.out.println("objectType: " + objectType);
 
         if (objectType == null && isVariable) {
             analysis.newReport(node, "objectType is null");
