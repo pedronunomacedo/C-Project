@@ -4,117 +4,117 @@ import org.specs.comp.ollir.*;
 import static pt.up.fe.comp2023.Jasmin.JasminBuilder.classUnit;
 
 public class Caller {
-    public static String invokeVirtualInstructions(CallInstruction instruction, Method method) {
-        StringBuilder jasminCode = new StringBuilder();
-        jasminCode.append("\t").append(Instructions.loadInstruction(instruction.getFirstArg(), method.getVarTable()));
-
-        for (Element element : instruction.getListOfOperands()){
-            jasminCode.append("\t").append(Instructions.loadInstruction(element, method.getVarTable()));
+    public static String generateVirtualInvokeCode(CallInstruction call, Method method) {
+        StringBuilder code = new StringBuilder();
+        code.append("\t").append(Instructions.loadInstruction(call.getFirstArg(), method.getVarTable()));
+        for (Element op : call.getListOfOperands()){
+            code.append("\t").append(Instructions.loadInstruction(op, method.getVarTable()));
         }
 
-        jasminCode.append("\t").append("invokevirtual ");
+        code.append("\t").append("invokevirtual ");
 
-        if (((ClassType)instruction.getFirstArg().getType()).getName().equals("this")){
-            jasminCode.append(method.getOllirClass().getClassName());
+        if (((ClassType)call.getFirstArg().getType()).getName().equals("this")){
+            code.append(method.getOllirClass().getClassName());
         }
         else{
-            jasminCode.append(((ClassType) instruction.getFirstArg().getType()).getName());
+            code.append(((ClassType) call.getFirstArg().getType()).getName());
         }
 
-        jasminCode.append("/");
-        jasminCode.append(((LiteralElement)instruction.getSecondArg()).getLiteral().replace("\"", ""));
-        jasminCode.append("(");
+        code.append("/");
+        code.append(((LiteralElement)call.getSecondArg()).getLiteral().replace("\"", ""));
+        code.append("(");
 
-        for (Element element : instruction.getListOfOperands()){
-            jasminCode.append(JasminTypesInst.getType(element.getType(), classUnit.getImports(), true));
+        for (Element op : call.getListOfOperands()){
+            code.append(JasminTypesInst.getType(op.getType(), classUnit.getImports(), true));
         }
 
-        jasminCode.append(")").append(JasminTypesInst.getType(instruction.getReturnType(), classUnit.getImports(),false)).append("\n");
+        code.append(")").append(JasminTypesInst.getType(call.getReturnType(), classUnit.getImports(),false)).append("\n");
 
-        return jasminCode.toString();
-
+        return code.toString();
     }
 
-    public static String invokeSpecialInstructions(CallInstruction instruction, Method method) {
-        StringBuilder jasminCode = new StringBuilder();
-        jasminCode.append("\t").append(Instructions.loadInstruction(instruction.getFirstArg(), method.getVarTable()));
+    public static String generateJasminCodeForNEWInstructions(CallInstruction callInstr, Method method) {
+        StringBuilder jasminCodeBuilder = new StringBuilder();
 
-        jasminCode.append("\t").append("invokespecial ");
+        for (Element elem : callInstr.getListOfOperands()){
+            jasminCodeBuilder.append("\t").append(Instructions.loadInstruction(elem, method.getVarTable()));
+        }
 
-        if (instruction.getFirstArg().getType().getTypeOfElement() == ElementType.THIS){
+        if (callInstr.getFirstArg().getType().getTypeOfElement() == ElementType.OBJECTREF){
+            jasminCodeBuilder.append("\tnew ").append(((Operand)callInstr.getFirstArg()).getName()).append("\n")
+                    .append("\tdup").append("\n");
+        }
+
+        return jasminCodeBuilder.toString();
+    }
+
+
+    public static String generateSpecialInvokeCode(CallInstruction call, Method method) {
+        StringBuilder code = new StringBuilder();
+        code.append("\t").append(Instructions.loadInstruction(call.getFirstArg(), method.getVarTable()));
+        code.append("\t").append("invokespecial ");
+
+        if (call.getFirstArg().getType().getTypeOfElement() == ElementType.THIS){
             if (method.getOllirClass().getSuperClass() == null){
-                jasminCode.append("java/lang/Object");
+                code.append("java/lang/Object");
             }
             else{
-                jasminCode.append(method.getOllirClass().getSuperClass());
+                code.append(method.getOllirClass().getSuperClass());
             }
         }
         else{
-            jasminCode.append(((ClassType) instruction.getFirstArg().getType()).getName());
+            code.append(((ClassType) call.getFirstArg().getType()).getName());
         }
 
-        jasminCode.append("/");
-        jasminCode.append(((LiteralElement)instruction.getSecondArg()).getLiteral().replace("\"", ""));
-        jasminCode.append("(");
+        code.append("/");
+        code.append(((LiteralElement)call.getSecondArg()).getLiteral().replace("\"", ""));
+        code.append("(");
 
-        for (Element element : instruction.getListOfOperands()){
-            jasminCode.append(JasminTypesInst.getType(element.getType(), classUnit.getImports(), false));
+        for (Element op : call.getListOfOperands()){
+            code.append(JasminTypesInst.getType(op.getType(), classUnit.getImports(), false));
         }
 
-        jasminCode.append(")").append(JasminTypesInst.getType(instruction.getReturnType(), classUnit.getImports(), false)).append("\n");
+        code.append(")").append(JasminTypesInst.getType(call.getReturnType(), classUnit.getImports(), false)).append("\n");
 
-        return jasminCode.toString();
+        return code.toString();
     }
 
-    public static String invokeStaticInstructions(CallInstruction instruction, Method method) {
-        StringBuilder jasminCode = new StringBuilder();
-        for (Element element : instruction.getListOfOperands()){
-            jasminCode.append("\t").append(Instructions.loadInstruction(element, method.getVarTable()));
+    public static String generateStaticInvokeCode(CallInstruction call, Method method) {
+        StringBuilder code = new StringBuilder();
+        for (Element op : call.getListOfOperands()){
+            code.append("\t").append(Instructions.loadInstruction(op, method.getVarTable()));
         }
+        code.append("\t").append("invokestatic ");
 
-        jasminCode.append("\t").append("invokestatic ");
-
-        if (((Operand)instruction.getFirstArg()).getName().equals("this")){
-            jasminCode.append(method.getOllirClass().getClassName());
+        if (((Operand)call.getFirstArg()).getName().equals("this")){
+            code.append(method.getOllirClass().getClassName());
         }
         else{
-            jasminCode.append(((Operand)instruction.getFirstArg()).getName());
+            code.append(((Operand)call.getFirstArg()).getName());
         }
 
-        jasminCode.append("/");
-        jasminCode.append(((LiteralElement)instruction.getSecondArg()).getLiteral().replace("\"", ""));
-        jasminCode.append("(");
+        code.append("/");
+        code.append(((LiteralElement)call.getSecondArg()).getLiteral().replace("\"", ""));
+        code.append("(");
 
-        for (Element element : instruction.getListOfOperands()){
-            jasminCode.append(JasminTypesInst.getType(element.getType(), classUnit.getImports(), false));
+        for (Element op : call.getListOfOperands()){
+            code.append(JasminTypesInst.getType(op.getType(), classUnit.getImports(), false));
         }
 
-        jasminCode.append(")").append(JasminTypesInst.getType(instruction.getReturnType(), classUnit.getImports(), false)).append("\n");
+        code.append(")").append(JasminTypesInst.getType(call.getReturnType(), classUnit.getImports(), false)).append("\n");
 
-        return jasminCode.toString();
+        return code.toString();
     }
 
-    public static String invokeNEWInstructions(CallInstruction instruction, Method method) {
-        StringBuilder jasminCode = new StringBuilder();
-        for (Element element : instruction.getListOfOperands()){
-            jasminCode.append("\t").append(Instructions.loadInstruction(element, method.getVarTable()));
-        }
 
-        if (instruction.getFirstArg().getType().getTypeOfElement() == ElementType.OBJECTREF){
-            jasminCode.append("\tnew ").append(((Operand)instruction.getFirstArg()).getName()).append("\n").append("\tdup").append("\n");
-        }
-        return jasminCode.toString();
-
-    }
-
-    public static String invokeArrayLengthInstructions(CallInstruction instruction, Method method) {
+    public static String generateInvokeArrayLengthInstructions(CallInstruction instruction, Method method) {
         StringBuilder jasminCode = new StringBuilder();
         jasminCode.append(Instructions.loadInstruction(instruction.getFirstArg(), method.getVarTable())).append("arraylength\n");
 
         return jasminCode.toString();
     }
 
-    public static String invokeLdcInstructions(CallInstruction instruction, Method method) {
+    public static String generateInvokeLdcInstructions(CallInstruction instruction, Method method) {
         StringBuilder jasminCode = new StringBuilder();
         jasminCode.append(Instructions.loadInstruction(instruction.getFirstArg(), method.getVarTable()));
 
