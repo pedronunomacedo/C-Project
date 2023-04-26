@@ -1,13 +1,13 @@
-package pt.up.fe.comp2023;
+package pt.up.fe.comp2023.analysis;
 
 import pt.up.fe.comp.TestUtils;
-import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
+import pt.up.fe.comp2023.ast.JmmSymbolTable;
 import pt.up.fe.comp2023.ast.SymbolTableVisitor;
 
 import java.util.*;
@@ -29,8 +29,16 @@ public class AnalysisStage implements JmmAnalysis {
             return new JmmSemanticsResult(parserResult, null, Arrays.asList(errorReport));
         }
 
-        SymbolTable symbolTable = new SymbolTableVisitor().getSymbolTable(parserResult.getRootNode());
+        JmmSymbolTable symbolTable = new SymbolTableVisitor().getSymbolTable(parserResult.getRootNode());
 
-        return new JmmSemanticsResult(parserResult, symbolTable, List.of());
+        Analyser analyser = new Analyser(symbolTable);
+
+        analyser.visit(parserResult.getRootNode());
+
+        List<Report> reports = analyser.getReports();
+
+        System.out.println("reports: " + reports);
+
+        return new JmmSemanticsResult(parserResult, symbolTable, reports);
     }
 }
