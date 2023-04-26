@@ -159,11 +159,8 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
         }
 
         if (accessedMethod == null) {
-            //analysis.newReport(node, "Method accessed " + methodName + " not found");
-            //System.out.println("Gonzallito666 ---> " + accessedMethod);
             Type type = this.analysis.getCurrMethod().getReturnType();
             return type;
-
         }
 
         List<Symbol> methodParams = accessedMethod.getParameters();
