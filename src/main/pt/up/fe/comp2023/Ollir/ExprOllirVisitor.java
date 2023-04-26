@@ -153,7 +153,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 String invokeStaticStr = OllirTemplates.invokevirtual(objExpr, funcName, parameterString, retAcc);
                 ollirCode.append(invokeStaticStr.substring(0, invokeStaticStr.length() - 2));
             } else {
-                System.out.println("tempMethodParamNum: " + this.tempMethodParamNum);
                 String tempVar = "t" + (++this.tempMethodParamNum) + retAcc;
                 this.tempVariables.add(tempVar);
                 this.tempVariablesOllirCode.add(((data.get(0).equals("BINARY_OP") || data.get(0).equals("RETURN") || data.get(0).equals("MEMBER_ACCESS")) ? (tempVar + " :=" + retAcc + " ") : "") + OllirTemplates.invokevirtual(objExpr, funcName, parameterString, retAcc));
