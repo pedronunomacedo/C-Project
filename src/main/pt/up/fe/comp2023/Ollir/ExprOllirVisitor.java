@@ -109,14 +109,15 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         List<String> parameterString = new ArrayList<>();
         for (JmmNode parameter : parameters) {
             String paramOllirCode = (String) visit(parameter, Collections.singletonList("MEMBER_ACCESS")).get(0); // value or the temporary variable
+            System.out.println("paramOllirCode: " + paramOllirCode);
             parameterString.add(paramOllirCode);
         }
 
         String objExpr = (String) visit(node.getJmmChild(0), Collections.singletonList("MEMBER_ACCESS")).get(0);
-        System.out.println("objExpr: " + objExpr);
         int dotIndex = objExpr.indexOf("."); // has the type integrated in the objExpr
         String retAcc = OllirTemplates.type(this.currentMethod.getReturnType());
-        if (dotIndex == -1) { // objExpr it's an import, use invokestatic
+        System.out.println("objExpr: " + objExpr);
+        if (dotIndex == -1 && !objExpr.equals("this")) { // objExpr it's an import, use invokestatic
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
                 String invokeStaticStr = OllirTemplates.invokestatic(objExpr, funcName, parameterString, retAcc);
                 ollirCode.append(invokeStaticStr.substring(0, invokeStaticStr.length() - 2));
@@ -128,14 +129,17 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             }
         } else { // use invokevirtual
             String objExprName = new String();
-            if (objExpr.chars().filter(ch -> ch == '.').count() == 2) { // parameter (remove the param index and param type)
-                objExprName = objExpr.substring(dotIndex + 1, objExpr.length());
-                dotIndex = objExprName.indexOf("."); // index of the 2nd "."
-                objExprName = objExprName.substring(0, dotIndex);
+            if (objExpr.equals("this")) {
+                objExprName = "this";
             } else {
-                objExprName = objExpr.substring(0, dotIndex);
+                if (objExpr.chars().filter(ch -> ch == '.').count() == 2) { // parameter (remove the param index and param type)
+                    objExprName = objExpr.substring(dotIndex + 1, objExpr.length());
+                    dotIndex = objExprName.indexOf("."); // index of the 2nd "."
+                    objExprName = objExprName.substring(0, dotIndex);
+                } else {
+                    objExprName = objExpr.substring(0, dotIndex);
+                }
             }
-
 
             if (objExpr.charAt(0) == 't') { // temporary variable
                 retAcc = OllirTemplates.type(this.currentArithType);
@@ -201,9 +205,9 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                         break;
                     case "parameterVariable":
                         int paramIndex = this.currentMethod.getParameterIndex(val);
-                        String tempVar = "t" + this.tempMethodParamNum;
-                        Symbol newVariable2 = new Symbol(varScope.b.getType(), tempVar);
-                        ollirCode.append(OllirTemplates.variableCall(newVariable2, paramIndex)); // returns the variable
+                        // String tempVar = "t" + this.tempMethodParamNum;
+                        // Symbol newVariable2 = new Symbol(varScope.b.getType(), tempVar);
+                        ollirCode.append(OllirTemplates.variableCall(varScope.b, paramIndex)); // returns the variable
                         this.currentArithType = varScope.b.getType();
                         break;
                     case "fieldVariable":

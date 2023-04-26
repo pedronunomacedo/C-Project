@@ -18,11 +18,6 @@ public class Caller {
             jasminCode.append(method.getOllirClass().getClassName());
         }
         else{
-            // Add the L before if it's a parameter
-            System.out.println("HERERERE: ");
-            System.out.println("instruction.getFirstArg(): " + instruction.getFirstArg());
-            System.out.println("instruction.getSecondArg(): " + instruction.getSecondArg());
-            System.out.println("instruction.getReturnType(): " + instruction.getReturnType());
             jasminCode.append(((ClassType) instruction.getFirstArg().getType()).getName());
         }
 
@@ -31,7 +26,7 @@ public class Caller {
         jasminCode.append("(");
 
         for (Element element : instruction.getListOfOperands()){
-            jasminCode.append(JasminTypesInst.getType(element.getType(), classUnit.getImports(), false));
+            jasminCode.append(JasminTypesInst.getType(element.getType(), classUnit.getImports(), true));
         }
 
         jasminCode.append(")").append(JasminTypesInst.getType(instruction.getReturnType(), classUnit.getImports(),false)).append("\n");
