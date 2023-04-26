@@ -18,6 +18,11 @@ public class Caller {
             jasminCode.append(method.getOllirClass().getClassName());
         }
         else{
+            // Add the L before if it's a parameter
+            System.out.println("HERERERE: ");
+            System.out.println("instruction.getFirstArg(): " + instruction.getFirstArg());
+            System.out.println("instruction.getSecondArg(): " + instruction.getSecondArg());
+            System.out.println("instruction.getReturnType(): " + instruction.getReturnType());
             jasminCode.append(((ClassType) instruction.getFirstArg().getType()).getName());
         }
 
