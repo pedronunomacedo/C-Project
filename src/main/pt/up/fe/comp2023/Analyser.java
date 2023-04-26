@@ -71,6 +71,7 @@ public class Analyser extends AJmmVisitor<String, Void> {
 
     private Void dealWithMethodDeclaration(JmmNode node, String method) {
         JmmMethod currMethod = analysis.getSymbolTable().getMethod(node.get("methodName"));
+        analysis.setCurrMethod(currMethod);
         analysis.getSymbolTable().setCurrentMethod(currMethod);
         for (JmmNode child : node.getChildren()) {
             if (child.getKind().equals("ReturnType")) continue;
@@ -121,7 +122,6 @@ public class Analyser extends AJmmVisitor<String, Void> {
     private Void dealWithStatement(JmmNode node, String method) {
         switch (node.getKind()) {
             case "Conditional":
-                // TODO
                 Type expressionTypeIf = this.expressionVisitor.visit(node.getJmmChild(0));
                 if (!expressionTypeIf.equals("boolean")) {
                     analysis.newReport(node, " If Expression " + expressionTypeIf.getName() + " is not Boolean");
@@ -129,7 +129,6 @@ public class Analyser extends AJmmVisitor<String, Void> {
                 break;
 
             case "Loop":
-                // TODO
                 Type expressionTypeWhile = this.expressionVisitor.visit(node.getJmmChild(0));
                 if (!expressionTypeWhile.equals("boolean")) {
                     analysis.newReport(node, " While Expression " + expressionTypeWhile.getName() + " is not Boolean");
@@ -172,12 +171,19 @@ public class Analyser extends AJmmVisitor<String, Void> {
                 Pair<String, Symbol> pair2 = analysis.getSymbolTable().variableScope(analysis.getSymbolTable().getCurrentMethod(), varName2);
                 Symbol variable2 = pair2.b;
 
+                //System.out.println(varName2);
+                //System.out.println(variable2.getType());
+
                 if (variable2 == null) {
                     analysis.newReport(node, "Variable " + varName2 + " not declared");
                 } else {
                     Type varType2 = variable2.getType();
 
                     Type expressionType = this.expressionVisitor.visit(node.getJmmChild(0));
+
+                    //System.out.println(varType2);
+                    //System.out.println(expressionType);
+
                     if (expressionType == null) {
                         analysis.newReport(node, "ExpressionType is null");
                         return null;
@@ -187,7 +193,7 @@ public class Analyser extends AJmmVisitor<String, Void> {
                         return null;
                     }
 
-                    System.out.println(variable2.getType().getName());
+                    //System.out.println(variable2.getType().getName());
                     if (!((variable2.getType().getName().equals(this.analysis.getSymbolTable().getSuper()) || this.analysis.getSymbolTable().getImports().contains(variable2.getType().getName()) || this.analysis.getSymbolTable().getClassName().equals(variable2.getType().getName()))
                             &&
                             (expressionType.getName().equals(this.analysis.getSymbolTable().getClassName()) || this.analysis.getSymbolTable().getImports().contains(expressionType.getName())))) {
@@ -197,6 +203,13 @@ public class Analyser extends AJmmVisitor<String, Void> {
 
                     if (!varType2.equals(expressionType) && !this.analysis.getSymbolTable().getImports().contains(variable2.getType().getName()) && !this.analysis.getSymbolTable().getImports().contains(expressionType.getName())) {
                         analysis.newReport(node, "2ExpressionType is not Assignment Type");
+                        return null;
+                    }
+
+                    if (!expressionType.getName().equals(this.analysis.getSymbolTable().getSuper()) && !varType2.getName().equals(this.analysis.getSymbolTable().getSuper()) && !varType2.getName().equals(expressionType.getName())
+                            &&
+                            (!this.analysis.getSymbolTable().getImports().contains(variable2.getType().getName()) || !this.analysis.getSymbolTable().getImports().contains(expressionType.getName()))) {
+                        analysis.newReport(node, "3ExpressionType is not Assignment Type");
                         return null;
                     }
                 }

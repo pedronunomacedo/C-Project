@@ -132,6 +132,7 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
 
     private Type dealWithMemberAccess(JmmNode node, Type method) {
         Type objectType = visit(node.getJmmChild(0), method);
+        System.out.println("Gonzallito ---> " + objectType);
 
         if (objectType == null) {
             analysis.newReport(node, "objectType is null");
@@ -139,16 +140,26 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
         }
 
         if (Arrays.asList("int", "boolean").contains(objectType.getName())) {
-            analysis.newReport(node, "Object member access must be astring but found " + objectType.getName());
+            analysis.newReport(node, "Object member access must be a string but found " + objectType.getName());
             return objectType;
         }
 
         String methodName = node.get("id");
         JmmMethod accessedMethod = this.analysis.getSymbolTable().getMethod(methodName);
 
-        if (accessedMethod == null) {
+        //System.out.println("Gonzallito ---> " + accessedMethod);
+        //System.out.println("Gonzallito ---> " + this.analysis.getSymbolTable().getSuper());
+        if (accessedMethod == null && this.analysis.getSymbolTable().getSuper() == null && !this.analysis.getSymbolTable().getImports().contains(objectType.getName())) {
             analysis.newReport(node, "Method accessed " + methodName + " not found");
             return objectType;
+        }
+
+        if (accessedMethod == null) {
+            //analysis.newReport(node, "Method accessed " + methodName + " not found");
+            //System.out.println("Gonzallito666 ---> " + accessedMethod);
+            Type type = this.analysis.getCurrMethod().getReturnType();
+            return type;
+
         }
 
         List<Symbol> methodParams = accessedMethod.getParameters();
