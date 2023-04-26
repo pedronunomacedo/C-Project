@@ -4,7 +4,7 @@ import MyClass;
 class A {
     int a;
 
-    public bool x(){
+    public int x(){
         a = 10;
         return a;
     }
