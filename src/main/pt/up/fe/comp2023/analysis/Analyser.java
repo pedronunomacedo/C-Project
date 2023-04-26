@@ -192,7 +192,7 @@ public class Analyser extends AJmmVisitor<String, Void> {
                     if (!((variable2.getType().getName().equals(this.analysis.getSymbolTable().getSuper()) || this.analysis.getSymbolTable().getImports().contains(variable2.getType().getName()) || this.analysis.getSymbolTable().getClassName().equals(variable2.getType().getName()))
                             &&
                             (expressionType.getName().equals(this.analysis.getSymbolTable().getClassName()) || this.analysis.getSymbolTable().getImports().contains(expressionType.getName())))) {
-                        analysis.newReport(node, "1ExpressionType is not Assignment Type");
+                        analysis.newReport(node, "1ExpressionType is not Assignment Type (rightSide type: " + variable2.getType().getName() + ", leftSide type: " + expressionType.getName());
                         return null;
                     }
 

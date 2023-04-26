@@ -137,8 +137,6 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
     private Type dealWithMemberAccess(JmmNode node, Type method) {
         Type objectType = visit(node.getJmmChild(0), method);
 
-        System.out.println("objectType: " + objectType);
-
         if (objectType == null && isVariable) {
             analysis.newReport(node, "objectType is null");
             return null;
@@ -166,7 +164,7 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
         List<Symbol> methodParams = accessedMethod.getParameters();
         if ((node.getNumChildren() - 1) != methodParams.size()) {
             analysis.newReport(node, "Expected " + methodParams.size() + " parameters but received " + (node.getNumChildren() - 1) + " parameters");
-            return objectType;
+            return accessedMethod.getReturnType();
         }
 
         for (Symbol parameter : methodParams) {
@@ -179,7 +177,7 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
             }
         }
 
-        return objectType;
+        return accessedMethod.getReturnType();
     }
 
     private Type dealWithLenght(JmmNode node, Type method) {
