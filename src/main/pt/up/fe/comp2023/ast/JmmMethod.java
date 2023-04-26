@@ -71,7 +71,6 @@ public class JmmMethod {
     }
 
     public String getName() { return this.name; }
-    public Symbol getCurrentLocalVariable() { return this.currentLocalVariable; }
 
     public void setReturnType(Type type) {
         this.returnType = type;
