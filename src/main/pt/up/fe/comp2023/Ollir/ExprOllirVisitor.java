@@ -86,7 +86,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentArithType) + " " + rightExprCode;
 
         if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
-            System.out.println("rightSide: " + rightSide);
             ollirCode.append(rightSide);
         } else {
             String operationString = OllirTemplates.temporaryVariableTemplate((++this.tempMethodParamNum), OllirTemplates.type(this.currentArithType), rightSide);
@@ -99,7 +98,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
     }
 
     private List<Object> dealWithMemberAccess(JmmNode node, List<Object> data) {
-        System.out.println("In dealWithMemberAccess() function!");
         if (nodesVisited.contains(node)) return Collections.singletonList("DEFAULT_VISIT");
         this.nodesVisited.add(node);
         StringBuilder ollirCode = new StringBuilder();
@@ -109,14 +107,12 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         List<String> parameterString = new ArrayList<>();
         for (JmmNode parameter : parameters) {
             String paramOllirCode = (String) visit(parameter, Collections.singletonList("MEMBER_ACCESS")).get(0); // value or the temporary variable
-            System.out.println("paramOllirCode: " + paramOllirCode);
             parameterString.add(paramOllirCode);
         }
 
         String objExpr = (String) visit(node.getJmmChild(0), Collections.singletonList("MEMBER_ACCESS")).get(0);
         int dotIndex = objExpr.indexOf("."); // has the type integrated in the objExpr
         String retAcc = OllirTemplates.type(this.currentMethod.getReturnType());
-        System.out.println("objExpr: " + objExpr);
         if (dotIndex == -1 && !objExpr.equals("this")) { // objExpr it's an import, use invokestatic
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
                 String invokeStaticStr = OllirTemplates.invokestatic(objExpr, funcName, parameterString, retAcc);
