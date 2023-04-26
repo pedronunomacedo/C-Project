@@ -14,6 +14,7 @@ import java.util.List;
 public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
 
     protected Analysis analysis;
+    protected boolean isVariable;
     public ExpressionVisitor(Analysis analysis) {
         super();
         this.analysis = analysis;
@@ -85,9 +86,15 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
                 Symbol variable = pair.b;
 
                 if (variable == null) {
-                    // analysis.newReport(node, "Variable " + val + " not declared");
-                    // ignore because it can be a string that is not a variable!
+                    // Check if it comes from the imports
+                    if (this.analysis.getSymbolTable().getImports().contains(val)) {
+                        isVariable = false;
+                        return new Type(val, false);
+                    } else {
+                        analysis.newReport(node, "Variable " + val + " not declared");
+                    }
                 } else {
+                    this.isVariable = true;
                     type = variable.getType();
                 }
                 break;
@@ -130,22 +137,22 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
     private Type dealWithMemberAccess(JmmNode node, Type method) {
         Type objectType = visit(node.getJmmChild(0), method);
         System.out.println("Gonzallito ---> " + objectType);
+        System.out.println("child: " + node.getJmmChild(0));
 
-        if (objectType == null) {
+        if (objectType == null && isVariable) {
             analysis.newReport(node, "objectType is null");
             return null;
+        } else if (objectType != null) {
+            if (Arrays.asList("int", "boolean").contains(objectType.getName())) {
+                analysis.newReport(node, "Object member access must be a string but found " + objectType.getName());
+                return objectType;
+            }
         }
-
-        if (Arrays.asList("int", "boolean").contains(objectType.getName())) {
-            analysis.newReport(node, "Object member access must be a string but found " + objectType.getName());
-            return objectType;
-        }
+        this.isVariable = false;
 
         String methodName = node.get("id");
         JmmMethod accessedMethod = this.analysis.getSymbolTable().getMethod(methodName);
 
-        //System.out.println("Gonzallito ---> " + accessedMethod);
-        //System.out.println("Gonzallito ---> " + this.analysis.getSymbolTable().getSuper());
         if (accessedMethod == null && this.analysis.getSymbolTable().getSuper() == null && !this.analysis.getSymbolTable().getImports().contains(objectType.getName())) {
             analysis.newReport(node, "Method accessed " + methodName + " not found");
             return objectType;
