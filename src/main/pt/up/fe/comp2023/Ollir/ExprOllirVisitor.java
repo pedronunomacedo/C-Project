@@ -24,6 +24,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
     public JmmMethod currentMethod;
     public ArrayList<String> tempVariables;
     public ArrayList<String> tempVariablesOllirCode;
+    public Type currentAssignmentType;
 
     public ExprOllirVisitor(JmmSymbolTable symbolTable, List<Report> reports) {
         this.symbolTable = symbolTable;
@@ -33,6 +34,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         this.tempMethodParamNum = 0;
         this.tempVariables = new ArrayList<>();
         this.tempVariablesOllirCode = new ArrayList<>();
+        this.currentAssignmentType = null;
     }
 
     @Override
@@ -115,7 +117,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String retAcc = OllirTemplates.type(this.currentMethod.getReturnType());
         if (dotIndex == -1 && !objExpr.equals("this")) { // objExpr it's an import, use invokestatic
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
-                String invokeStaticStr = OllirTemplates.invokestatic(objExpr, funcName, parameterString, retAcc);
+                String invokeStaticStr = OllirTemplates.invokestatic(objExpr, funcName, parameterString, OllirTemplates.type(this.currentAssignmentType));
                 ollirCode.append(invokeStaticStr.substring(0, invokeStaticStr.length() - 2));
             } else {
                 String tempVar = "t" + (++this.tempMethodParamNum) + retAcc;
@@ -149,7 +151,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             }
 
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
-                String invokeStaticStr = OllirTemplates.invokevirtual(objExpr, funcName, parameterString, retAcc);
+                String invokeStaticStr = OllirTemplates.invokevirtual(objExpr, funcName, parameterString, OllirTemplates.type(this.currentAssignmentType));
                 ollirCode.append(invokeStaticStr.substring(0, invokeStaticStr.length() - 2));
             } else {
                 String tempVar = "t" + (++this.tempMethodParamNum) + retAcc;

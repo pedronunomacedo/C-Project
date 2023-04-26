@@ -15,9 +15,10 @@ class A {
         a = 10;
         return a;
     }
-    public int x3(int b){
-        int a;
-        a = b;
+    public int x3(A b){
+        bool a;
+        MyClass myClass;
+        a = io.getNum();
         return a;
     }
 
