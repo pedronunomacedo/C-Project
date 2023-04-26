@@ -1,4 +1,4 @@
-package pt.up.fe.comp2023;
+package pt.up.fe.comp2023.analysis;
 
 import java.util.ArrayList;
 import java.util.List;

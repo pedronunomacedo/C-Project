@@ -1,16 +1,12 @@
-package pt.up.fe.comp2023;
+package pt.up.fe.comp2023.analysis;
 
 import org.antlr.v4.runtime.misc.Pair;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
-import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp2023.ast.JmmMethod;
-import pt.up.fe.comp2023.ast.JmmSymbolTable;
-import pt.up.fe.comp2023.Analysis;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
