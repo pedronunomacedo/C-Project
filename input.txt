@@ -4,22 +4,16 @@ import MyClass;
 class A {
     int a;
 
-    public int x(MyClass myClass){
+    public bool x(){
+        a = 10;
+        return a;
+    }
 
-        int localVariable = 10 + myClass.getNum();
-        int test = io.getNum();
-        a = 10;
-        return a;
-    }
     public int x2(int a){
-        a = 10;
-        return a;
-    }
-    public int x3(A b){
-        bool a;
-        MyClass myClass;
-        a = io.getNum();
-        return a;
+        int a;
+        A obj;
+
+        a = 1 + obj.x();
     }
 
 

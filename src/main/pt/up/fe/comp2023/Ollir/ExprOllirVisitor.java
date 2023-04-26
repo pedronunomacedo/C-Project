@@ -85,11 +85,13 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
         String leftExprCode = (String) visit(leftExpr, Collections.singletonList("BINARY_OP")).get(0);
         String rightExprCode = (String) visit(rightExpr, Collections.singletonList("BINARY_OP")).get(0);
-        String rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentArithType) + " " + rightExprCode;
+
 
         if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
+            String rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentAssignmentType) + " " + rightExprCode;
             ollirCode.append(rightSide);
         } else {
+            String rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentArithType) + " " + rightExprCode;
             String operationString = OllirTemplates.temporaryVariableTemplate((++this.tempMethodParamNum), OllirTemplates.type(this.currentArithType), rightSide);
             this.tempVariables.add("t" + this.tempMethodParamNum);
             this.tempVariablesOllirCode.add(operationString);
@@ -105,6 +107,8 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         StringBuilder ollirCode = new StringBuilder();
 
         String funcName = node.get("id");
+        // Get the function method
+        JmmMethod funcMethod = this.symbolTable.getMethod(funcName);
         List<JmmNode> parameters = node.getChildren().subList(1, node.getNumChildren());
         List<String> parameterString = new ArrayList<>();
         for (JmmNode parameter : parameters) {
@@ -151,12 +155,12 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             }
 
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
-                String invokeStaticStr = OllirTemplates.invokevirtual(objExpr, funcName, parameterString, OllirTemplates.type(this.currentAssignmentType));
+                String invokeStaticStr = OllirTemplates.invokevirtual(objExpr, funcName, parameterString, OllirTemplates.type(funcMethod.getReturnType()));
                 ollirCode.append(invokeStaticStr.substring(0, invokeStaticStr.length() - 2));
             } else {
-                String tempVar = "t" + (++this.tempMethodParamNum) + retAcc;
+                String tempVar = "t" + (++this.tempMethodParamNum) + OllirTemplates.type(funcMethod.getReturnType());
                 this.tempVariables.add(tempVar);
-                this.tempVariablesOllirCode.add(((data.get(0).equals("BINARY_OP") || data.get(0).equals("RETURN") || data.get(0).equals("MEMBER_ACCESS")) ? (tempVar + " :=" + retAcc + " ") : "") + OllirTemplates.invokevirtual(objExpr, funcName, parameterString, retAcc));
+                this.tempVariablesOllirCode.add(((data.get(0).equals("BINARY_OP") || data.get(0).equals("RETURN") || data.get(0).equals("MEMBER_ACCESS")) ? (tempVar + " :=" + OllirTemplates.type(funcMethod.getReturnType()) + " ") : "") + OllirTemplates.invokevirtual(objExpr, funcName, parameterString, OllirTemplates.type(funcMethod.getReturnType())));
                 ollirCode.append(tempVar);
             }
         }
