@@ -10,6 +10,7 @@ import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
+import pt.up.fe.comp2023.analysis.AnalysisStage;
 import pt.up.fe.comp2023.Jasmin.BackendJasmin;
 import pt.up.fe.comp2023.Ollir.OptimizationStage;
 import pt.up.fe.specs.util.SpecsIo;
@@ -48,22 +49,15 @@ public class Launcher {
         // ... add remaining stages
 
         // Create the symbolTable class object
-        JmmSemanticsResult result = new AnalysisStage().semanticAnalysis(parserResult);
-
-        System.out.println("\n\n\n\n");
-
-        System.out.println("SymbolTable:");
-        System.out.println(result.getSymbolTable().print());
-
-        System.out.println("\n\n\n\n");
-
         // Semantic Analysis
+        JmmSemanticsResult result = new AnalysisStage().semanticAnalysis(parserResult);
 
 
         // Transform to OLLIR code
         OllirResult ollirResult = new OptimizationStage().toOllir(result);
         System.out.println("OllirResult: " + ollirResult.toString());
 
+        // Transform OLLIR code to Jasmin code
         JasminResult jasminResult = new BackendJasmin().toJasmin(ollirResult);
         System.out.println("JasminResult: " + jasminResult.toString());
     }

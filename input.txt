@@ -1,22 +1,25 @@
-
-
-import GetterAndSetter;
 import io;
 
-class PrintOtherClassInLine {
-    public static void main(String [] args) {
+class A {
+    int a;
 
+    public int x(){
+        a = 10;
+        return a;
+    }
+    public int x2(int a){
+        a = 10;
+        return a;
+    }
+    public int x3(int a){
+        int a;
+        a = b;
+        return a;
     }
 
-    public int call(GetterAndSetter b) {
-        return 2;
-    }
 
-    public int test(GetterAndSetter b) {
-        int content;
-        content = this.call(b);
-        io.println(content);
+    public static void main(String[] args){
 
-        return content;
+
     }
 }
