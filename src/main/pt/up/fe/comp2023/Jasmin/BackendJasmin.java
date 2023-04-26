@@ -16,7 +16,7 @@ public class BackendJasmin implements JasminBackend{
         classUnit.buildVarTables();
         classUnit.show();
         JasminBuilder jasminBuilder = new JasminBuilder(classUnit);
-        String jasminCode=jasminBuilder.build();
+        String jasminCode = jasminBuilder.build();
         return new JasminResult(ollirResult, jasminCode, Collections.emptyList());
     }
 }
