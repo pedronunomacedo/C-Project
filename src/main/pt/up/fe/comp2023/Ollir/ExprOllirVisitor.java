@@ -61,14 +61,14 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         this.nodesVisited.add(node);
         StringBuilder ollirCode = new StringBuilder();
         String objClassName = node.get("val");
-        String tempVar = "t" + this.tempMethodParamNum + "." + objClassName;
+        String tempVar = "t" + (++this.tempMethodParamNum) + "." + objClassName;
 
         if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
             ollirCode.append("new(" + objClassName + ")." + objClassName + ";\n");
             ollirCode.append("invokespecial(" + node.getJmmParent().get("varName") + "." + objClassName + ", \"<init>\").V");
         } else {
             this.tempVariables.add(tempVar);
-            this.tempVariablesOllirCode.add(OllirTemplates.newObjectTemplate((++this.tempMethodParamNum), objClassName));
+            this.tempVariablesOllirCode.add(OllirTemplates.newObjectTemplate(tempVar, objClassName));
             ollirCode.append(tempVar);
         }
 
@@ -119,7 +119,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String objExpr = (String) visit(node.getJmmChild(0), Collections.singletonList("MEMBER_ACCESS")).get(0);
         int dotIndex = objExpr.indexOf("."); // has the type integrated in the objExpr
         String retAcc = OllirTemplates.type(this.currentMethod.getReturnType());
-        if (dotIndex == -1 && !objExpr.equals("this")) { // objExpr it's an import, use invokestatic
+        if ((dotIndex == -1 && !objExpr.equals("this"))) { // objExpr it's an import, use invokestatic
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
                 String invokeStaticStr = OllirTemplates.invokestatic(objExpr, funcName, parameterString, OllirTemplates.type(this.currentAssignmentType));
                 ollirCode.append(invokeStaticStr.substring(0, invokeStaticStr.length() - 2));
@@ -143,24 +143,20 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 }
             }
 
-            if (objExpr.charAt(0) == 't') { // temporary variable
-                retAcc = OllirTemplates.type(this.currentArithType);
+            if (funcMethod == null) {
+                retAcc = OllirTemplates.type(this.currentAssignmentType);
             } else {
-                if (!node.getJmmParent().getAttributes().contains("varName")) {
-                    retAcc = ".V";
-                } else {
-                    Symbol variable = this.currentMethod.getLocalVariable(node.getJmmParent().get("varName"));
-                    retAcc = OllirTemplates.type(variable.getType());
-                }
+                retAcc = OllirTemplates.type(funcMethod.getReturnType());
             }
 
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
-                String invokeStaticStr = OllirTemplates.invokevirtual(objExpr, funcName, parameterString, OllirTemplates.type(funcMethod.getReturnType()));
+                String invokeStaticStr = OllirTemplates.invokevirtual(objExpr, funcName, parameterString, retAcc);
                 ollirCode.append(invokeStaticStr.substring(0, invokeStaticStr.length() - 2));
             } else {
-                String tempVar = "t" + (++this.tempMethodParamNum) + OllirTemplates.type(funcMethod.getReturnType());
+                System.out.println("tempMethodParamNum: " + this.tempMethodParamNum);
+                String tempVar = "t" + (++this.tempMethodParamNum) + retAcc;
                 this.tempVariables.add(tempVar);
-                this.tempVariablesOllirCode.add(((data.get(0).equals("BINARY_OP") || data.get(0).equals("RETURN") || data.get(0).equals("MEMBER_ACCESS")) ? (tempVar + " :=" + OllirTemplates.type(funcMethod.getReturnType()) + " ") : "") + OllirTemplates.invokevirtual(objExpr, funcName, parameterString, OllirTemplates.type(funcMethod.getReturnType())));
+                this.tempVariablesOllirCode.add(((data.get(0).equals("BINARY_OP") || data.get(0).equals("RETURN") || data.get(0).equals("MEMBER_ACCESS")) ? (tempVar + " :=" + retAcc + " ") : "") + OllirTemplates.invokevirtual(objExpr, funcName, parameterString, retAcc));
                 ollirCode.append(tempVar);
             }
         }

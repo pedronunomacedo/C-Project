@@ -1,24 +1,27 @@
-import io;
-import MyClass;
+import ioPlus;
+class HelloWorld {
 
-class A {
-    int a;
+    int intField;
+    ioPlus fieldTest;
 
-    public int x(){
-        a = 10;
-        return a;
+    public int get(){
+        return intField;
+    }
+    public int add(int a, ioPlus b){
+        int c;
+        int d;
+        int e;
+        HelloWorld test;
+        d = 2;
+        e = a;
+        c = test.m(new HelloWorld().get());
+
+        return c;
     }
 
-    public int x2(int a){
-        int a;
-        A obj;
+	public static void main(String[] args) {
+		ioPlus I;
+		I.printHelloWorld();
 
-        a = 1 + obj.x();
-    }
-
-
-    public static void main(String[] args){
-
-
-    }
+	}
 }
