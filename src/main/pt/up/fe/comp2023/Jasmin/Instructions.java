@@ -91,17 +91,17 @@ public class Instructions {
     public static String callInstructions(CallInstruction instruction, Method method) {
         switch (instruction.getInvocationType()){
             case invokevirtual:
-                return Caller.invokeVirtualInstructions(instruction, method);
+                return Caller.generateVirtualInvokeCode(instruction, method);
             case invokespecial:
-                return Caller.invokeSpecialInstructions(instruction, method);
+                return Caller.generateSpecialInvokeCode(instruction, method);
             case invokestatic:
-                return Caller.invokeStaticInstructions(instruction, method);
+                return Caller.generateStaticInvokeCode(instruction, method);
             case NEW:
-                return Caller.invokeNEWInstructions(instruction, method);
+                return Caller.generateJasminCodeForNEWInstructions(instruction, method);
             case arraylength:
-                return Caller.invokeArrayLengthInstructions(instruction, method);
+                return Caller.generateInvokeArrayLengthInstructions(instruction, method);
             case ldc:
-                return Caller.invokeLdcInstructions(instruction, method);
+                return Caller.generateInvokeLdcInstructions(instruction, method);
         }
 
         return "";
