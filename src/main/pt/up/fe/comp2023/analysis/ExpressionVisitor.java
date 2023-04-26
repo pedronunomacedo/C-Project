@@ -85,7 +85,8 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
                 Symbol variable = pair.b;
 
                 if (variable == null) {
-                    analysis.newReport(node, "Variable " + val + " not declared");
+                    // analysis.newReport(node, "Variable " + val + " not declared");
+                    // ignore because it can be a string that is not a variable!
                 } else {
                     type = variable.getType();
                 }
