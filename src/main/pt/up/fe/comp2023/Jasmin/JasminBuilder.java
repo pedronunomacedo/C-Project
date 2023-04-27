@@ -138,7 +138,6 @@ public class JasminBuilder {
                     instructionsCode.append("\t").append(label).append(":\n");
                 }
 
-                System.out.println("JasminTypesInst.getInstructionType(instruction, classUnit.getMethod(i)): " + JasminTypesInst.getInstructionType(instruction, classUnit.getMethod(i)));
                 instructionsCode.append(JasminTypesInst.getInstructionType(instruction, classUnit.getMethod(i)));
                 if (instruction.getInstType() == InstructionType.RETURN){
                     hasReturn = true;
@@ -150,8 +149,6 @@ public class JasminBuilder {
                     }
                 }
             }
-
-            System.out.println("-> After the for cycle");
 
             jasminCode.append("\t").append(".limit locals 99").append("\n");
             jasminCode.append("\t").append(".limit stack 99").append("\n");

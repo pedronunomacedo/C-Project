@@ -102,9 +102,6 @@ public class Analyser extends AJmmVisitor<String, Void> {
             JmmNode nodeExpr = node.getJmmChild(1);
             Type expressionType = this.expressionVisitor.visit(nodeExpr);
 
-            System.out.println("variable: " + variable.getType());
-            System.out.println("expressionType: " + expressionType);
-
             if (expressionType == null) {
                 analysis.newReport(node, "1) expressionTYpe is null");
                 return  null;
@@ -128,7 +125,6 @@ public class Analyser extends AJmmVisitor<String, Void> {
 
             case "Loop":
                 Type expressionTypeWhile = this.expressionVisitor.visit(node.getJmmChild(0));
-                System.out.println("expressionTypeWhile: " + expressionTypeWhile);
                 if (!expressionTypeWhile.getName().equals("boolean")) {
                     analysis.newReport(node, " While Expression " + expressionTypeWhile.getName() + " is not Boolean");
                 }
@@ -156,8 +152,6 @@ public class Analyser extends AJmmVisitor<String, Void> {
                     }
                     else {
                         Type expressionType = this.expressionVisitor.visit(node.getJmmChild(1));
-                        System.out.println("variable.getType(): " + variable.getType());
-                        System.out.println("expressionType.getType(): " + expressionType);
 
 
                         if (expressionType == null) {
@@ -181,9 +175,6 @@ public class Analyser extends AJmmVisitor<String, Void> {
                 } else {
                     Type varType2 = variable2.getType();
                     Type expressionType = this.expressionVisitor.visit(node.getJmmChild(0));
-
-                    System.out.println("variable2: " + variable2.getType());
-                    System.out.println("expressionType: " + expressionType);
 
                     if (expressionType == null) {
                         analysis.newReport(node, "3) ExpressionType is null");
