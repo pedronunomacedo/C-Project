@@ -150,6 +150,10 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
             analysis.newReport(node, "objectType is null");
             return null;
         } else if (objectType != null) {
+            if (objectType.getName().equals("this") && this.analysis.getCurrMethod().getName().equals("main")) {
+                analysis.newReport(node, "Found \"this\" in static main function");
+                return objectType;
+            }
             if (Arrays.asList("int", "boolean").contains(objectType.getName())) {
                 analysis.newReport(node, "Object member access must be a string but found " + objectType.getName());
                 return objectType;

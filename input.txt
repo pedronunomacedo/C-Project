@@ -15,15 +15,18 @@ class HelloWorld {
         int e;
         d = 2;
         e = a;
-        c = b.m(new HelloWorld().get());
+        c = this.get();
 
         return c;
     }
     */
 
-	public static void main(String[] args) {
+	public static void main(String[] args) { // You can't do this in the main function on the right side of the assignments
 		ioPlus I;
-		I.printHelloWorld();
+		int c;
+		int[] arr;
 
+		I.printHelloWorld();
+        c = this.get(arr);
 	}
 }
