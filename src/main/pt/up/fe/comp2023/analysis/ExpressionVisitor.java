@@ -31,6 +31,7 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
         addVisit("Identifier", this::dealWithSingleExpression);
         addVisit("Bool", this::dealWithSingleExpression);
         addVisit("Integer", this::dealWithSingleExpression);
+        addVisit("SelfCall", this::dealWithSingleExpression);
         addVisit("NewObject", this::dealWithNewObject);
         addVisit("NewArrayObject", this::dealWithNewArrayObjectExpression);
         addVisit("UnaryOp", this::dealWithUnaryOp);
@@ -76,9 +77,11 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
         switch (node.getKind()) {
             case "Integer":
                 type = new Type("int", false);
+                this.isVariable = false;
                 break;
             case "Bool":
                 type = new Type("boolean", false);
+                this.isVariable = false;
                 break;
             case "Identifier":
                 String val = node.get("val");
@@ -97,6 +100,9 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
                     this.isVariable = true;
                     type = variable.getType();
                 }
+                break;
+            case "SelfCall":
+                this.isVariable = false;
                 break;
         };
 
@@ -137,6 +143,8 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
     private Type dealWithMemberAccess(JmmNode node, Type method) {
         Type objectType = visit(node.getJmmChild(0), method);
 
+        System.out.println("objectType: " + objectType);
+
         if (objectType == null && isVariable) {
             analysis.newReport(node, "objectType is null");
             return null;
@@ -146,6 +154,7 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
                 return objectType;
             }
         }
+
         this.isVariable = false;
 
         String methodName = node.get("id");
