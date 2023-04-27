@@ -1,22 +1,29 @@
 import ioPlus;
-import MyClass;
 class HelloWorld {
 
     int intField;
 
-    public int get(){
+    public int get(int[] arr){
+        int res = arr[0];
+
         return intField;
     }
-
-    public int add(int a, ioPlus b, HelloWorld myClass){
-        HelloWorld c;
+    /*
+    public int add(int a, ioPlus b){
+        int c;
         int d;
         int e;
         d = 2;
         e = a;
+        c = b.m(new HelloWorld().get());
 
-        c = this;
-
-        return e;
+        return c;
     }
+    */
+
+	public static void main(String[] args) {
+		ioPlus I;
+		I.printHelloWorld();
+
+	}
 }
