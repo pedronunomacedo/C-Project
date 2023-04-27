@@ -190,7 +190,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 this.currentArithType = new Type("boolean", false);
                 break;
             case "SelfCall":
-                ollirCode.append(val); // "this" keyword
+                ollirCode.append(val + "." + this.symbolTable.getClassName()); // "this" keyword
                 break;
             case "Identifier":
                 Pair<String, Symbol> varScope = this.symbolTable.variableScope(this.currentMethod, val);

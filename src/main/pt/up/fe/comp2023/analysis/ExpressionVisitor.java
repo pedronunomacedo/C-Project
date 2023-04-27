@@ -103,6 +103,7 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
                 break;
             case "SelfCall":
                 this.isVariable = false;
+                type = new Type("this", false);
                 break;
         };
 
