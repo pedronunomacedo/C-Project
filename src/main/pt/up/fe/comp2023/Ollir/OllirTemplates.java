@@ -276,13 +276,13 @@ public class OllirTemplates {
         return ollirCode.toString();
     }
 
-    public static String newObjectTemplate(int tempVariableNum, String objClassName) {
+    public static String newObjectTemplate(String tempVar, String objClassName) {
         StringBuilder ollirCode = new StringBuilder();
 
-        ollirCode.append("t" + tempVariableNum + "." + objClassName);
+        ollirCode.append(tempVar);
         ollirCode.append(" :=." + objClassName);
         ollirCode.append(" new(" + objClassName + ")." + objClassName + ";\n");
-        ollirCode.append("invokespecial(t" + tempVariableNum + "." + objClassName + ", \"<init>\").V;\n");
+        ollirCode.append("invokespecial(" + tempVar + ", \"<init>\").V;\n");
 
         return ollirCode.toString();
     }

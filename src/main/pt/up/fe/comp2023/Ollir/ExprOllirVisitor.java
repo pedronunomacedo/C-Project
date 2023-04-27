@@ -24,6 +24,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
     public JmmMethod currentMethod;
     public ArrayList<String> tempVariables;
     public ArrayList<String> tempVariablesOllirCode;
+    public Type currentAssignmentType;
 
     public ExprOllirVisitor(JmmSymbolTable symbolTable, List<Report> reports) {
         this.symbolTable = symbolTable;
@@ -33,6 +34,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         this.tempMethodParamNum = 0;
         this.tempVariables = new ArrayList<>();
         this.tempVariablesOllirCode = new ArrayList<>();
+        this.currentAssignmentType = null;
     }
 
     @Override
@@ -59,14 +61,14 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         this.nodesVisited.add(node);
         StringBuilder ollirCode = new StringBuilder();
         String objClassName = node.get("val");
-        String tempVar = "t" + this.tempMethodParamNum + "." + objClassName;
+        String tempVar = "t" + (++this.tempMethodParamNum) + "." + objClassName;
 
         if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
             ollirCode.append("new(" + objClassName + ")." + objClassName + ";\n");
             ollirCode.append("invokespecial(" + node.getJmmParent().get("varName") + "." + objClassName + ", \"<init>\").V");
         } else {
             this.tempVariables.add(tempVar);
-            this.tempVariablesOllirCode.add(OllirTemplates.newObjectTemplate((++this.tempMethodParamNum), objClassName));
+            this.tempVariablesOllirCode.add(OllirTemplates.newObjectTemplate(tempVar, objClassName));
             ollirCode.append(tempVar);
         }
 
@@ -83,12 +85,13 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
         String leftExprCode = (String) visit(leftExpr, Collections.singletonList("BINARY_OP")).get(0);
         String rightExprCode = (String) visit(rightExpr, Collections.singletonList("BINARY_OP")).get(0);
-        String rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentArithType) + " " + rightExprCode;
+
 
         if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
-            System.out.println("rightSide: " + rightSide);
+            String rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentAssignmentType) + " " + rightExprCode;
             ollirCode.append(rightSide);
         } else {
+            String rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentArithType) + " " + rightExprCode;
             String operationString = OllirTemplates.temporaryVariableTemplate((++this.tempMethodParamNum), OllirTemplates.type(this.currentArithType), rightSide);
             this.tempVariables.add("t" + this.tempMethodParamNum);
             this.tempVariablesOllirCode.add(operationString);
@@ -99,27 +102,26 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
     }
 
     private List<Object> dealWithMemberAccess(JmmNode node, List<Object> data) {
-        System.out.println("In dealWithMemberAccess() function!");
         if (nodesVisited.contains(node)) return Collections.singletonList("DEFAULT_VISIT");
         this.nodesVisited.add(node);
         StringBuilder ollirCode = new StringBuilder();
 
         String funcName = node.get("id");
+        // Get the function method
+        JmmMethod funcMethod = this.symbolTable.getMethod(funcName);
         List<JmmNode> parameters = node.getChildren().subList(1, node.getNumChildren());
         List<String> parameterString = new ArrayList<>();
         for (JmmNode parameter : parameters) {
             String paramOllirCode = (String) visit(parameter, Collections.singletonList("MEMBER_ACCESS")).get(0); // value or the temporary variable
-            System.out.println("paramOllirCode: " + paramOllirCode);
             parameterString.add(paramOllirCode);
         }
 
         String objExpr = (String) visit(node.getJmmChild(0), Collections.singletonList("MEMBER_ACCESS")).get(0);
         int dotIndex = objExpr.indexOf("."); // has the type integrated in the objExpr
         String retAcc = OllirTemplates.type(this.currentMethod.getReturnType());
-        System.out.println("objExpr: " + objExpr);
-        if (dotIndex == -1 && !objExpr.equals("this")) { // objExpr it's an import, use invokestatic
+        if ((dotIndex == -1 && !objExpr.equals("this"))) { // objExpr it's an import, use invokestatic
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
-                String invokeStaticStr = OllirTemplates.invokestatic(objExpr, funcName, parameterString, retAcc);
+                String invokeStaticStr = OllirTemplates.invokestatic(objExpr, funcName, parameterString, OllirTemplates.type(this.currentAssignmentType));
                 ollirCode.append(invokeStaticStr.substring(0, invokeStaticStr.length() - 2));
             } else {
                 String tempVar = "t" + (++this.tempMethodParamNum) + retAcc;
@@ -141,15 +143,10 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 }
             }
 
-            if (objExpr.charAt(0) == 't') { // temporary variable
-                retAcc = OllirTemplates.type(this.currentArithType);
+            if (funcMethod == null) {
+                retAcc = OllirTemplates.type(this.currentAssignmentType);
             } else {
-                if (!node.getJmmParent().getAttributes().contains("varName")) {
-                    retAcc = ".V";
-                } else {
-                    Symbol variable = this.currentMethod.getLocalVariable(node.getJmmParent().get("varName"));
-                    retAcc = OllirTemplates.type(variable.getType());
-                }
+                retAcc = OllirTemplates.type(funcMethod.getReturnType());
             }
 
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
@@ -162,7 +159,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 ollirCode.append(tempVar);
             }
         }
-
 
         return Collections.singletonList(ollirCode.toString());
     }
@@ -193,7 +189,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 this.currentArithType = new Type("boolean", false);
                 break;
             case "SelfCall":
-                ollirCode.append(val); // "this" keyword
+                ollirCode.append(val + "." + this.symbolTable.getClassName()); // "this" keyword
                 break;
             case "Identifier":
                 Pair<String, Symbol> varScope = this.symbolTable.variableScope(this.currentMethod, val);

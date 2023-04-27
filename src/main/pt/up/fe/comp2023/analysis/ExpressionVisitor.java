@@ -14,6 +14,7 @@ import java.util.List;
 public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
 
     protected Analysis analysis;
+    protected boolean isVariable;
     public ExpressionVisitor(Analysis analysis) {
         super();
         this.analysis = analysis;
@@ -30,6 +31,7 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
         addVisit("Identifier", this::dealWithSingleExpression);
         addVisit("Bool", this::dealWithSingleExpression);
         addVisit("Integer", this::dealWithSingleExpression);
+        addVisit("SelfCall", this::dealWithSingleExpression);
         addVisit("NewObject", this::dealWithNewObject);
         addVisit("NewArrayObject", this::dealWithNewArrayObjectExpression);
         addVisit("UnaryOp", this::dealWithUnaryOp);
@@ -55,7 +57,17 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
                 }
                 return new Type("boolean", false);
             }
-            case "+=", "-=", "*=", "/=", "*", "/", "%", "+", "-", "<", ">", "<=", ">=" -> {
+            case "+=", "-=", "*=", "/=", "*", "/", "%", "+", "-" -> {
+                if (leftSideType == null || rightSideType == null) {
+                    analysis.newReport(leftChild, "Types of both sides don't match");
+                    return new Type("int", false);
+                }
+                if (!leftSideType.getName().equals("int") || leftSideType.isArray() || !rightSideType.getName().equals("int") || rightSideType.isArray()) {
+                    analysis.newReport(node, "Invalid Type on Binary Operation");
+                }
+                return new Type("int", false);
+            }
+            case "<", ">", "<=", ">=" -> {
                 if (leftSideType == null || rightSideType == null) {
                     analysis.newReport(leftChild, "Types of both sides don't match");
                     return new Type("boolean", false);
@@ -63,7 +75,7 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
                 if (!leftSideType.getName().equals("int") || leftSideType.isArray() || !rightSideType.getName().equals("int") || rightSideType.isArray()) {
                     analysis.newReport(node, "Invalid Type on Binary Operation");
                 }
-                return new Type("int", false);
+                return new Type("boolean", false);
             }
         }
 
@@ -75,20 +87,38 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
         switch (node.getKind()) {
             case "Integer":
                 type = new Type("int", false);
+                this.isVariable = false;
                 break;
             case "Bool":
                 type = new Type("boolean", false);
+                this.isVariable = false;
                 break;
             case "Identifier":
+                boolean temp = false;
                 String val = node.get("val");
                 Pair<String, Symbol> pair = analysis.getSymbolTable().variableScope(analysis.getSymbolTable().getCurrentMethod(), val);
                 Symbol variable = pair.b;
 
                 if (variable == null) {
-                    analysis.newReport(node, "Variable " + val + " not declared");
+                    // Check if it comes from the imports
+                    for (var imp : this.analysis.getSymbolTable().getImports()) {
+                        if (val.equals(imp)) {
+                            isVariable = false;
+                            temp = true;
+                            return new Type(val, false);
+                        }
+                    }
+                    if (!temp) {
+                        analysis.newReport(node, "Import " + val + " not declared");
+                    }
                 } else {
+                    this.isVariable = true;
                     type = variable.getType();
                 }
+                break;
+            case "SelfCall":
+                this.isVariable = false;
+                type = new Type("this", false);
                 break;
         };
 
@@ -128,40 +158,42 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
 
     private Type dealWithMemberAccess(JmmNode node, Type method) {
         Type objectType = visit(node.getJmmChild(0), method);
-        System.out.println("Gonzallito ---> " + objectType);
 
-        if (objectType == null) {
+        if (objectType == null && isVariable) {
             analysis.newReport(node, "objectType is null");
+            return null;
+        } else if (objectType != null) {
+            if (objectType.getName().equals("this") && this.analysis.getCurrMethod().getName().equals("main")) {
+                analysis.newReport(node, "Found \"this\" in static main function");
+                return objectType;
+            }
+            if (Arrays.asList("int", "boolean").contains(objectType.getName())) {
+                analysis.newReport(node, "Object member access must be a string but found " + objectType.getName());
+                return objectType;
+            }
+        } else {
             return null;
         }
 
-        if (Arrays.asList("int", "boolean").contains(objectType.getName())) {
-            analysis.newReport(node, "Object member access must be a string but found " + objectType.getName());
-            return objectType;
-        }
+        this.isVariable = false;
 
         String methodName = node.get("id");
         JmmMethod accessedMethod = this.analysis.getSymbolTable().getMethod(methodName);
 
-        //System.out.println("Gonzallito ---> " + accessedMethod);
-        //System.out.println("Gonzallito ---> " + this.analysis.getSymbolTable().getSuper());
         if (accessedMethod == null && this.analysis.getSymbolTable().getSuper() == null && !this.analysis.getSymbolTable().getImports().contains(objectType.getName())) {
             analysis.newReport(node, "Method accessed " + methodName + " not found");
             return objectType;
         }
 
         if (accessedMethod == null) {
-            //analysis.newReport(node, "Method accessed " + methodName + " not found");
-            //System.out.println("Gonzallito666 ---> " + accessedMethod);
             Type type = this.analysis.getCurrMethod().getReturnType();
             return type;
-
         }
 
         List<Symbol> methodParams = accessedMethod.getParameters();
         if ((node.getNumChildren() - 1) != methodParams.size()) {
             analysis.newReport(node, "Expected " + methodParams.size() + " parameters but received " + (node.getNumChildren() - 1) + " parameters");
-            return objectType;
+            return accessedMethod.getReturnType();
         }
 
         for (Symbol parameter : methodParams) {
@@ -174,7 +206,7 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
             }
         }
 
-        return objectType;
+        return accessedMethod.getReturnType();
     }
 
     private Type dealWithLenght(JmmNode node, Type method) {
@@ -210,8 +242,33 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
             analysis.newReport(node, "Array index expression is not Integer");
             return arrayType;
         }
-
-        return arrayType;
+        // return arrayType;
+        return new Type(arrayType.getName(), false);
     }
+
+
+
+    private boolean isImported(String type) {
+        for (var imp : this.analysis.getSymbolTable().getImports()) {
+            String imports = imp.substring(1, imp.lastIndexOf(']'));
+            String classImported = imports.substring(imp.lastIndexOf('.') + 1);
+            if (classImported.equals(type)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*
+    public static boolean isLastAfterDot(String fullString, String targetString) {
+        int lastIndex = fullString.lastIndexOf(targetString);
+        if (lastIndex != -1 && lastIndex > 0) {
+            String substring = fullString.substring(lastIndex - 1);
+            return substring.equals("." + targetString);
+        }
+        return false;
+    }
+     */
+
 
 }

@@ -159,6 +159,5 @@ public class JasminBuilder {
             jasminCode.append(".end method").append("\n");
         }
 
-        System.out.println(jasminCode);
     }
 }
