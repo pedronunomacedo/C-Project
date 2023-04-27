@@ -97,6 +97,7 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
                 this.isVariable = false;
                 break;
             case "Identifier":
+                boolean temp = false;
                 String val = node.get("val");
                 Pair<String, Symbol> pair = analysis.getSymbolTable().variableScope(analysis.getSymbolTable().getCurrentMethod(), val);
                 Symbol variable = pair.b;
@@ -106,12 +107,16 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
 
                 if (variable == null) {
                     // Check if it comes from the imports
-                    if (this.analysis.getSymbolTable().getImports().contains(val)) {
-                        isVariable = false;
-                        return new Type(val, false);
-                    } else {
+                    //System.out.println("SADASDASD: " + this.analysis.getSymbolTable().getImports());
+                    for (var imp : this.analysis.getSymbolTable().getImports()) {
+                        if (isLastAfterDot(imp, val)) {
+                            isVariable = false;
+                            temp = true;
+                            return new Type(val, false);
+                        }
+                    }
+                    if (!temp) {
                         analysis.newReport(node, "Import " + val + " not declared");
-                        // this.isVariable = false;
                     }
                 } else {
                     this.isVariable = true;
@@ -253,5 +258,36 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
         // return arrayType;
         return new Type(arrayType.getName(), false);
     }
+
+
+
+    private boolean isImported(String type) {
+        System.out.println("------------------");
+        for (var imp : this.analysis.getSymbolTable().getImports()) {
+            System.out.println(imp);
+            String imports = imp.substring(1, imp.lastIndexOf(']'));
+            System.out.println(imports);
+            String classImported = imports.substring(imp.lastIndexOf('.') + 1);
+            System.out.println(classImported);
+            if (classImported.equals(type)) {
+                System.out.println(classImported);
+                System.out.println(type);
+                return true;
+            }
+            System.out.println(classImported);
+            System.out.println(type);
+        }
+        return false;
+    }
+
+    public static boolean isLastAfterDot(String fullString, String targetString) {
+        int lastIndex = fullString.lastIndexOf(targetString);
+        if (lastIndex != -1 && lastIndex > 0) {
+            String substring = fullString.substring(lastIndex - 1);
+            return substring.equals("." + targetString);
+        }
+        return false;
+    }
+
 
 }
