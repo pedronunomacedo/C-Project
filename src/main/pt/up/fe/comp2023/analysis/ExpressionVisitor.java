@@ -106,7 +106,7 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
 
                 if (variable == null) {
                     // Check if it comes from the imports
-                    if (isImported(val)) {
+                    if (this.analysis.getSymbolTable().getImports().contains(val)) {
                         isVariable = false;
                         return new Type(val, false);
                     } else {
@@ -252,18 +252,6 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
         }
         // return arrayType;
         return new Type(arrayType.getName(), false);
-    }
-
-
-    private boolean isImported(String type) {
-        for (var imp : analysis.getSymbolTable().getImports()) {
-            String imports = imp.substring(1, imp.lastIndexOf(']'));
-            String classImported = imports.substring(imp.lastIndexOf('.') + 1);
-            if (classImported.equals(type)) {
-                return true;
-            }
-        }
-        return false;
     }
 
 }
