@@ -153,11 +153,8 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             if (funcMethod == null) {
                 retAcc = OllirTemplates.type(this.currentAssignmentType);
             } else {
-                if (objExprType.equals(this.symbolTable.getClassName())) {
-                    retAcc = OllirTemplates.type(funcMethod.getReturnType());
-                } else {
-                    retAcc = OllirTemplates.type(this.currentAssignmentType);
-                }
+
+                retAcc = OllirTemplates.type(this.currentAssignmentType);
             }
 
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
