@@ -103,7 +103,7 @@ public class Analyser extends AJmmVisitor<String, Void> {
             Type expressionType = this.expressionVisitor.visit(nodeExpr);
 
             if (expressionType == null) {
-                analysis.newReport(node, "expressionTYpe is null");
+                analysis.newReport(node, "1) expressionTYpe is null");
                 return  null;
             }
 
@@ -151,7 +151,7 @@ public class Analyser extends AJmmVisitor<String, Void> {
                         else {
                             Type expressionType = this.expressionVisitor.visit(node.getJmmChild(1));
                             if (expressionType == null) {
-                                analysis.newReport(node, "expressionTYpe is null");
+                                analysis.newReport(node, "2) expressionTYpe is null");
                                 return null;
                             }
                             if (!varType.equals(expressionType)) {
@@ -174,8 +174,10 @@ public class Analyser extends AJmmVisitor<String, Void> {
                     Type expressionType = this.expressionVisitor.visit(node.getJmmChild(0));
 
                     if (expressionType == null) {
-                        analysis.newReport(node, "ExpressionType is null");
+                        analysis.newReport(node, "3) ExpressionType is null");
                         return null;
+                    } else if (expressionType.getName().equals("this")) { // Child was a SelfCall
+                        expressionType = new Type(this.analysis.getSymbolTable().getClassName(), false);
                     }
 
                     if (Arrays.asList("int", "boolean").contains(variable2.getType().getName()) && expressionType.getName().equals(variable2.getType().getName())) {
