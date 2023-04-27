@@ -140,26 +140,31 @@ public class Analyser extends AJmmVisitor<String, Void> {
                 Symbol variable = pair.b;
 
                 if (variable == null) {
-                    analysis.newReport(node, "Variable " + varName + " not declared");
+                    analysis.newReport(node, "1) Variable " + varName + " not declared");
                 } else {
-                    Type varType = variable.getType();
-                    if (!varType.isArray()) {
-                        analysis.newReport(node, "Variable assignment is not Array");
+                    Type varType = new Type(variable.getType().getName(), false); // don't forget that it's an array, and you need to create a new type that is not an array and with name given by the variable
+                    /*
+                    if (!varType.isArray()) { // It's not supposed to be an array!
+                        analysis.newReport(node, "2) Variable assignment is not Array");
+                    }
+                     */
+
+                    Type indexType = this.expressionVisitor.visit(node.getJmmChild(0));
+                    if (!indexType.getName().equals("int")) {
+                        analysis.newReport(node, "3) Array index expression is not Integer");
                     }
                     else {
-                        Type indexType = this.expressionVisitor.visit(node.getJmmChild(0));
-                        if (!indexType.getName().equals("int")) {
-                            analysis.newReport(node, "Array index expression is not Integer");
+                        Type expressionType = this.expressionVisitor.visit(node.getJmmChild(1));
+                        System.out.println("variable.getType(): " + variable.getType());
+                        System.out.println("expressionType.getType(): " + expressionType);
+
+
+                        if (expressionType == null) {
+                            analysis.newReport(node, "4) expressionTYpe is null");
+                            return null;
                         }
-                        else {
-                            Type expressionType = this.expressionVisitor.visit(node.getJmmChild(1));
-                            if (expressionType == null) {
-                                analysis.newReport(node, "2) expressionTYpe is null");
-                                return null;
-                            }
-                            if (!varType.equals(expressionType)) {
-                                analysis.newReport(node, "Expression " + expressionType.getName() + " is not Array Type");
-                            }
+                        if (!varType.equals(expressionType)) {
+                            analysis.newReport(node, "5) Expression " + expressionType.getName() + " is not Array Type");
                         }
                     }
                 }

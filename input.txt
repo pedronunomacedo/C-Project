@@ -4,7 +4,7 @@ class HelloWorld {
     int intField;
 
     public int get(int[] arr){
-        int res = arr[0];
+        arr[0] = 3;
 
         return intField;
     }
