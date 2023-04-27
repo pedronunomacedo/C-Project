@@ -6,13 +6,6 @@ import java.util.HashMap;
 import static pt.up.fe.comp2023.Jasmin.JasminBuilder.classUnit;
 
 public class Instructions {
-    public static String noOpInstructions(SingleOpInstruction instruction, Method method) {
-        StringBuilder jasminCode = new StringBuilder();
-        jasminCode.append(loadInstruction(instruction.getSingleOperand(), method.getVarTable()));
-
-        return jasminCode.toString();
-    }
-
     public static String binaryOpInstructions(BinaryOpInstruction instruction, Method method) {
         StringBuilder jasminCode = new StringBuilder();
         Element leftOp = instruction.getLeftOperand();
@@ -28,12 +21,6 @@ public class Instructions {
             case DIV:
                 return operationsManage("idiv", leftOp, rightOp, method);
         }
-
-        return jasminCode.toString();
-    }
-
-    public static String unaryOpInstructions(UnaryOpInstruction instruction, Method method) {
-        StringBuilder jasminCode = new StringBuilder();
 
         return jasminCode.toString();
     }
@@ -105,26 +92,6 @@ public class Instructions {
         }
 
         return "";
-    }
-
-    public static String assignInstructions(AssignInstruction instruction, Method method) {
-        StringBuilder jasminCode = new StringBuilder();
-        Instruction rhs = instruction.getRhs();
-        Element lhs = instruction.getDest();
-        jasminCode.append(JasminTypesInst.getInstructionType(rhs, method));
-        jasminCode.append("\t").append(storeElement(lhs, method.getVarTable()));
-
-        return jasminCode.toString();
-
-    }
-
-
-    public static String gotoInstructions(GotoInstruction instruction, Method method) {
-        StringBuilder jasminCode = new StringBuilder();
-        jasminCode.append("\t").append("goto ").append(instruction.getLabel()).append("\n");
-
-        return jasminCode.toString();
-
     }
 
     public static String returnInstructions(ReturnInstruction instruction, Method method) {
