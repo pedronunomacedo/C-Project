@@ -204,6 +204,9 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
         Type arrayType = visit(node.getJmmChild(0));
         Type indexType = visit(node.getJmmChild(1));
 
+        System.out.println("arrayType: " + arrayType);
+        System.out.println("indexType: " + indexType);
+
         if (arrayType == null) {
             analysis.newReport(node, "arrayType is null");
             return null;
@@ -224,7 +227,8 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
             return arrayType;
         }
 
-        return arrayType;
+        // return arrayType;
+        return new Type(arrayType.getName(), false);
     }
 
 }
