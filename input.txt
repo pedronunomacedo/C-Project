@@ -7,7 +7,14 @@ class ClassNotImported {
     }
 
     public int foo() {
+        int a;
         MyClass myClass;
-        myClass.get(3);
+        int[] b;
+        b = new int[2];
+        a = b[0];
+
+        while(a < 10) {
+            a = a + 1;
+        }
     }
 }
