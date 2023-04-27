@@ -74,9 +74,17 @@ public class JasminTypesInst {
     public static String getInstructionType(Instruction instr, Method m) {
         String result = "";
         if (instr.getInstType() == InstructionType.ASSIGN) {
-            result = Instructions.assignInstructions((AssignInstruction) instr, m);
+            StringBuilder jasminCode = new StringBuilder();
+            AssignInstruction inst = (AssignInstruction) instr;
+            Element lhand = inst.getDest();
+            Instruction rhand = inst.getRhs();
+            jasminCode.append(JasminTypesInst.getInstructionType(rhand, m));
+            jasminCode.append("\t").append(Instructions.storeElement(lhand, m.getVarTable()));
+            result = jasminCode.toString();
         }  else if (instr.getInstType() == InstructionType.GOTO) {
-            result = Instructions.gotoInstructions((GotoInstruction) instr, m);
+            StringBuilder jasminCode = new StringBuilder();
+            GotoInstruction inst = (GotoInstruction) instr;
+            jasminCode.append("\t").append("goto ").append(inst.getLabel()).append("\n");
         } else if (instr.getInstType() == InstructionType.CALL) {
             result = Instructions.callInstructions((CallInstruction) instr, m);
         } else if (instr.getInstType() == InstructionType.BRANCH) {
@@ -86,13 +94,17 @@ public class JasminTypesInst {
         } else if (instr.getInstType() == InstructionType.GETFIELD) {
             result = Instructions.getFieldInstructions((GetFieldInstruction) instr, m);
         } else if (instr.getInstType() == InstructionType.UNARYOPER) {
-            result = Instructions.unaryOpInstructions((UnaryOpInstruction) instr, m);
+            StringBuilder jasminCode = new StringBuilder();
+            result = jasminCode.toString();
         } else if (instr.getInstType() == InstructionType.RETURN) {
             result = Instructions.returnInstructions((ReturnInstruction) instr, m);
         } else if (instr.getInstType() == InstructionType.BINARYOPER) {
             result = Instructions.binaryOpInstructions((BinaryOpInstruction) instr, m);
         } else if (instr.getInstType() == InstructionType.NOPER) {
-            result = Instructions.noOpInstructions((SingleOpInstruction) instr, m);
+            SingleOpInstruction ins = (SingleOpInstruction) instr;
+            StringBuilder jasminCode = new StringBuilder();
+            jasminCode.append(Instructions.loadInstruction(ins.getSingleOperand(), m.getVarTable()));
+            result = jasminCode.toString();
         }
         return result;
     }
