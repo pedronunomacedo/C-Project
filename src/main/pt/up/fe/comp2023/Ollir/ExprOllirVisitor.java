@@ -117,7 +117,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         }
 
         String objExpr = (String) visit(node.getJmmChild(0), Collections.singletonList("MEMBER_ACCESS")).get(0);
-        System.out.println("objExpr: " + objExpr);
         int dotIndex = objExpr.indexOf("."); // has the type integrated in the objExpr
         String retAcc = OllirTemplates.type(this.currentMethod.getReturnType());
         if ((dotIndex == -1 && !objExpr.equals("this"))) { // objExpr it's an import, use invokestatic
@@ -132,29 +131,22 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             }
         } else { // use invokevirtual
             String objExprName = new String();
-            String objExprType = new String();
             if (objExpr.equals("this")) {
                 objExprName = "this";
             } else {
                 if (objExpr.chars().filter(ch -> ch == '.').count() == 2) { // parameter (remove the param index and param type)
                     objExprName = objExpr.substring(dotIndex + 1, objExpr.length());
                     dotIndex = objExprName.indexOf("."); // index of the 2nd "."
-                    objExprType = objExprName.substring(dotIndex + 1, objExprName.length());
                     objExprName = objExprName.substring(0, dotIndex);
                 } else {
                     objExprName = objExpr.substring(0, dotIndex);
-                    objExprType = objExpr.substring(dotIndex + 1, objExpr.length());
                 }
             }
-
-            System.out.println("objExprType: " + objExprType);
-            System.out.println("objExprName:" + objExprName);
 
             if (funcMethod == null) {
                 retAcc = OllirTemplates.type(this.currentAssignmentType);
             } else {
-
-                retAcc = OllirTemplates.type(this.currentAssignmentType);
+                retAcc = OllirTemplates.type(funcMethod.getReturnType());
             }
 
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
