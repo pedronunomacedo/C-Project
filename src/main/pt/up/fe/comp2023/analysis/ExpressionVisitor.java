@@ -88,13 +88,17 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
                 Pair<String, Symbol> pair = analysis.getSymbolTable().variableScope(analysis.getSymbolTable().getCurrentMethod(), val);
                 Symbol variable = pair.b;
 
+                System.out.println("variable: " + variable);
+                System.out.println("val: " + val);
+
                 if (variable == null) {
                     // Check if it comes from the imports
                     if (this.analysis.getSymbolTable().getImports().contains(val)) {
                         isVariable = false;
                         return new Type(val, false);
                     } else {
-                        analysis.newReport(node, "Variable " + val + " not declared");
+                        analysis.newReport(node, "Import " + val + " not declared");
+                        // this.isVariable = false;
                     }
                 } else {
                     this.isVariable = true;
@@ -145,6 +149,7 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
         Type objectType = visit(node.getJmmChild(0), method);
 
         System.out.println("objectType: " + objectType);
+        System.out.println("isVariable: " + isVariable);
 
         if (objectType == null && isVariable) {
             analysis.newReport(node, "objectType is null");
@@ -158,6 +163,8 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
                 analysis.newReport(node, "Object member access must be a string but found " + objectType.getName());
                 return objectType;
             }
+        } else {
+            return null;
         }
 
         this.isVariable = false;
