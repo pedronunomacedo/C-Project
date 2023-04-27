@@ -181,6 +181,9 @@ public class Analyser extends AJmmVisitor<String, Void> {
                     Type varType2 = variable2.getType();
                     Type expressionType = this.expressionVisitor.visit(node.getJmmChild(0));
 
+                    System.out.println("variable2: " + variable2.getType());
+                    System.out.println("expressionType: " + expressionType);
+
                     if (expressionType == null) {
                         analysis.newReport(node, "3) ExpressionType is null");
                         return null;
