@@ -16,7 +16,7 @@ class HelloWorld {
         d = 2;
         e = a;
 
-        e = myClass.get();
+        c = this.get();
 
         return c;
     }
