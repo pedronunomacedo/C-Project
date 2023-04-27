@@ -46,6 +46,9 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
         Type leftSideType = visit(leftChild, method);
         Type rightSideType = visit(rightChild, method);
 
+        System.out.println("leftSideType: " + leftSideType);
+        System.out.println("rightSideType: " + rightSideType);
+
         switch (node.get("op")) {
             case "&&", "||" -> {
                 if (leftSideType == null || rightSideType == null) {
@@ -57,7 +60,17 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
                 }
                 return new Type("boolean", false);
             }
-            case "+=", "-=", "*=", "/=", "*", "/", "%", "+", "-", "<", ">", "<=", ">=" -> {
+            case "+=", "-=", "*=", "/=", "*", "/", "%", "+", "-" -> {
+                if (leftSideType == null || rightSideType == null) {
+                    analysis.newReport(leftChild, "Types of both sides don't match");
+                    return new Type("int", false);
+                }
+                if (!leftSideType.getName().equals("int") || leftSideType.isArray() || !rightSideType.getName().equals("int") || rightSideType.isArray()) {
+                    analysis.newReport(node, "Invalid Type on Binary Operation");
+                }
+                return new Type("int", false);
+            }
+            case "<", ">", "<=", ">=" -> {
                 if (leftSideType == null || rightSideType == null) {
                     analysis.newReport(leftChild, "Types of both sides don't match");
                     return new Type("boolean", false);
@@ -65,7 +78,7 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
                 if (!leftSideType.getName().equals("int") || leftSideType.isArray() || !rightSideType.getName().equals("int") || rightSideType.isArray()) {
                     analysis.newReport(node, "Invalid Type on Binary Operation");
                 }
-                return new Type("int", false);
+                return new Type("boolean", false);
             }
         }
 
@@ -237,7 +250,6 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
             analysis.newReport(node, "Array index expression is not Integer");
             return arrayType;
         }
-
         // return arrayType;
         return new Type(arrayType.getName(), false);
     }

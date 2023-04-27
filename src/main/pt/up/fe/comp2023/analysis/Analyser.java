@@ -128,7 +128,8 @@ public class Analyser extends AJmmVisitor<String, Void> {
 
             case "Loop":
                 Type expressionTypeWhile = this.expressionVisitor.visit(node.getJmmChild(0));
-                if (!expressionTypeWhile.equals("boolean")) {
+                System.out.println("expressionTypeWhile: " + expressionTypeWhile);
+                if (!expressionTypeWhile.getName().equals("boolean")) {
                     analysis.newReport(node, " While Expression " + expressionTypeWhile.getName() + " is not Boolean");
                 }
                 break;
