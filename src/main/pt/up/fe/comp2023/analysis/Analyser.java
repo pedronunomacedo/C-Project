@@ -182,13 +182,6 @@ public class Analyser extends AJmmVisitor<String, Void> {
                         return null;
                     }
 
-
-                    System.out.println("\n-> variable2.getType(): " + variable2.getType());
-                    System.out.println("-> this.analysis.getSymbolTable().getSuper(): " + this.analysis.getSymbolTable().getSuper());
-
-                    System.out.println("-> expressionType.getName(): " + expressionType.getName());
-                    System.out.println("expressionType: " + expressionType);
-
                     if (!((variable2.getType().getName().equals(this.analysis.getSymbolTable().getSuper()) || this.analysis.getSymbolTable().getImports().contains(variable2.getType().getName()) || this.analysis.getSymbolTable().getClassName().equals(variable2.getType().getName()))
                             &&
                             (expressionType.getName().equals(this.analysis.getSymbolTable().getClassName()) || this.analysis.getSymbolTable().getImports().contains(expressionType.getName())))) {
