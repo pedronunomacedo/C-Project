@@ -46,9 +46,6 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
         Type leftSideType = visit(leftChild, method);
         Type rightSideType = visit(rightChild, method);
 
-        System.out.println("leftSideType: " + leftSideType);
-        System.out.println("rightSideType: " + rightSideType);
-
         switch (node.get("op")) {
             case "&&", "||" -> {
                 if (leftSideType == null || rightSideType == null) {
@@ -102,14 +99,10 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
                 Pair<String, Symbol> pair = analysis.getSymbolTable().variableScope(analysis.getSymbolTable().getCurrentMethod(), val);
                 Symbol variable = pair.b;
 
-                System.out.println("variable: " + variable);
-                System.out.println("val: " + val);
-
                 if (variable == null) {
                     // Check if it comes from the imports
-                    //System.out.println("SADASDASD: " + this.analysis.getSymbolTable().getImports());
                     for (var imp : this.analysis.getSymbolTable().getImports()) {
-                        if (isLastAfterDot(imp, val)) {
+                        if (val.equals(imp)) {
                             isVariable = false;
                             temp = true;
                             return new Type(val, false);
@@ -165,9 +158,6 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
 
     private Type dealWithMemberAccess(JmmNode node, Type method) {
         Type objectType = visit(node.getJmmChild(0), method);
-
-        System.out.println("objectType: " + objectType);
-        System.out.println("isVariable: " + isVariable);
 
         if (objectType == null && isVariable) {
             analysis.newReport(node, "objectType is null");
@@ -233,9 +223,6 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
         Type arrayType = visit(node.getJmmChild(0));
         Type indexType = visit(node.getJmmChild(1));
 
-        System.out.println("arrayType: " + arrayType);
-        System.out.println("indexType: " + indexType);
-
         if (arrayType == null) {
             analysis.newReport(node, "arrayType is null");
             return null;
@@ -262,24 +249,17 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
 
 
     private boolean isImported(String type) {
-        System.out.println("------------------");
         for (var imp : this.analysis.getSymbolTable().getImports()) {
-            System.out.println(imp);
             String imports = imp.substring(1, imp.lastIndexOf(']'));
-            System.out.println(imports);
             String classImported = imports.substring(imp.lastIndexOf('.') + 1);
-            System.out.println(classImported);
             if (classImported.equals(type)) {
-                System.out.println(classImported);
-                System.out.println(type);
                 return true;
             }
-            System.out.println(classImported);
-            System.out.println(type);
         }
         return false;
     }
 
+    /*
     public static boolean isLastAfterDot(String fullString, String targetString) {
         int lastIndex = fullString.lastIndexOf(targetString);
         if (lastIndex != -1 && lastIndex > 0) {
@@ -288,6 +268,7 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
         }
         return false;
     }
+     */
 
 
 }

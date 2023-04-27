@@ -39,7 +39,6 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
 
 
     private String dealWithProgram(JmmNode node, String space) {
-        System.out.println("-> In dealWithProgram() visitor!");
         space = ((space != null) ? space : "");
 
         for (JmmNode child : node.getChildren()) {
@@ -189,18 +188,11 @@ public class SymbolTableVisitor extends AJmmVisitor<String, String> {
     public String dealWithExpression(JmmNode node, String space) {
         space = ((space != null) ? space : "");
 
-        if (scope.equals("METHOD")) {
-            System.out.println("In dealWithExpression() with node = " + node);
-        }
-
         return null;
     }
 
     public String dealWithReturnObj(JmmNode node, String space) {
         space = ((space != null) ? space : "");
-        System.out.println("In dealWithReturnObj() function!");
-
-        System.out.println("In returnObj");
 
         return null;
     }
