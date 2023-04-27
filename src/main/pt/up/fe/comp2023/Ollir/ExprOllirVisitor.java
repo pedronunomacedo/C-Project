@@ -160,7 +160,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             }
         }
 
-
         return Collections.singletonList(ollirCode.toString());
     }
 
