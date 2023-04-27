@@ -124,7 +124,7 @@ public class Analyser extends AJmmVisitor<String, Void> {
                 if (!expressionTypeIf.equals("boolean")) {
                     analysis.newReport(node, " If Expression " + expressionTypeIf.getName() + " is not Boolean");
                 }
-                break;
+                return visit(node.getChildren().get(1), method);
 
             case "Loop":
                 Type expressionTypeWhile = this.expressionVisitor.visit(node.getJmmChild(0));
@@ -132,7 +132,7 @@ public class Analyser extends AJmmVisitor<String, Void> {
                 if (!expressionTypeWhile.getName().equals("boolean")) {
                     analysis.newReport(node, " While Expression " + expressionTypeWhile.getName() + " is not Boolean");
                 }
-                break;
+                return visit(node.getChildren().get(1), method);
 
             case "ArrayAssignment":
                 String varName = node.get("varName");

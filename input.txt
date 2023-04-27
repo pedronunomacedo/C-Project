@@ -1,20 +1,7 @@
-import io;
-import MyClass;
-class ClassNotImported {
-
-    public static void main(String[] args) {
-
-    }
-
+class Foo {
     public int foo() {
         int a;
-        MyClass myClass;
-        int[] b;
-        b = new int[2];
-        a = b[0];
-
-        while(a < 10) {
-            a = a + 1;
-        }
+        foo();
+        return 0;
     }
 }
