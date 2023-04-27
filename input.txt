@@ -1,32 +1,10 @@
-import ioPlus;
-class HelloWorld {
+class ClassNotImported {
 
-    int intField;
+    public static void main(String[] args) {
 
-    public int get(int[] arr){
-        arr[0] = 3;
-
-        return intField;
     }
-    /*
-    public int add(int a, ioPlus b){
-        int c;
-        int d;
-        int e;
-        d = 2;
-        e = a;
-        c = this.get();
 
-        return c;
+    public int foo() {
+        return A.bar();
     }
-    */
-
-	public static void main(String[] args) { // You can't do this in the main function on the right side of the assignments
-		ioPlus I;
-		int c;
-		int[] arr;
-
-		I.printHelloWorld();
-        c = this.get(arr);
-	}
 }
