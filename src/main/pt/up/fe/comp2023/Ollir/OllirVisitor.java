@@ -17,8 +17,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
     List<JmmNode> nodesVisited;
     private String scope;
 
-    String currentArithType = "";
-
     private ExprOllirVisitor exprVisitor;
 
     public OllirVisitor(JmmSymbolTable symbolTable, List<Report> reports) {
@@ -127,6 +125,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         StringBuilder ollirCode = new StringBuilder();
         String varName = node.get("varName");
         Symbol localVariable = this.exprVisitor.currentMethod.getLocalVariable(varName);
+        this.exprVisitor.currentAssignmentType = localVariable.getType();
 
         if (node.getNumChildren() > 1) { // variable declaration and initialization
             JmmNode exprNode = node.getJmmChild(1);
@@ -162,6 +161,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
         String varName = node.get("varName"); // Name of the List
         Pair<String, Symbol> pair = this.symbolTable.variableScope(this.exprVisitor.currentMethod, varName);
+        this.exprVisitor.currentAssignmentType = pair.b.getType();
 
         JmmNode indexNode = node.getChildren().get(0);
         JmmNode valueNode = node.getChildren().get(1);
@@ -202,6 +202,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
         Pair<String, Symbol> pair = this.symbolTable.variableScope(this.exprVisitor.currentMethod, varName);
         Symbol variable = pair.b;
+        this.exprVisitor.currentAssignmentType = variable.getType();
 
         JmmNode valueNode = node.getJmmChild(0);
         String valueOllirCode = (String) this.exprVisitor.visit(valueNode, Collections.singletonList("ASSIGNMENT")).get(0);
@@ -218,11 +219,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 ollirCode.append(OllirTemplates.variableAssignment(newVariable, "", valueOllirCode));
                 break;
             case "fieldVariable":
-                /*
-                ollirCode.append(OllirTemplates.getField((++this.exprVisitor.tempMethodParamNum), pair.b));
-                String tempVar = "t" + this.exprVisitor.tempMethodParamNum;
-                Symbol newVariable2 = new Symbol(pair.b.getType(), tempVar);
-                 */
                 ollirCode.append(OllirTemplates.putField(variable, valueOllirCode));
                 break;
         }
