@@ -6,9 +6,9 @@ import static pt.up.fe.comp2023.Jasmin.JasminBuilder.classUnit;
 public class Caller {
     public static String generateVirtualInvokeCode(CallInstruction call, Method method) {
         StringBuilder code = new StringBuilder();
-        code.append("\t").append(Instructions.loadInstruction(call.getFirstArg(), method.getVarTable()));
+        code.append("\t").append(Instructions.loadInst(call.getFirstArg(), method.getVarTable()));
         for (Element op : call.getListOfOperands()){
-            code.append("\t").append(Instructions.loadInstruction(op, method.getVarTable()));
+            code.append("\t").append(Instructions.loadInst(op, method.getVarTable()));
         }
 
         code.append("\t").append("invokevirtual ");
@@ -37,7 +37,7 @@ public class Caller {
         StringBuilder jasminCodeBuilder = new StringBuilder();
 
         for (Element elem : callInstr.getListOfOperands()){
-            jasminCodeBuilder.append("\t").append(Instructions.loadInstruction(elem, method.getVarTable()));
+            jasminCodeBuilder.append("\t").append(Instructions.loadInst(elem, method.getVarTable()));
         }
 
         if (callInstr.getFirstArg().getType().getTypeOfElement() == ElementType.OBJECTREF){
@@ -51,7 +51,7 @@ public class Caller {
 
     public static String generateSpecialInvokeCode(CallInstruction call, Method method) {
         StringBuilder code = new StringBuilder();
-        code.append("\t").append(Instructions.loadInstruction(call.getFirstArg(), method.getVarTable()));
+        code.append("\t").append(Instructions.loadInst(call.getFirstArg(), method.getVarTable()));
         code.append("\t").append("invokespecial ");
 
         if (call.getFirstArg().getType().getTypeOfElement() == ElementType.THIS){
@@ -82,7 +82,7 @@ public class Caller {
     public static String generateStaticInvokeCode(CallInstruction call, Method method) {
         StringBuilder code = new StringBuilder();
         for (Element op : call.getListOfOperands()){
-            code.append("\t").append(Instructions.loadInstruction(op, method.getVarTable()));
+            code.append("\t").append(Instructions.loadInst(op, method.getVarTable()));
         }
         code.append("\t").append("invokestatic ");
 
@@ -109,14 +109,14 @@ public class Caller {
 
     public static String generateInvokeArrayLengthInstructions(CallInstruction instruction, Method method) {
         StringBuilder jasminCode = new StringBuilder();
-        jasminCode.append(Instructions.loadInstruction(instruction.getFirstArg(), method.getVarTable())).append("arraylength\n");
+        jasminCode.append(Instructions.loadInst(instruction.getFirstArg(), method.getVarTable())).append("arraylength\n");
 
         return jasminCode.toString();
     }
 
     public static String generateInvokeLdcInstructions(CallInstruction instruction, Method method) {
         StringBuilder jasminCode = new StringBuilder();
-        jasminCode.append(Instructions.loadInstruction(instruction.getFirstArg(), method.getVarTable()));
+        jasminCode.append(Instructions.loadInst(instruction.getFirstArg(), method.getVarTable()));
 
         return jasminCode.toString();
     }
