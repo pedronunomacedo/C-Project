@@ -13,7 +13,7 @@ public class JasminBuilder {
 
     public String build(){
         addClass();
-        addSuperClass();
+        addSuper();
         addFields();
         addMethods();
 
@@ -44,7 +44,7 @@ public class JasminBuilder {
         }
     }
 
-    private void addSuperClass() {
+    private void addSuper() {
         jasminCode.append(".super ");
         for (int i = 0; i < classUnit.getImports().size(); i++){
             if (classUnit.getSuperClass() != null){
