@@ -1,7 +1,8 @@
+import java.io;
+
 class Foo {
     public int foo() {
-        int a;
-        foo();
+        io.print(1);
         return 0;
     }
 }
