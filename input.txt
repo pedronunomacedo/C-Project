@@ -2,8 +2,69 @@ import java.hello;
 import java.io;
 
 class Foo {
-    public int foo() {
-        io.print(1);
+    int[] arrField;
+
+    public int foo(int[] test) {
+        return test[0];
+    }
+
+
+    public int other(int[] arrTest) {
+        int num;
+        int numCalled;
+        int[] otherArr;
+        // arrTest = new int[10];
+        /*
+        num = 1;
+        numCalled = this.foo(arrTest);
+        otherArr[numCalled] = num;
+        */
+
+
+        while(num < 1) {
+            while(num < 3) {
+                numCalled = 5;
+            }
+            num = 2;
+            numCalled = 5;
+        }
+
+
+        while(num < 7)
+            num = 2;
+
+        /*
+        if (num < 1)
+            num = 2;
+        */
+
         return 0;
     }
+
+
+    public void test() {
+        int i = 0;
+        int j = 0;
+        int sum = 0;
+        while (i < 10){
+            while( j < 10){
+                sum = sum + 1;
+                j = j+1;
+            }
+            i= i+1;
+        }
+        io.println(sum);
+    }
+
+    public void lengthKeyword(int [] paramArr) {
+        int[] localArr;
+        int num;
+
+        num = localArr.length;
+        num = paramArr.length;
+        num = arrField.length;
+
+        num = !num;
+    }
+
 }

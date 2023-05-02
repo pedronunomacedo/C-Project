@@ -84,11 +84,11 @@ statement
             (statement)*
       '}'                                                   #Brackets
     | 'if' '(' expression ')'
-            ((type)? statement)*
-      'else'
-            ((type)? statement)*                            #Conditional
+            statement                                       #IfConditional
+    |'else'
+            statement                                       #ElseConditional
     | 'while' '(' expression ')'
-            (statement)*                                    #Loop
+            statement                                       #Loop
     | varName=ID '[' expression ']' '=' expression ';'      #ArrayAssignment
     | varName=ID '=' expression ';'                         #Assignment
     | varDeclaration                                        #VarDeclar
