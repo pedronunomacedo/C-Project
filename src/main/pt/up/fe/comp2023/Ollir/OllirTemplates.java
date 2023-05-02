@@ -1,5 +1,6 @@
 package pt.up.fe.comp2023.Ollir;
 
+import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 
@@ -163,17 +164,16 @@ public class OllirTemplates {
         return ollirCode.toString();
     }
 
-    public static String variableAssignment(Symbol variable, String index, String value) { // local variable assignment
+    public static String variableAssignment(Symbol variable, String index, String value, Type variableType, boolean newArrayObjectBool) { // local variable assignment
         StringBuilder ollirCode = new StringBuilder();
-        //String varType = type(variable.getType());
-        String varType = type(new Type(variable.getType().getName(), false));
+        String varTypeAcc = type(variableType);
         if (variable.getType().isArray()) {
-            ollirCode.append(variable.getName() + "[" + index + "]" + varType);
-            ollirCode.append(" :=" + varType + " ");
+            ollirCode.append(variable.getName() + (newArrayObjectBool ? "" : "[" + index + "]") + varTypeAcc);
+            ollirCode.append(" :=" + varTypeAcc + " ");
             ollirCode.append(value + ";\n");
         } else {
-            ollirCode.append(variable.getName() + varType);
-            ollirCode.append(" :=" + varType + " ");
+            ollirCode.append(variable.getName() + varTypeAcc);
+            ollirCode.append(" :=" + varTypeAcc + " ");
             ollirCode.append(value + ";\n");
         }
 

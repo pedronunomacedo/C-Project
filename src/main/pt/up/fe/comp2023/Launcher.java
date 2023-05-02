@@ -52,7 +52,6 @@ public class Launcher {
         // Semantic Analysis
         JmmSemanticsResult result = new AnalysisStage().semanticAnalysis(parserResult);
 
-
         // Transform to OLLIR code
         OllirResult ollirResult = new OptimizationStage().toOllir(result);
         System.out.println("OllirResult: " + ollirResult.toString());

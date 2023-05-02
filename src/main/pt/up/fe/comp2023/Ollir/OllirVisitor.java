@@ -16,14 +16,17 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
     private final List<Report> reports;
     List<JmmNode> nodesVisited;
     private String scope;
-
     private ExprOllirVisitor exprVisitor;
+    private int while_label_sequence;
+    private int conditional_label_sequence;
 
     public OllirVisitor(JmmSymbolTable symbolTable, List<Report> reports) {
         this.symbolTable = symbolTable;
         this.reports = reports;
         this.nodesVisited = new ArrayList<>();
         this.exprVisitor = new ExprOllirVisitor(this.symbolTable, this.reports);
+        this.while_label_sequence = 0;
+        this.conditional_label_sequence = 0;
     }
 
     @Override
@@ -34,8 +37,9 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         addVisit("LocalVariables", this::dealWithLocalVariables); // LocalVariable rule
 
         // Statement rules
-        /* addVisit("Brackets", this::defaultVisit); */
-        addVisit("Conditional", this::dealWithConditional);
+        addVisit("Brackets", this::dealWithBrackets);
+        addVisit("IfConditional", this::dealWithIfConditional);
+        addVisit("ElseConditional", this::dealWithElseConditional);
         addVisit("Loop", this::dealWithLoop);
         addVisit("ArrayAssignment", this::dealWithArrayAssignment);
         addVisit("Assignment", this::dealWithAssignment);
@@ -138,18 +142,77 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         return Collections.singletonList(ollirCode.toString());
     }
 
-    public List<Object> dealWithConditional(JmmNode node, List<Object> data) { // FINISH!
+    private List<Object> dealWithBrackets(JmmNode node, List<Object> data) {
         if (nodesVisited.contains(node)) return Collections.singletonList("DEFAULT_VISIT");
         this.nodesVisited.add(node);
         StringBuilder ollirCode = new StringBuilder();
+
+        for (JmmNode stmtChild : node.getChildren()) {
+            ollirCode.append((String) visit(stmtChild, data).get(0));
+        }
 
         return Collections.singletonList(ollirCode.toString());
     }
 
-    public List<Object> dealWithLoop(JmmNode node, List<Object> data) {
+    public List<Object> dealWithIfConditional(JmmNode node, List<Object> data) { // FINISH!
         if (nodesVisited.contains(node)) return Collections.singletonList("DEFAULT_VISIT");
         this.nodesVisited.add(node);
         StringBuilder ollirCode = new StringBuilder();
+        int conditionalCount = ++this.while_label_sequence;
+
+        String loopCondition = (String) this.exprVisitor.visit(node.getJmmChild(0), Collections.singletonList("CONDITIONAL")).get(0);
+        ollirCode.append(String.join("", this.exprVisitor.tempVariablesOllirCode));
+        this.exprVisitor.resetTempVariables();
+
+        ollirCode.append(String.format("if (" + loopCondition + ") goto else%d;\n", conditionalCount));
+        boolean elseStmt = node.getChildren().get(node.getNumChildren() - 1).getKind().equals("ElseConditional");
+        List<JmmNode> ifStatements = node.getChildren().subList(1, ( elseStmt? (node.getNumChildren() - 1) : node.getNumChildren()));
+        for (JmmNode statementChild : ifStatements) {
+            ollirCode.append((String) visit(statementChild, Collections.singletonList("IF")).get(0));
+        }
+        ollirCode.append(String.format("goto endif%d;\n", conditionalCount));
+
+        if (elseStmt) {
+            JmmNode elseNode =  node.getChildren().get(node.getNumChildren() - 1);
+            ollirCode.append((String) visit(elseNode, Collections.singletonList("ELSE")).get(0));
+            ollirCode.append(String.format("endif%d:\n", conditionalCount));
+        }
+
+
+        return Collections.singletonList(ollirCode.toString());
+    }
+
+    private List<Object> dealWithElseConditional(JmmNode node, List<Object> data) {
+        if (nodesVisited.contains(node)) return Collections.singletonList("DEFAULT_VISIT");
+        this.nodesVisited.add(node);
+        StringBuilder ollirCode = new StringBuilder();
+        int conditionalCount = this.while_label_sequence;
+
+        ollirCode.append(String.format("else%d:\n", conditionalCount));
+
+        for (JmmNode statementNode : node.getChildren()) {
+            ollirCode.append((String) visit(statementNode, Collections.singletonList("ELSE")).get(0));
+        }
+
+        return Collections.singletonList(ollirCode.toString());
+    }
+
+    public List<Object> dealWithLoop(JmmNode node, List<Object> data) { // While loop
+        if (nodesVisited.contains(node)) return Collections.singletonList("DEFAULT_VISIT");
+        this.nodesVisited.add(node);
+        StringBuilder ollirCode = new StringBuilder();
+        int loopCount = ++this.while_label_sequence;
+
+        ollirCode.append(String.format("goto Cond%d;\n", loopCount));
+        ollirCode.append(String.format("Body%d:\n", loopCount));
+            for (JmmNode statementChild : node.getChildren().subList(1, node.getChildren().size())) {
+                ollirCode.append((String) visit(statementChild, Collections.singletonList("LOOP")).get(0));
+            }
+        ollirCode.append(String.format("Cond%d:\n", loopCount));
+            String whileCondition = (String) this.exprVisitor.visit(node.getJmmChild(0), Collections.singletonList("LOOP")).get(0);
+            ollirCode.append(String.join("", this.exprVisitor.tempVariablesOllirCode));
+            this.exprVisitor.resetTempVariables();
+            ollirCode.append(String.format("if (" + whileCondition + ") goto Body%d;\n", loopCount));
 
         return Collections.singletonList(ollirCode.toString());
     }
@@ -166,28 +229,25 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         JmmNode indexNode = node.getChildren().get(0);
         JmmNode valueNode = node.getChildren().get(1);
 
-        String indexOllirCode = (String) this.exprVisitor.visit(indexNode, Collections.singletonList("ASSIGNMENT")).get(0);
+        String indexOllirCode = (String) this.exprVisitor.visit(indexNode, Collections.singletonList("ARRAY_ASSIGNMENT_INDEX")).get(0);
         ollirCode.append(String.join("", this.exprVisitor.tempVariablesOllirCode));
         this.exprVisitor.resetTempVariables();
-        String valueOllirCode = (String) this.exprVisitor.visit(valueNode, Collections.singletonList("ASSIGNMENT")).get(0);
+        String valueOllirCode = (String) this.exprVisitor.visit(valueNode, Collections.singletonList("ARRAY_ASSIGNMENT_VALUE")).get(0);
         ollirCode.append(String.join("", this.exprVisitor.tempVariablesOllirCode));
         this.exprVisitor.resetTempVariables();
 
         switch (pair.a) {
             case "localVariable":
-                ollirCode.append(OllirTemplates.variableAssignment(pair.b, indexOllirCode, valueOllirCode));
+                ollirCode.append(OllirTemplates.variableAssignment(pair.b, indexOllirCode, valueOllirCode, pair.b.getType(), false));
                 break;
             case "parameterVariable":
                 int paramIndex = this.exprVisitor.currentMethod.getParameterIndex(varName);
                 String newVarName = "$" + paramIndex + "." + varName;
                 Symbol newVariable2 = new Symbol(pair.b.getType(), newVarName);
-                ollirCode.append(OllirTemplates.variableAssignment(newVariable2, indexOllirCode, valueOllirCode));
+                ollirCode.append(OllirTemplates.variableAssignment(newVariable2, indexOllirCode, valueOllirCode, pair.b.getType(), false));
                 break;
             case "fieldVariable":
-                ollirCode.append(OllirTemplates.getField((++this.exprVisitor.tempMethodParamNum), pair.b));
-                String tempVar = "t" + this.exprVisitor.tempMethodParamNum + OllirTemplates.type(pair.b.getType());
-                Symbol newVariable3 = new Symbol(pair.b.getType(), tempVar);
-                ollirCode.append(OllirTemplates.variableAssignment(newVariable3, indexOllirCode, valueOllirCode));
+                ollirCode.append(OllirTemplates.putField(pair.b, valueOllirCode));
         }
 
         return Collections.singletonList(ollirCode.toString());
@@ -209,20 +269,29 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         ollirCode.append(String.join("", this.exprVisitor.tempVariablesOllirCode));
         this.exprVisitor.resetTempVariables();
 
+        Type type;
+        boolean newArrayObjectBool = false;
+        if (valueNode.getKind().equals("NewArrayObject")) {
+            newArrayObjectBool = true;
+            type = variable.getType();
+        } else {
+            newArrayObjectBool = false;
+            type = new Type(variable.getType().getName(), false);
+        }
+
         switch (pair.a) {
             case "localVariable":
-                ollirCode.append(OllirTemplates.variableAssignment(variable, "", valueOllirCode));
+                ollirCode.append(OllirTemplates.variableAssignment(variable, "", valueOllirCode, type, newArrayObjectBool));
                 break;
             case "parameterVariable":
                 int paramIndex = this.exprVisitor.currentMethod.getParameterIndex(varName);
                 Symbol newVariable = new Symbol(variable.getType(), "$" + paramIndex + "." + variable.getName());
-                ollirCode.append(OllirTemplates.variableAssignment(newVariable, "", valueOllirCode));
+                ollirCode.append(OllirTemplates.variableAssignment(newVariable, "", valueOllirCode, type, newArrayObjectBool));
                 break;
             case "fieldVariable":
                 ollirCode.append(OllirTemplates.putField(variable, valueOllirCode));
                 break;
         }
-
 
         return Collections.singletonList(ollirCode.toString());
     }
