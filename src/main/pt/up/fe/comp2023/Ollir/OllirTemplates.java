@@ -191,46 +191,11 @@ public class OllirTemplates {
         return ollirCode.toString();
     }
 
-    public static String arrayAssignment(Symbol variable, String indexValue, String value) {
-        StringBuilder ollirCode = new StringBuilder();
-
-        ollirCode.append(variable.getName());
-        ollirCode.append("[" + indexValue + "]");
-        ollirCode.append(" :=" + variable.getType().getName() + " ");
-        ollirCode.append(value + ";");
-
-        return ollirCode.toString();
-    }
-
     public static String returnTemplate(String expr, Type retType) { // Local Variable
         StringBuilder ollirCode = new StringBuilder();
         ollirCode.append("ret" + type(retType) + " ");
         ollirCode.append(expr);
         ollirCode.append(";\n");
-
-        return ollirCode.toString();
-    }
-
-    public static String returnTemplate(Type type, String returnObj, Integer index, String varType) { // MethodParameter or ClassField
-        StringBuilder ollirCode = new StringBuilder();
-
-        switch (varType) {
-            case "methodParameter":
-                ollirCode.append("ret" + type(type) + " ");
-                ollirCode.append("$" + index + "." + returnObj + variableType(type.getName()));
-                ollirCode.append(";");
-                break;
-            case "classField":
-                String tempVarStr = new String("t" + index);
-                ollirCode.append(tempVarStr + variableType(type.getName()) + " ");
-                ollirCode.append(" :=" + variableType(type.getName()) + " ");
-                ollirCode.append("getField(this, " + returnObj + variableType(type.getName()) + ")" + variableType(type.getName()));
-                ollirCode.append("ret" + variableType(type.getName()) + " " + tempVarStr + variableType(type.getName()));
-                ollirCode.append(";");
-                break;
-            default:
-                break;
-        }
 
         return ollirCode.toString();
     }
@@ -245,14 +210,6 @@ public class OllirTemplates {
     public static String variableCall(Symbol variable, Integer index) { // MethodParameter or ClassField
         StringBuilder ollirCode = new StringBuilder();
         ollirCode.append("$" + index + "." + variable.getName() + variableType(variable.getType().getName()));
-
-        return ollirCode.toString();
-    }
-
-    public static String createOpAssignment(String type, int tempIndex, String returnValueStr) {
-        StringBuilder ollirCode = new StringBuilder();
-        ollirCode.append("t" + tempIndex + type + " :=" + type + " ");
-        ollirCode.append(returnValueStr + ";\n");
 
         return ollirCode.toString();
     }
