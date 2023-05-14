@@ -110,7 +110,7 @@ public class OllirTemplates {
         ollirCode.append("this, ");
         ollirCode.append(variable.getName()).append(typeAcc).append(", ");
         ollirCode.append(newValue);
-        ollirCode.append(")" + typeAcc);
+        ollirCode.append(")" + ".V");
         ollirCode.append(";\n");
 
         return ollirCode.toString();
@@ -187,15 +187,6 @@ public class OllirTemplates {
         ollirCode.append(" :=" + varType + " ");
         ollirCode.append(value);
         ollirCode.append(";\n");
-
-        return ollirCode.toString();
-    }
-
-    public static String variableAssignment(int tempVariableIndex, Symbol variable, String value) { // class field assignment
-        StringBuilder ollirCode = new StringBuilder();
-        String varType = type(variable.getType());
-
-        ollirCode.append(putField(variable, value));
 
         return ollirCode.toString();
     }

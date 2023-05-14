@@ -246,16 +246,34 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
 
         if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("ARRAY_ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
-            String rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentAssignmentType) + " " + rightExprCode;
+            String rightSide = "";
+            if (Arrays.asList("<", "<=", ">", ">=").contains(op)) {
+                rightSide = leftExprCode + " " + op + ".bool" + " " + rightExprCode;
+                this.currentArithType = new Type("boolean", false);
+            } else {
+                rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentAssignmentType) + " " + rightExprCode;
+            }
             ollirCode.append(rightSide);
         } else if (data.get(0).equals("LOOP")) {
-            String rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentArithType) + " " + rightExprCode;
+            String rightSide = "";
+            if (Arrays.asList("<", "<=", ">", ">=").contains(op)) {
+                rightSide = leftExprCode + " " + op + ".bool" + " " + rightExprCode;
+                this.currentArithType = new Type("boolean", false);
+            } else {
+                rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentArithType) + " " + rightExprCode;
+            }
             String operationString = OllirTemplates.temporaryVariableTemplate((++this.tempMethodParamNum), ".bool", rightSide);
             this.tempVariables.add("t" + this.tempMethodParamNum);
             this.tempVariablesOllirCode.add(operationString);
             ollirCode.append("t" + this.tempMethodParamNum + ".bool");
         } else {
-            String rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentArithType) + " " + rightExprCode;
+            String rightSide = "";
+            if (Arrays.asList("<", "<=", ">", ">=").contains(op)) {
+                rightSide = leftExprCode + " " + op + ".bool" + " " + rightExprCode;
+                this.currentArithType = new Type("boolean", false);
+            } else {
+                rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentArithType) + " " + rightExprCode;
+            }
             String operationString = OllirTemplates.temporaryVariableTemplate((++this.tempMethodParamNum), OllirTemplates.type(this.currentArithType), rightSide);
             this.tempVariables.add("t" + this.tempMethodParamNum);
             this.tempVariablesOllirCode.add(operationString);

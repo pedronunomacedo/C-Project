@@ -84,9 +84,9 @@ statement
             (statement)*
       '}'                                                   #Brackets
     | 'if' '(' expression ')'
-            statement                                       #IfConditional
-    |'else'
-            statement                                       #ElseConditional
+            ifStmt=statement
+      (hasElse='else'
+            elseStmt=statement)?                                       #IfConditional
     | 'while' '(' expression ')'
             statement                                       #Loop
     | varName=ID '[' expression ']' '=' expression ';'      #ArrayAssignment
