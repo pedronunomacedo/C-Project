@@ -404,6 +404,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                         break;
                     default: // Access members (imports)
                         ollirCode.append(val);
+                        this.currentArithType = new Type(val, false);
                         break;
                 }
 
