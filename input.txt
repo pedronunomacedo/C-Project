@@ -9,18 +9,11 @@ class Foo {
     int num;
 
     public Foo foo(int[] test) {
-        while (yey) {
-            if (1 + 2 < 3)
-                num = 1 + 2;
-            else
-                num = 4;
-
-            if (!num) {
-                num = 2;
-            } else {
-                num = 1;
-            }
-        }
+        int test;
+        if (test && num)
+            test = 1;
+        else
+            test = 2;
 
         return foo;
     }

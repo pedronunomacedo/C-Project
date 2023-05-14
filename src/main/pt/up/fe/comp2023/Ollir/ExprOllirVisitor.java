@@ -253,7 +253,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
         if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("ARRAY_ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
             String rightSide = "";
-            if (Arrays.asList("<", "<=", ">", ">=").contains(op)) {
+            if (Arrays.asList("<", "<=", ">", ">=", "&&", "||").contains(op)) {
                 rightSide = leftExprCode + " " + op + ".bool" + " " + rightExprCode;
                 this.currentArithType = new Type("boolean", false);
             } else {
@@ -262,7 +262,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             ollirCode.append(rightSide);
         } else if (data.get(0).equals("LOOP")) {
             String rightSide = "";
-            if (Arrays.asList("<", "<=", ">", ">=").contains(op)) {
+            if (Arrays.asList("<", "<=", ">", ">=", "&&", "||").contains(op)) {
                 rightSide = leftExprCode + " " + op + ".bool" + " " + rightExprCode;
                 this.currentArithType = new Type("boolean", false);
             } else {
@@ -274,7 +274,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             ollirCode.append("t" + this.tempMethodParamNum + ".bool");
         } else {
             String rightSide = "";
-            if (Arrays.asList("<", "<=", ">", ">=").contains(op)) {
+            if (Arrays.asList("<", "<=", ">", ">=", "&&", "||").contains(op)) {
                 rightSide = leftExprCode + " " + op + ".bool" + " " + rightExprCode;
                 this.currentArithType = new Type("boolean", false);
             } else {
