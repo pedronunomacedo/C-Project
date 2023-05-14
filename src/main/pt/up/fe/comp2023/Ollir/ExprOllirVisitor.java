@@ -71,7 +71,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             this.tempVariablesOllirCode.add(OllirTemplates.temporaryVariableTemplate((++this.tempMethodParamNum), ".bool", unaryExprCode));
             ollirCode.append("t" + this.tempMethodParamNum + ".bool");
         } else {
-            ollirCode.append("!" + OllirTemplates.type(this.currentArithType) +  " " + unaryExprCode);
+            ollirCode.append("!.bool" +  " " + unaryExprCode);
         }
         this.currentArithType = new Type("boolean", false);
 
