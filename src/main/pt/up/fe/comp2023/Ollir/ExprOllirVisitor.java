@@ -66,7 +66,8 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         JmmNode arrayLengthNode = node.getJmmChild(0);
 
         String unaryExprCode = (String) visit(arrayLengthNode, Collections.singletonList("NEW_ARRAY")).get(0);
-        if (data.get(0).equals("CONDITIONAL") || data.get(0).equals("LOOP")) {
+        unaryExprCode = "!.bool " + unaryExprCode;
+        if (data.get(0).equals("CONDITIONAL") || data.get(0).equals("LOOP") || data.get(0).equals("MEMBER_ACCESS")) {
             this.tempVariablesOllirCode.add(OllirTemplates.temporaryVariableTemplate((++this.tempMethodParamNum), ".bool", unaryExprCode));
             ollirCode.append("t" + this.tempMethodParamNum + ".bool");
         } else {
@@ -301,6 +302,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         List<String> parameterString = new ArrayList<>();
         for (JmmNode parameter : parameters) {
             String paramOllirCode = (String) visit(parameter, Collections.singletonList("MEMBER_ACCESS")).get(0); // value or the temporary variable
+            System.out.println("this.tempVariablesOllirCode: " + this.tempVariablesOllirCode);
             parameterString.add(paramOllirCode);
         }
 
