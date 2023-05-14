@@ -118,7 +118,12 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             }
         }
 
-        if (!node.getChildren().stream().anyMatch(child -> child.getKind().equals("returnObj"))) { // if the method does not return nothing, it means that it's the return type of the method is void (.V)
+        System.out.println("Node children kind: ");
+        for (JmmNode child : node.getChildren()) {
+            System.out.println("kind: " + child.getKind());
+        }
+
+        if (node.getChildren().stream().noneMatch(child -> child.getKind().equals("ReturnObj"))) { // if the method does not return nothing, it means that it's the return type of the method is void (.V)
             ollirCode.append("ret.V;\n");
         }
 
