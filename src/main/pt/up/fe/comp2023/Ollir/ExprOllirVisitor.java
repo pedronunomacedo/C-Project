@@ -66,7 +66,13 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         JmmNode arrayLengthNode = node.getJmmChild(0);
 
         String unaryExprCode = (String) visit(arrayLengthNode, Collections.singletonList("NEW_ARRAY")).get(0);
-        ollirCode.append("!" + OllirTemplates.type(this.currentArithType) +  " " + unaryExprCode);
+        if (data.get(0).equals("CONDITIONAL") || data.get(0).equals("LOOP")) {
+            this.tempVariablesOllirCode.add(OllirTemplates.temporaryVariableTemplate((++this.tempMethodParamNum), ".bool", unaryExprCode));
+            ollirCode.append("t" + this.tempMethodParamNum + ".bool");
+        } else {
+            ollirCode.append("!" + OllirTemplates.type(this.currentArithType) +  " " + unaryExprCode);
+        }
+        this.currentArithType = new Type("boolean", false);
 
         return Collections.singletonList(ollirCode.toString());
     }
