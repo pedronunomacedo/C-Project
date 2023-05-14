@@ -159,8 +159,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         StringBuilder ollirCode = new StringBuilder();
         int conditionalCount = ++this.while_label_sequence;
 
-        System.out.println("IF attributes: " + node.getAttributes());
-        System.out.println("IF children node: ");
         for (JmmNode child : node.getChildren()) {
             System.out.println("child " + child.getKind() + ": " + child.getAttributes());
         }
