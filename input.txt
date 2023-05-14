@@ -9,12 +9,10 @@ class Foo {
     int num;
 
     public Foo foo(int[] test) {
-        boolean test;
-        test = yey && num;
-        if (test && num)
-            test = 1;
+        if (0 && 1)
+            test[0] = 1;
         else
-            test = 2;
+            test[0] = 2;
 
         return foo;
     }

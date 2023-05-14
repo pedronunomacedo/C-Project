@@ -117,6 +117,11 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 ollirCode.append((String) visit(child, Collections.singletonList("METHOD")).get(0));
             }
         }
+
+        if (!node.getChildren().stream().anyMatch(child -> child.getKind().equals("returnObj"))) { // if the method does not return nothing, it means that it's the return type of the method is void (.V)
+            ollirCode.append("ret.V;\n");
+        }
+
         ollirCode.append(OllirTemplates.closeBrackets());
 
         return Collections.singletonList(ollirCode.toString());
