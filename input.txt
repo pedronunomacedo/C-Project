@@ -9,7 +9,8 @@ class Foo {
     int num;
 
     public Foo foo(int[] test) {
-        int test;
+        boolean test;
+        test = yey && num;
         if (test && num)
             test = 1;
         else
