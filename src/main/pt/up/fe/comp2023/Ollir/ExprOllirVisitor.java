@@ -142,6 +142,8 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String arrName = (String) visit(arrNameNode, Collections.singletonList("ARRAY_DECLARATION")).get(0); // array name
         String arrIndex = (String) visit(arrIndexNode, Collections.singletonList("ARRAY_DECLARATION")).get(0); // index or temporary variable
 
+        System.out.println("arrName (initial): " + arrName);
+
         int dotIndex = arrName.indexOf("."); // has the type integrated in the objExpr
         String nameTypeStr = new String();
         if (arrNameNode.getNumChildren() == 0 && dotIndex != -1) { // terminal symbol
@@ -150,6 +152,10 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 dotIndex = arrName.indexOf("."); // index of the 2nd "."
                 nameTypeStr = arrName.substring(dotIndex + 1, arrName.length());
                 arrName = arrName.substring(0, dotIndex);
+            } else if (arrName.chars().filter(ch -> ch == '.').count() == 3) { // array parameter
+                arrName = arrName.substring(dotIndex + 1, arrName.length());
+                dotIndex = arrName.indexOf("."); // index of the 2nd "."
+                nameTypeStr = arrName.substring(0, dotIndex);
             } else { // localVariable or classField
                 nameTypeStr = arrName.substring(dotIndex + 1, arrName.length());
                 arrName = arrName.substring(0, dotIndex);
@@ -160,6 +166,10 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String varScope = pair.a;
         Symbol arrayVariable = pair.b;
         int paramIndex = 0;
+
+        System.out.println("this.currentMethod: " + this.currentMethod.getName());
+        System.out.println("arrName: " + arrName);
+        System.out.println("arrayVariable: " + arrayVariable);
 
         if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("ARRAY_ASSIGNMENT_VALUE") || data.get(0).equals("LOCAL_VARIABLES") || data.get(0).equals("LOOP")) {
             switch (varScope) {
@@ -302,7 +312,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         List<String> parameterString = new ArrayList<>();
         for (JmmNode parameter : parameters) {
             String paramOllirCode = (String) visit(parameter, Collections.singletonList("MEMBER_ACCESS")).get(0); // value or the temporary variable
-            System.out.println("this.tempVariablesOllirCode: " + this.tempVariablesOllirCode);
+            System.out.println("paramOllirCode: " + paramOllirCode);
             parameterString.add(paramOllirCode);
         }
 
@@ -369,6 +379,8 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         StringBuilder ollirCode = new StringBuilder();
         String val = node.get("val");
 
+        System.out.println("node.get('val') = " + val);
+
         switch (node.getKind()) {
             case "Integer":
                 ollirCode.append(val + ".i32");
@@ -383,7 +395,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 break;
             case "Identifier":
                 Pair<String, Symbol> varScope = this.symbolTable.variableScope(this.currentMethod, val);
-
                 switch (varScope.a) {
                     case "localVariable":
                         ollirCode.append(OllirTemplates.variableCall(varScope.b)); // returns the variable
@@ -393,6 +404,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                         int paramIndex = this.currentMethod.getParameterIndex(val);
                         // String tempVar = "t" + this.tempMethodParamNum;
                         // Symbol newVariable2 = new Symbol(varScope.b.getType(), tempVar);
+                        System.out.println("OllirTemplates(" + val + "): " + OllirTemplates.variableCall(varScope.b, paramIndex));
                         ollirCode.append(OllirTemplates.variableCall(varScope.b, paramIndex)); // returns the variable
                         this.currentArithType = varScope.b.getType();
                         break;

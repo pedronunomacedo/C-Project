@@ -209,7 +209,7 @@ public class OllirTemplates {
 
     public static String variableCall(Symbol variable, Integer index) { // MethodParameter or ClassField
         StringBuilder ollirCode = new StringBuilder();
-        ollirCode.append("$" + index + "." + variable.getName() + variableType(variable.getType().getName()));
+        ollirCode.append("$" + index + "." + variable.getName() + type(variable.getType()));
 
         return ollirCode.toString();
     }
