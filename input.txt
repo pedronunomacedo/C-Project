@@ -8,18 +8,14 @@ class Foo {
     boolean yey;
     int num;
 
-    public boolean test(boolean boolVar) {
-        return false;
+    public int test(int[] test) {
+        return test[0];
     }
 
-    public Foo foo(int[] test) {
-        boolean boolVar;
-        boolVar = true;
-        if (this.test(!boolVar))
-            test[0] = 1;
-        else
-            test[0] = 2;
+    public int foo(int[] test) {
+        int num;
+        num = this.test(test);
 
-        return foo;
+        return num;
     }
 }
