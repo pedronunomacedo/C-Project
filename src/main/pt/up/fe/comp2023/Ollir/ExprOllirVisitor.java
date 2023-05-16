@@ -155,12 +155,14 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             } else if (arrName.chars().filter(ch -> ch == '.').count() == 3) { // array parameter
                 arrName = arrName.substring(dotIndex + 1, arrName.length());
                 dotIndex = arrName.indexOf("."); // index of the 2nd "."
-                nameTypeStr = arrName.substring(0, dotIndex);
+                arrName = arrName.substring(0, dotIndex);
             } else { // localVariable or classField
                 nameTypeStr = arrName.substring(dotIndex + 1, arrName.length());
                 arrName = arrName.substring(0, dotIndex);
             }
         }
+
+        System.out.println("arrName (after): " + arrName);
 
         Pair<String, Symbol> pair = this.symbolTable.variableScope(this.currentMethod, arrName);
         String varScope = pair.a;
