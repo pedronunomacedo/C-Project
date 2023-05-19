@@ -152,7 +152,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 dotIndex = arrName.indexOf("."); // index of the 2nd "."
                 nameTypeStr = arrName.substring(dotIndex + 1, arrName.length());
                 arrName = arrName.substring(0, dotIndex);
-            } else if (arrName.chars().filter(ch -> ch == '.').count() == 3) { // array parameter
+            } else if (arrName.chars().filter(ch -> ch == '.').count() == 3) { // array parameter (remove the param index, the array keyword and the array type)
                 arrName = arrName.substring(dotIndex + 1, arrName.length());
                 dotIndex = arrName.indexOf("."); // index of the 2nd "."
                 arrName = arrName.substring(0, dotIndex);

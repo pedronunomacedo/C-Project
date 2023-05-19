@@ -236,18 +236,20 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         ollirCode.append(String.join("", this.exprVisitor.tempVariablesOllirCode));
         this.exprVisitor.resetTempVariables();
 
+        Type newVarType = new Type(pair.b.getType().getName(), false);
+
         switch (pair.a) {
             case "localVariable":
-                ollirCode.append(OllirTemplates.variableAssignment(pair.b, indexOllirCode, valueOllirCode, pair.b.getType(), false));
+                ollirCode.append(OllirTemplates.variableAssignment(pair.b, indexOllirCode, valueOllirCode, newVarType, false));
                 break;
             case "parameterVariable":
                 int paramIndex = this.exprVisitor.currentMethod.getParameterIndex(varName);
                 String newVarName = "$" + paramIndex + "." + varName;
                 Symbol newVariable2 = new Symbol(pair.b.getType(), newVarName);
-                ollirCode.append(OllirTemplates.variableAssignment(newVariable2, indexOllirCode, valueOllirCode, pair.b.getType(), false));
+                ollirCode.append(OllirTemplates.variableAssignment(newVariable2, indexOllirCode, valueOllirCode, newVarType, false));
                 break;
             case "fieldVariable":
-                ollirCode.append(OllirTemplates.putField(pair.b, valueOllirCode));
+                ollirCode.append(OllirTemplates.putField(pair.b, valueOllirCode, newVarType));
         }
 
         return Collections.singletonList(ollirCode.toString());
@@ -290,7 +292,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 break;
             case "fieldVariable":
                 ollirCode.append("t").append(++this.exprVisitor.tempMethodParamNum).append(OllirTemplates.type(this.exprVisitor.currentAssignmentType)).append(" :=").append(OllirTemplates.type(variable.getType())).append(" ").append(valueOllirCode).append(";\n");
-                ollirCode.append(OllirTemplates.putField(variable, "t" + this.exprVisitor.tempMethodParamNum + OllirTemplates.type(variable.getType())));
+                ollirCode.append(OllirTemplates.putField(variable, "t" + this.exprVisitor.tempMethodParamNum + OllirTemplates.type(variable.getType()), variable.getType()));
                 //ollirCode.append(OllirTemplates.putField(variable, valueOllirCode));
                 break;
         }

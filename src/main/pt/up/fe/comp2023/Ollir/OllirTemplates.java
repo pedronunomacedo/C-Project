@@ -104,8 +104,8 @@ public class OllirTemplates {
         return param.toString();
     }
 
-    public static String putField(Symbol variable, String newValue) {
-        String typeAcc = type(variable.getType());
+    public static String putField(Symbol variable, String newValue, Type varType) {
+        String typeAcc = type(varType);
         StringBuilder ollirCode = new StringBuilder("putfield(");
         ollirCode.append("this, ");
         ollirCode.append(variable.getName()).append(typeAcc).append(", ");
