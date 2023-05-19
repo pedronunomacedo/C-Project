@@ -1,21 +1,23 @@
-import java.hello;
-import java.io;
-import MyClass;
+import ioPlus;
+class ArrayAccess {
 
-class Foo {
-    int[] arrField;
-    Foo foo;
-    boolean yey;
-    int num;
+	public int foo(int[] a) {
+		int result;
 
-    public int test(int[] test) {
-        return test[0];
-    }
+		result = a[0];
+		result = a[1] + a[2];
+		result = result + a[3];
+		result = 1 + a[4];
 
-    public int foo(int[] test) {
-        int num;
-        num = this.test(test);
+	    a[0] = 1;
+		a[1] = 2;
+		a[2] = 3;
+		a[3] = 4;
+		a[4] = 5;
 
-        return num;
-    }
+
+		return result;
+	}
+
+
 }
