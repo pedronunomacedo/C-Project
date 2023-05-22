@@ -84,7 +84,6 @@ public class Launcher {
         String inputFileName = null;
 
         for (String arg : args) {
-            System.out.println("arg: " + arg);
             if (arg.startsWith("-r=")) { // Register allocation controller
                 String[] argSplit = arg.split("=");
                 if (argSplit.length == 2) {

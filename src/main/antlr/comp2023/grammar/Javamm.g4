@@ -42,7 +42,7 @@ classParameters
     ;
 
 methodDeclaration
-    : ('public' | 'private' | 'static')? returnType methodName=ID  '(' (classParameters ( ',' classParameters)*)?  ')' '{'
+    : ('public' | 'private' | 'static')? (returnType)? methodName=ID  '(' (classParameters ( ',' classParameters)*)?  ')' '{'
             (localVariables)*
             (statement)*
 
@@ -86,7 +86,7 @@ statement
     | 'if' '(' expression ')'
             ifStmt=statement
       (hasElse='else'
-            elseStmt=statement)?                                       #IfConditional
+            elseStmt=statement)?                            #IfConditional
     | 'while' '(' expression ')'
             statement                                       #Loop
     | varName=ID '[' expression ']' '=' expression ';'      #ArrayAssignment

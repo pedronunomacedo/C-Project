@@ -118,11 +118,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             }
         }
 
-        System.out.println("Node children kind: ");
-        for (JmmNode child : node.getChildren()) {
-            System.out.println("kind: " + child.getKind());
-        }
-
         if (node.getChildren().stream().noneMatch(child -> child.getKind().equals("ReturnObj"))) { // if the method does not return nothing, it means that it's the return type of the method is void (.V)
             ollirCode.append("ret.V;\n");
         }
@@ -168,10 +163,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         this.nodesVisited.add(node);
         StringBuilder ollirCode = new StringBuilder();
         int conditionalCount = ++this.while_label_sequence;
-
-        for (JmmNode child : node.getChildren()) {
-            System.out.println("child " + child.getKind() + ": " + child.getAttributes());
-        }
 
         String loopCondition = (String) this.exprVisitor.visit(node.getJmmChild(0), Collections.singletonList("CONDITIONAL")).get(0);
         ollirCode.append(String.join("", this.exprVisitor.tempVariablesOllirCode));
