@@ -168,7 +168,7 @@ public class OllirTemplates {
         StringBuilder ollirCode = new StringBuilder();
         String varTypeAcc = type(variableType);
         if (variable.getType().isArray() && index != null) {
-            ollirCode.append(variable.getName() + (newArrayObjectBool ? "" : "[" + index + "]") + varTypeAcc);
+            ollirCode.append(variable.getName() + ".array" + varTypeAcc + (newArrayObjectBool ? "" : "[" + index + "]") + varTypeAcc);
             ollirCode.append(" :=" + varTypeAcc + " ");
             ollirCode.append(value + ";\n");
         } else {

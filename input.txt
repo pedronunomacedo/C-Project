@@ -11,5 +11,7 @@ class myClass {
         a = test[1];
 
         b = c;
+
+        test[0] = 3;
     }
 }
