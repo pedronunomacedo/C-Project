@@ -1,0 +1,30 @@
+class myClass {
+    int a;
+
+    myClass(int n) {
+        a = n;
+    }
+
+    public int get(){
+    	return a;
+    }
+
+    public void put(int n){
+        a = n;
+    }
+
+    public void put(int n){
+        this.a = 2;
+        io.println("val = ", this.get());
+        myClass c1 = new myClass(3);
+        io.println("val = ", c1.get());
+        c1.put(2);
+        io.println("val = ", c1.get());
+    }
+
+    public void put(int n){
+        myClass A;
+        A = new myclass();
+        A.m1();
+    }
+}
