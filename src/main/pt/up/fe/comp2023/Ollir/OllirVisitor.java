@@ -260,9 +260,13 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
         String varName = node.get("varName");
 
+        System.out.println("varName: " + varName);
+
         Pair<String, Symbol> pair = this.symbolTable.variableScope(this.exprVisitor.currentMethod, varName);
         Symbol variable = pair.b;
         this.exprVisitor.currentAssignmentType = variable.getType();
+
+        System.out.println("variable: " + variable);
 
         JmmNode valueNode = node.getJmmChild(0);
         String valueOllirCode = (String) this.exprVisitor.visit(valueNode, Collections.singletonList("ASSIGNMENT")).get(0);
@@ -277,14 +281,19 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         if (valueNode.getKind().equals("NewArrayObject")) {
             newArrayObjectBool = true;
             type = variable.getType();
+        } else if (valueNode.getNumChildren() == 0 && variable.getType().isArray()) {
+            newArrayObjectBool = false;
+            type = variable.getType();
         } else {
             newArrayObjectBool = false;
             type = new Type(variable.getType().getName(), false);
         }
 
+        System.out.println("pair.a (" + variable.getName() + "): " + pair.a);
+
         switch (pair.a) {
             case "localVariable":
-                ollirCode.append(OllirTemplates.variableAssignment(variable, "", valueOllirCode, type, newArrayObjectBool));
+                ollirCode.append(OllirTemplates.variableAssignment(variable, null, valueOllirCode, type, newArrayObjectBool));
                 break;
             case "parameterVariable":
                 int paramIndex = this.exprVisitor.currentMethod.getParameterIndex(varName);
