@@ -146,10 +146,19 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String nameTypeStr = new String();
         if (arrNameNode.getNumChildren() == 0 && dotIndex != -1) { // terminal symbol
             if (arrName.chars().filter(ch -> ch == '.').count() == 2) { // parameter (remove the param index and param type)
-                arrName = arrName.substring(dotIndex + 1, arrName.length());
-                dotIndex = arrName.indexOf("."); // index of the 2nd "."
-                nameTypeStr = arrName.substring(dotIndex + 1, arrName.length());
-                arrName = arrName.substring(0, dotIndex);
+                List<String> parts = Arrays.asList(arrName.split("\\.")); // Escape the dot with double backslashes
+                if (parts.contains("array")) { // varName.array.type
+                    String allName = arrName; // varName.array.type
+                    arrName = allName.substring(0, dotIndex); // varName
+                    String otherPart = allName.substring(dotIndex + 1, allName.length()); // array.type
+                    dotIndex = otherPart.indexOf(".");
+                    nameTypeStr = otherPart.substring(dotIndex + 1, otherPart.length()); // type
+                } else {
+                    arrName = arrName.substring(dotIndex + 1, arrName.length());
+                    dotIndex = arrName.indexOf("."); // index of the 2nd "."
+                    nameTypeStr = arrName.substring(dotIndex + 1, arrName.length());
+                    arrName = arrName.substring(0, dotIndex);
+                }
             } else if (arrName.chars().filter(ch -> ch == '.').count() == 3) { // array parameter (remove the param index, the array keyword and the array type)
                 arrName = arrName.substring(dotIndex + 1, arrName.length());
                 dotIndex = arrName.indexOf("."); // index of the 2nd "."
@@ -159,6 +168,8 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 arrName = arrName.substring(0, dotIndex);
             }
         }
+
+        System.out.println("arrName: " + arrName);
 
         /*
         if (arrNameNode.getNumChildren() == 0 && arrNameNode.getAttributes().contains("val")) {
@@ -398,6 +409,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 Pair<String, Symbol> varScope = this.symbolTable.variableScope(this.currentMethod, val);
                 switch (varScope.a) {
                     case "localVariable":
+                        //ollirCode.append(varScope.b.getName() + OllirTemplates.type(varScope.b.getType()));
                         ollirCode.append(OllirTemplates.variableCall(varScope.b)); // returns the variable
                         this.currentArithType = varScope.b.getType();
                         break;
@@ -409,6 +421,8 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                     case "fieldVariable":
                         this.tempVariablesOllirCode.add(OllirTemplates.getField((++this.tempMethodParamNum), varScope.b));
                         Symbol tempSymbol = new Symbol(varScope.b.getType(), "t" + this.tempMethodParamNum);
+                        //ollirCode.append(tempSymbol.getName() + OllirTemplates.type(tempSymbol.getType()));
+                        System.out.println("tempSymbol: " + tempSymbol);
                         ollirCode.append(OllirTemplates.variableCall(tempSymbol));
                         this.currentArithType = varScope.b.getType();
                         break;

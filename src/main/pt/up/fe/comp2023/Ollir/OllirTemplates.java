@@ -202,7 +202,7 @@ public class OllirTemplates {
 
     public static String variableCall(Symbol variable) { // Local Variable
         StringBuilder ollirCode = new StringBuilder();
-        ollirCode.append(variable.getName() + variableType(variable.getType().getName()));
+        ollirCode.append(variable.getName() + type(variable.getType()));
 
         return ollirCode.toString();
     }
