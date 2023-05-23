@@ -20,7 +20,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
     private ArrayList<JmmNode> nodesVisited;
     public int tempMethodParamNum;
     public Type currentArithType;
-    private String scope;
     public JmmMethod currentMethod;
     public ArrayList<String> tempVariables;
     public ArrayList<String> tempVariablesOllirCode;
@@ -30,7 +29,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         this.symbolTable = symbolTable;
         this.reports = reports;
         this.nodesVisited = new ArrayList<>();
-        this.scope = "EXPRESSION";
         this.tempMethodParamNum = 0;
         this.tempVariables = new ArrayList<>();
         this.tempVariablesOllirCode = new ArrayList<>();

@@ -15,10 +15,8 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
     private final JmmSymbolTable symbolTable;
     private final List<Report> reports;
     List<JmmNode> nodesVisited;
-    private String scope;
     private ExprOllirVisitor exprVisitor;
     private int while_label_sequence;
-    private int conditional_label_sequence;
 
     public OllirVisitor(JmmSymbolTable symbolTable, List<Report> reports) {
         this.symbolTable = symbolTable;
@@ -26,7 +24,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         this.nodesVisited = new ArrayList<>();
         this.exprVisitor = new ExprOllirVisitor(this.symbolTable, this.reports);
         this.while_label_sequence = 0;
-        this.conditional_label_sequence = 0;
     }
 
     @Override
@@ -69,7 +66,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
     public List<Object> dealWithClassDeclaration(JmmNode node, List<Object> data) {
         if (this.nodesVisited.contains(node)) return Collections.singletonList("DEFAULT_VISIT");
         this.nodesVisited.add(node);
-        this.scope = "CLASS";
         StringBuilder ollirCode = new StringBuilder();
 
         if (this.symbolTable.getSuper() == null) { // No extended class
@@ -98,7 +94,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
     private List<Object> dealWithMethodDeclaration(JmmNode node, List<Object> data) {
         if (nodesVisited.contains(node)) return Collections.singletonList("DEFAULT_VISIT");
         this.nodesVisited.add(node);
-        this.scope = "METHOD";
         StringBuilder ollirCode = new StringBuilder();
         String methodName = node.get("methodName");
         this.exprVisitor.currentMethod = this.symbolTable.getMethod(methodName);
