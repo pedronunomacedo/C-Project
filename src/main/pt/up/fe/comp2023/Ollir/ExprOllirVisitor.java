@@ -190,9 +190,13 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                     ollirCode.append(OllirTemplates.variableCall(tempSymbol));
                     break;
                 default:
-                    String tempVar = "t" + (++this.tempMethodParamNum) + "." + nameTypeStr;
-                    tempVariablesOllirCode.add(tempVar + " :=" + OllirTemplates.type(this.currentArithType) + " " + arrName + "[" + arrIndex + "]." + nameTypeStr + ";\n");
-                    ollirCode.append(tempVar);
+                    if (data.get(0).equals("ASSIGNMENT")) {
+                        ollirCode.append(arrName + "[" + arrIndex + "]." + nameTypeStr);
+                    } else {
+                        String tempVar = "t" + (++this.tempMethodParamNum) + "." + nameTypeStr;
+                        tempVariablesOllirCode.add(tempVar + " :=" + OllirTemplates.type(this.currentArithType) + " " + arrName + "[" + arrIndex + "]." + nameTypeStr + ";\n");
+                        ollirCode.append(tempVar);
+                    }
                     break;
             }
         } else {
