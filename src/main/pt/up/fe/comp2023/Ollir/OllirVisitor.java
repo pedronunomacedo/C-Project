@@ -240,9 +240,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 ollirCode.append(OllirTemplates.variableAssignment(newVariable2, indexOllirCode, valueOllirCode, newVarType, false));
                 break;
             case "fieldVariable":
-
-                //ollirCode.append(OllirTemplates.putField(pair.b, valueOllirCode, newVarType));
-
                 ollirCode.append(OllirTemplates.getField((++this.exprVisitor.tempMethodParamNum), pair.b));
                 String tempVar = "t" + this.exprVisitor.tempMethodParamNum;
                 Type newType = new Type(pair.b.getType().getName(), false);
@@ -260,21 +257,14 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
         String varName = node.get("varName");
 
-        System.out.println("varName: " + varName);
-
         Pair<String, Symbol> pair = this.symbolTable.variableScope(this.exprVisitor.currentMethod, varName);
         Symbol variable = pair.b;
         this.exprVisitor.currentAssignmentType = variable.getType();
-
-        System.out.println("variable: " + variable);
 
         JmmNode valueNode = node.getJmmChild(0);
         String valueOllirCode = (String) this.exprVisitor.visit(valueNode, Collections.singletonList("ASSIGNMENT")).get(0);
         ollirCode.append(String.join("", this.exprVisitor.tempVariablesOllirCode));
         this.exprVisitor.resetTempVariables();
-
-        System.out.println("valueNode: " + valueNode);
-        System.out.println("valueOllirCode: " + valueOllirCode);
 
         Type type;
         boolean newArrayObjectBool = false;
@@ -289,8 +279,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             type = new Type(variable.getType().getName(), false);
         }
 
-        System.out.println("pair.a (" + variable.getName() + "): " + pair.a);
-
         switch (pair.a) {
             case "localVariable":
                 ollirCode.append(OllirTemplates.variableAssignment(variable, null, valueOllirCode, type, newArrayObjectBool));
@@ -303,7 +291,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             case "fieldVariable":
                 ollirCode.append("t").append(++this.exprVisitor.tempMethodParamNum).append(OllirTemplates.type(this.exprVisitor.currentAssignmentType)).append(" :=").append(OllirTemplates.type(variable.getType())).append(" ").append(valueOllirCode).append(";\n");
                 ollirCode.append(OllirTemplates.putField(variable, "t" + this.exprVisitor.tempMethodParamNum + OllirTemplates.type(variable.getType()), variable.getType()));
-                //ollirCode.append(OllirTemplates.putField(variable, valueOllirCode));
                 break;
         }
 
