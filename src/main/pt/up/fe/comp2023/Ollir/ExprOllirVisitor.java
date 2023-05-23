@@ -237,7 +237,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                     break;
                 default:
                     String tempVar5 = "t" + (++this.tempMethodParamNum) + ".array" + nameTypeStr;
-                    tempVariablesOllirCode.add(tempVar5 + " :=" + OllirTemplates.type(this.currentArithType) + " " + arrName + ".array" + nameTypeStr + "[" + arrIndex + "]." + nameTypeStr + ";\n");
+                    tempVariablesOllirCode.add(tempVar5 + " :=" + OllirTemplates.type(this.currentArithType) + " " + arrName + ".array" + nameTypeStr + "[" + arrIndex + "]." + nameTypeStr + ";\n"); // CRITICAL (this.currentArithType may be null)
                     ollirCode.append(tempVar5);
                     break;
             }
