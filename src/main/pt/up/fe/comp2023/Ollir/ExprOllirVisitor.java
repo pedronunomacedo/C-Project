@@ -175,26 +175,25 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             switch (varScope) {
                 case "localVariable":
                     this.currentArithType = new Type(arrayVariable.getType().getName(), false);
-                    ollirCode.append(arrayVariable.getName() + "[" + arrIndex + "]" + OllirTemplates.type(this.currentArithType));
+                    ollirCode.append(arrayVariable.getName() + ".array" + OllirTemplates.type(arrayVariable.getType()) + "[" + arrIndex + "]" + OllirTemplates.type(this.currentArithType));
                     break;
                 case "parameterVariable":
                     this.currentArithType = new Type(arrayVariable.getType().getName(), false);
                     paramIndex = this.currentMethod.getParameterIndex(arrayVariable.getName());
-                    ollirCode.append("$" + paramIndex + "." + arrayVariable.getName() + "[" + arrIndex + "]" + OllirTemplates.type(this.currentArithType));
+                    ollirCode.append("$" + paramIndex + "." + arrayVariable.getName() + ".array" + OllirTemplates.type(arrayVariable.getType()) + "[" + arrIndex + "]" + OllirTemplates.type(this.currentArithType));
                     break;
                 case "fieldVariable":
-                    System.out.println("variable " + arrName + " is a field!");
                     this.currentArithType = new Type(arrayVariable.getType().getName(), false);
                     this.tempVariablesOllirCode.add(OllirTemplates.getField((++this.tempMethodParamNum), arrayVariable));
                     Symbol tempSymbol = new Symbol(arrayVariable.getType(), "t" + this.tempMethodParamNum);
-                    ollirCode.append(OllirTemplates.variableCall(tempSymbol));
+                    ollirCode.append(tempSymbol.getName() + ".array" + OllirTemplates.type(arrayVariable.getType()));
                     break;
                 default:
                     if (data.get(0).equals("ASSIGNMENT")) {
-                        ollirCode.append(arrName + "[" + arrIndex + "]." + nameTypeStr);
+                        ollirCode.append(arrName + ".array." + nameTypeStr + "[" + arrIndex + "]." + nameTypeStr);
                     } else {
-                        String tempVar = "t" + (++this.tempMethodParamNum) + "." + nameTypeStr;
-                        tempVariablesOllirCode.add(tempVar + " :=" + OllirTemplates.type(this.currentArithType) + " " + arrName + "[" + arrIndex + "]." + nameTypeStr + ";\n");
+                        String tempVar = "t" + (++this.tempMethodParamNum) + ".array." + nameTypeStr;
+                        tempVariablesOllirCode.add(tempVar + " :=" + nameTypeStr + " " + arrName + "[" + arrIndex + "]." + nameTypeStr + ";\n");
                         ollirCode.append(tempVar);
                     }
                     break;

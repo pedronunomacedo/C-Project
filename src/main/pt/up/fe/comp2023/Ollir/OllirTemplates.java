@@ -167,7 +167,7 @@ public class OllirTemplates {
     public static String variableAssignment(Symbol variable, String index, String value, Type variableType, boolean newArrayObjectBool) { // local variable assignment
         StringBuilder ollirCode = new StringBuilder();
         String varTypeAcc = type(variableType);
-        if (variable.getType().isArray()) {
+        if (variable.getType().isArray() && index != null) {
             ollirCode.append(variable.getName() + (newArrayObjectBool ? "" : "[" + index + "]") + varTypeAcc);
             ollirCode.append(" :=" + varTypeAcc + " ");
             ollirCode.append(value + ";\n");
