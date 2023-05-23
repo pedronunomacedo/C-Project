@@ -20,8 +20,6 @@ public class OptimizationStage implements JmmOptimization {
 
         // Implement the optimizations
 
-
-
         if (debug) {
             System.out.println("Optimized annotated AST : \n" + semanticsResult.getRootNode().toTree());
         }

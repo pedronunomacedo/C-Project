@@ -62,8 +62,6 @@ public class Launcher {
 
         // ... add remaining stages
 
-
-
         // Transform to OLLIR code
         OllirResult ollirResult = optimizer.toOllir(semanticsResult);
         System.out.println("OllirResult: " + ollirResult.toString());
