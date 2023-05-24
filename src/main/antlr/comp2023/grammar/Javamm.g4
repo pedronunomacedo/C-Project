@@ -88,7 +88,7 @@ statement
       (hasElse='else'
             elseStmt=statement)?                            #IfConditional
     | 'while' '(' expression ')'
-            statement                                       #Loop
+            whileStmt=statement                             #Loop
     | varName=ID '[' expression ']' '=' expression ';'      #ArrayAssignment
     | varName=ID '=' expression ';'                         #Assignment
     | varDeclaration                                        #VarDeclar

@@ -360,7 +360,8 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             } else {
                 String tempVar = "t" + (++this.tempMethodParamNum) + retAcc;
                 this.tempVariables.add(tempVar);
-                this.tempVariablesOllirCode.add(((data.get(0).equals("BINARY_OP") || data.get(0).equals("RETURN") || data.get(0).equals("MEMBER_ACCESS")) ? (tempVar + " :=" + retAcc + " ") : "") + OllirTemplates.invokevirtual(objExpr, funcName, parameterString, retAcc));
+                System.out.println("objExpr: " + objExpr);
+                this.tempVariablesOllirCode.add(((data.get(0).equals("BINARY_OP") || data.get(0).equals("RETURN") || data.get(0).equals("MEMBER_ACCESS") || (!data.get(0).equals("IF") && !data.get(0).equals("LOOP") && !data.get(0).equals("ELSE") && !data.get(0).equals("METHOD"))) ? (tempVar + " :=" + retAcc + " ") : "") + OllirTemplates.invokevirtual(objExpr, funcName, parameterString, retAcc));
                 ollirCode.append(tempVar);
             }
         }

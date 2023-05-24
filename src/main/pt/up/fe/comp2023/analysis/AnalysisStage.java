@@ -33,7 +33,7 @@ public class AnalysisStage implements JmmAnalysis {
 
         Analyser analyser = new Analyser(symbolTable);
 
-        // analyser.visit(parserResult.getRootNode());
+        analyser.visit(parserResult.getRootNode());
 
         List<Report> reports = analyser.getReports();
 
