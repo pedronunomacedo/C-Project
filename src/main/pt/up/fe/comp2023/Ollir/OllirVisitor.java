@@ -82,7 +82,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
         for (JmmNode child : node.getChildren()) {
             if (child.getKind().equals("MethodDeclarationOther") || child.getKind().equals("MethodDeclarationMain")) {
-                String methodOllirCode = (String) visit(child, data).get(0);
+                String methodOllirCode = (String) visit(child, Collections.singletonList("METHOD")).get(0);
                 ollirCode.append(methodOllirCode);
             }
         }
