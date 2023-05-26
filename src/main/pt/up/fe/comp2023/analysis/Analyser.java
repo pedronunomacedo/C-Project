@@ -103,7 +103,7 @@ public class Analyser extends AJmmVisitor<String, Void> {
             Type expressionType = this.expressionVisitor.visit(nodeExpr);
 
             if (expressionType == null) {
-                analysis.newReport(node, "1) expressionTYpe is null");
+                analysis.newReport(node, "1) expressionType is null");
                 return  null;
             }
 

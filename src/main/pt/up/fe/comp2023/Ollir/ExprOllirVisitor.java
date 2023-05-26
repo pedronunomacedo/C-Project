@@ -9,6 +9,7 @@ import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp2023.ast.JmmMethod;
 import pt.up.fe.comp2023.ast.JmmSymbolTable;
 
+import javax.annotation.processing.SupportedSourceVersion;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -140,8 +141,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String arrName = (String) visit(arrNameNode, Collections.singletonList("ARRAY_DECLARATION")).get(0); // array name
         String arrIndex = (String) visit(arrIndexNode, Collections.singletonList("ARRAY_DECLARATION")).get(0); // index or temporary variable
 
-        System.out.println("arrName (before): " + arrName);
-
         int dotIndex = arrName.indexOf("."); // has the type integrated in the objExpr
         String nameTypeStr = new String();
         boolean isArray = false;
@@ -190,8 +189,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         Symbol arrayVariable = pair.b;
         int paramIndex = 0;
 
-        System.out.println("data.get(0): " + data.get(0));
-
         if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("ARRAY_ASSIGNMENT_VALUE") || data.get(0).equals("LOCAL_VARIABLES") || data.get(0).equals("LOOP")) {
             switch (varScope) {
                 case "localVariable":
@@ -211,7 +208,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                     break;
                 default:
                     if (data.get(0).equals("ASSIGNMENT")) {
-                        System.out.println("nameTypeStr: " + nameTypeStr);
                         ollirCode.append(arrName + ".array." + nameTypeStr + "[" + arrIndex + "]." + nameTypeStr);
                     } else {
                         String tempVar = "t" + (++this.tempMethodParamNum) + ".array." + nameTypeStr;
@@ -343,7 +339,11 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
         String objExpr = (String) visit(node.getJmmChild(0), Collections.singletonList("MEMBER_ACCESS")).get(0);
         int dotIndex = objExpr.indexOf("."); // has the type integrated in the objExpr
-        String retAcc = OllirTemplates.type(this.currentMethod.getReturnType());
+        String retAcc = (funcMethod != null) ? OllirTemplates.type(funcMethod.getReturnType()) : OllirTemplates.type(this.currentAssignmentType);
+        System.out.println("dotIndex: " + dotIndex);
+        System.out.println("objExpr: " + objExpr);
+        System.out.println("data.get(0):"  + data.get(0));
+        System.out.println("this.currentAssignmentType: " + this.currentAssignmentType);
         if ((dotIndex == -1 && !objExpr.equals("this"))) { // objExpr it's an import, use invokestatic
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("ARRAY_ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES") || data.get(0).equals("LOOP")) {
                 String invokeStaticStr = OllirTemplates.invokestatic(objExpr, funcName, parameterString, OllirTemplates.type(this.currentAssignmentType));
