@@ -121,9 +121,6 @@ public class Analyser extends AJmmVisitor<String, Void> {
                 for (JmmNode stmtChild : node.getChildren()) {
                     visit(stmtChild, method);
                 }
-                if (node.getNumChildren() != 0) {
-                    visit(node.getJmmChild(0), method);
-                }
                 break;
             case "Conditional":
                 Type expressionTypeIf = this.expressionVisitor.visit(node.getJmmChild(0));
