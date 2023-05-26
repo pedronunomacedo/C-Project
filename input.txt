@@ -1,26 +1,22 @@
-import ioPlus;
+import io;
+class ArrayInit {
 
-class IfWhileNested {
-
-
-    public int func(int a){
-        int i;
-        boolean flag;
-
-        flag = true;
-        i = 0;
-        while (1 + 2 < 3) {
-            if(!flag){
-                ioPlus.printResult(1);
-            } else {
-                ioPlus.printResult(2);
-            }
-
-            flag = !flag;
-            i = i + 1;
-        }
-
-        return 1;
+    public static void main(String[] args) {
     }
 
+    public int[] getArray(int num) {
+        int[] test;
+        test = new int[1];
+        test[0] = 1;
+
+        return test;
+    }
+
+    public int func(boolean a, boolean b, boolean c, boolean d, int[] arr) {
+          int e;
+          int f;
+          int[] g;
+          g = this.getArray(2)[0];
+          return e;
+    }
 }
