@@ -4,6 +4,10 @@ class ArrayInit {
     public static void main(String[] args) {
     }
 
+    public int getNum() {
+        return 1;
+    }
+
     public int[] getArray(int num) {
         int[] test;
         test = new int[1];
@@ -16,7 +20,7 @@ class ArrayInit {
           int e;
           int f;
           int[] g;
-          g = this.getArray(2)[0];
+          g = this.getArray(2)[this.getNum()];
           return e;
     }
 }
