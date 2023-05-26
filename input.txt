@@ -1,10 +1,21 @@
 import io;
 class ArrayInit {
+    int test;
 
     public static void main(String[] args) {
+
     }
-    public int func(int a, boolean b, boolean c, boolean d) {
-          io.println(a+2);
-          return a;
+
+    public int test() {
+        return 1;
+    }
+
+    public int func(int a, boolean b, String c, boolean d) {
+        while (b) {
+            while (a) {
+                b = 2;
+            }
+        }
+        return a;
     }
 }
