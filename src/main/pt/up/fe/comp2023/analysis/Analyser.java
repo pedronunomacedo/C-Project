@@ -115,20 +115,29 @@ public class Analyser extends AJmmVisitor<String, Void> {
     }
 
     private Void dealWithStatement(JmmNode node, String method) {
+        System.out.println("node.getKind():" + node.getKind());
         switch (node.getKind()) {
+            case "Brackets":
+                for (JmmNode stmtChild : node.getChildren()) {
+                    visit(stmtChild, method);
+                }
+                visit(node.getJmmChild(0), method);
+                break;
             case "Conditional":
                 Type expressionTypeIf = this.expressionVisitor.visit(node.getJmmChild(0));
                 if (!expressionTypeIf.equals("boolean")) {
                     analysis.newReport(node, " If Expression " + expressionTypeIf.getName() + " is not Boolean");
                 }
-                return visit(node.getChildren().get(1), method);
+                visit(node.getChildren().get(1), method);
+                break;
 
             case "Loop":
                 Type expressionTypeWhile = this.expressionVisitor.visit(node.getJmmChild(0));
                 if (!expressionTypeWhile.getName().equals("boolean")) {
                     analysis.newReport(node, " While Expression " + expressionTypeWhile.getName() + " is not Boolean");
                 }
-                return visit(node.getChildren().get(1), method);
+                visit(node.getChildren().get(1), method);
+                break;
 
             case "ArrayAssignment":
                 String varName = node.get("varName");
