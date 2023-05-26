@@ -261,18 +261,24 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         ollirCode.append(String.join("", this.exprVisitor.tempVariablesOllirCode));
         this.exprVisitor.resetTempVariables();
 
+        System.out.println("---------");
+        System.out.println("pair.b: " + pair.b);
+        System.out.println("pair.a: " + pair.a);
+        System.out.println("valueOllirCode: " + valueOllirCode);
+        System.out.println("valueNode.getKind(): " + valueNode.getKind());
+
         Type type;
         boolean newArrayObjectBool = false;
         if (valueNode.getKind().equals("NewArrayObject")) {
             newArrayObjectBool = true;
             type = variable.getType();
-        } else if (valueNode.getNumChildren() == 0 && variable.getType().isArray()) {
-            newArrayObjectBool = false;
+        } else if ((valueNode.getNumChildren() == 0 || valueNode.getKind().equals("MemberAccess")) && variable.getType().isArray()) {
             type = variable.getType();
         } else {
-            newArrayObjectBool = false;
             type = new Type(variable.getType().getName(), false);
         }
+
+        System.out.println("type: " + type);
 
         switch (pair.a) {
             case "localVariable":
