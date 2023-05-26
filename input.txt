@@ -10,12 +10,12 @@ class ArrayInit {
         return 1;
     }
 
-    public int func(int a, boolean b, String c, boolean d) {
-        while (b) {
-            while (a) {
-                b = 2;
+    public int func(int[] a, boolean b, String c, boolean d) {
+        while (a) {
+            while (b) {
+
             }
         }
-        return a;
+        return 1;
     }
 }
