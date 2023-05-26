@@ -261,12 +261,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         ollirCode.append(String.join("", this.exprVisitor.tempVariablesOllirCode));
         this.exprVisitor.resetTempVariables();
 
-        System.out.println("---------");
-        System.out.println("pair.b: " + pair.b);
-        System.out.println("pair.a: " + pair.a);
-        System.out.println("valueOllirCode: " + valueOllirCode);
-        System.out.println("valueNode.getKind(): " + valueNode.getKind());
-
         Type type;
         boolean newArrayObjectBool = false;
         if (valueNode.getKind().equals("NewArrayObject")) {
@@ -277,8 +271,6 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         } else {
             type = new Type(variable.getType().getName(), false);
         }
-
-        System.out.println("type: " + type);
 
         switch (pair.a) {
             case "localVariable":
@@ -295,6 +287,9 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 break;
         }
 
+        this.exprVisitor.currentAssignmentType = null;
+        this.exprVisitor.currentArithType = null;
+
         return Collections.singletonList(ollirCode.toString());
     }
 
@@ -303,9 +298,13 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         this.nodesVisited.add(node);
         StringBuilder ollirCode = new StringBuilder();
 
-        this.exprVisitor.visit(node.getChildren().get(0), Collections.singletonList("Expr")).get(0);
+        this.exprVisitor.currentAssignmentType = new Type("void", false);
+
+        String exprNodeCode = (String) this.exprVisitor.visit(node.getChildren().get(0), Collections.singletonList("Expr")).get(0);
         ollirCode.append(String.join("", this.exprVisitor.tempVariablesOllirCode));
         this.exprVisitor.resetTempVariables();
+
+        this.exprVisitor.currentAssignmentType = null;
 
         return Collections.singletonList(ollirCode.toString());
     }

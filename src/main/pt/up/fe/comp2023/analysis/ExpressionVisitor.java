@@ -94,7 +94,6 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
                 this.isVariable = false;
                 break;
             case "Identifier":
-                boolean temp = false;
                 String val = node.get("val");
                 Pair<String, Symbol> pair = analysis.getSymbolTable().variableScope(analysis.getSymbolTable().getCurrentMethod(), val);
                 Symbol variable = pair.b;
@@ -104,13 +103,10 @@ public class ExpressionVisitor extends AJmmVisitor<Type, Type> {
                     for (var imp : this.analysis.getSymbolTable().getImports()) {
                         if (val.equals(imp)) {
                             isVariable = false;
-                            temp = true;
                             return new Type(val, false);
                         }
                     }
-                    if (!temp) {
-                        analysis.newReport(node, "Import " + val + " not declared");
-                    }
+                    analysis.newReport(node, "Import " + val + " not declared");
                 } else {
                     this.isVariable = true;
                     type = variable.getType();

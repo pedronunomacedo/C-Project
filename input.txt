@@ -3,24 +3,8 @@ class ArrayInit {
 
     public static void main(String[] args) {
     }
-
-    public int getNum() {
-        return 1;
-    }
-
-    public int[] getArray(int num) {
-        int[] test;
-        test = new int[1];
-        test[0] = 1;
-
-        return test;
-    }
-
-    public int func(boolean a, boolean b, boolean c, boolean d, int[] arr) {
-          int e;
-          int f;
-          int[] g;
-          g = this.getArray(2)[this.getNum()];
-          return e;
+    public int func(int a, boolean b, boolean c, boolean d) {
+          io.println(a+2);
+          return a;
     }
 }
