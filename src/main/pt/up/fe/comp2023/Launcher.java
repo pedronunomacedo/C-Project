@@ -69,6 +69,10 @@ public class Launcher {
         // Transform OLLIR code to Jasmin code
         JasminResult jasminResult = new BackendJasmin().toJasmin(ollirResult);
         System.out.println("JasminResult: " + jasminResult.toString());
+
+        // Compile and run the jasmin result
+        jasminResult.compile();
+        jasminResult.run();
     }
 
     private static Map<String, String> parseArgs(String[] args) {

@@ -170,7 +170,4 @@ public class OllirTest {
                         .getOllirClass().getMethod(1);
         assertEquals("classArray", ((ArrayType) method.getParam(0).getType()).getElementClass());
     }
-
-
-
 }

@@ -1,0 +1,12 @@
+import io;
+class AddMultConstants {
+    public void meth() {
+        int a;
+        a = 1;
+    }
+
+	public static void main(String[] args) {
+	    int i;
+		i = 1 + 2;
+	}
+}
