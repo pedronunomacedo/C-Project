@@ -195,7 +195,7 @@ public class OllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 ollirCode.append((String) visit(statementChild, Collections.singletonList("LOOP")).get(0));
             }
         ollirCode.append(String.format("Cond%d:\n", loopCount));
-            String whileCondition = (String) this.exprVisitor.visit(node.getJmmChild(0), Collections.singletonList("LOOP")).get(0);
+            String whileCondition = (String) this.exprVisitor.visit(node.getJmmChild(0), Collections.singletonList("IF")).get(0);
             ollirCode.append(String.join("", this.exprVisitor.tempVariablesOllirCode));
             this.exprVisitor.resetTempVariables();
             ollirCode.append(String.format("if (" + whileCondition + ") goto Body%d;\n", loopCount));

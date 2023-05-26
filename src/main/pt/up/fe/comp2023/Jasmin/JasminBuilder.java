@@ -139,9 +139,7 @@ public class JasminBuilder {
 
                 if (instruction.getInstType() == InstructionType.RETURN) {
                     hasReturnStatement = true;
-                }
-
-                if (instruction.getInstType() == InstructionType.CALL) {
+                } else if (instruction.getInstType() == InstructionType.CALL) {
                     if (((CallInstruction) instruction).getReturnType().getTypeOfElement() != ElementType.VOID) {
                         instructionsCode.append("pop\n");
                     }

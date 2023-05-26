@@ -61,11 +61,11 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         if (nodesVisited.contains(node)) return Collections.singletonList("DEFAULT_VISIT");
         this.nodesVisited.add(node);
         StringBuilder ollirCode = new StringBuilder();
-        JmmNode arrayLengthNode = node.getJmmChild(0);
+        JmmNode exprNode = node.getJmmChild(0);
 
-        String unaryExprCode = (String) visit(arrayLengthNode, Collections.singletonList("NEW_ARRAY")).get(0);
-        unaryExprCode = "!.bool " + unaryExprCode;
+        String unaryExprCode = (String) visit(exprNode, Collections.singletonList("NEW_ARRAY")).get(0);
         if (data.get(0).equals("CONDITIONAL") || data.get(0).equals("LOOP") || data.get(0).equals("MEMBER_ACCESS")) {
+            unaryExprCode = "!.bool " + unaryExprCode;
             this.tempVariablesOllirCode.add(OllirTemplates.temporaryVariableTemplate((++this.tempMethodParamNum), ".bool", unaryExprCode));
             ollirCode.append("t" + this.tempMethodParamNum + ".bool");
         } else {
@@ -360,7 +360,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             } else {
                 String tempVar = "t" + (++this.tempMethodParamNum) + retAcc;
                 this.tempVariables.add(tempVar);
-                System.out.println("objExpr: " + objExpr);
                 this.tempVariablesOllirCode.add(((data.get(0).equals("BINARY_OP") || data.get(0).equals("RETURN") || data.get(0).equals("MEMBER_ACCESS") || (!data.get(0).equals("IF") && !data.get(0).equals("LOOP") && !data.get(0).equals("ELSE") && !data.get(0).equals("METHOD"))) ? (tempVar + " :=" + retAcc + " ") : "") + OllirTemplates.invokevirtual(objExpr, funcName, parameterString, retAcc));
                 ollirCode.append(tempVar);
             }
