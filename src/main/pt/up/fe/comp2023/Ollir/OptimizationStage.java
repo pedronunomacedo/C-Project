@@ -4,6 +4,7 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp2023.Ollir.optimization.optimizers.ConstFoldingVisitor;
 import pt.up.fe.comp2023.ast.JmmSymbolTable;
 import pt.up.fe.comp2023.Ollir.OllirVisitor;
 
@@ -19,6 +20,15 @@ public class OptimizationStage implements JmmOptimization {
         System.out.println("Performing optimizations before OLLIR ...");
 
         // Implement the optimizations
+        boolean hasChanges = true;
+
+        while (hasChanges) {
+            ConstFoldingVisitor constFoldingVisitor = new ConstFoldingVisitor();
+            if (debug) {
+                System.out.println("Performing constant folding ...");
+            }
+            hasChanges = constFoldingVisitor.visit(semanticsResult.getRootNode());
+        }
 
         if (debug) {
             System.out.println("Optimized annotated AST : \n" + semanticsResult.getRootNode().toTree());

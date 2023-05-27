@@ -10,11 +10,11 @@ class ArrayInit {
         return 1;
     }
 
-    public int func(int[] a, boolean b, String c, boolean d) {
-        while (a) {
-            while (b) {
+    public int func(int[] a, boolean b, int c, boolean d) {
+        b = false;
+        c = (1 + 9) * 7 / 2;
+        while (!true) {
 
-            }
         }
         return 1;
     }
