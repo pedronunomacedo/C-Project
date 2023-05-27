@@ -1,37 +1,16 @@
 import X;
 
 class Help {
-    public int foo(int c, int y) {
-        Help a;
-        a.foo( (new X()).bar(10),  (new X()).bar(0) / 5 + 10);
-        return 3;
+    public int foo(int c, int y, int z) {
+        int i;
+        boolean e;
+        i = 0;
+        if ( (z < c) && (y < c)) {
+            i = 1;
+        } else {
+            i = 2;
+        }
+
+        e = true && e;
     }
 }
-
-/*
-
-Ollir result:
-
-import X;
-Help {
-
-    .construct Help().V {
-        invokespecial(this, "<init>").V;
-    }
-
-    .method public foo(c.i32, y.i32).i32{
-        t1.X :=.X new(X).X;
-        invokespecial(t1.X, "<init>").V;
-        t2.i32 :=.V invokevirtual(t1.X, "bar", 10.i32).i32;
-        t3.X :=.X new(X).X;
-        invokespecial(t3.X, "<init>").V;
-        t4.V :=.V invokevirtual(t3.X, "bar", 0.i32).V;
-        t5.i32 :=.i32 t4.V /.i32 5.i32;
-        t6.i32 :=.i32 t5.i32 +.i32 10.i32;
-        t7.i32 :=.i32 invokevirtual(a.Help, "foo", t2.i32, t6.i32).i32;
-        ret.i32 3.i32;
-    }
-
-}
-
-*/
