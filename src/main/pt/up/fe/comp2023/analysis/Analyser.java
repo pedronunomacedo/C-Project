@@ -41,8 +41,6 @@ public class Analyser extends AJmmVisitor<String, Void> {
         addVisit("MethodDeclaration", this::dealWithMethodDeclaration);
         addVisit("LocalVariables", this::dealWithLocalVariables);
         addVisit("Statement", this::dealWithStatement);
-
-        setDefaultVisit(this::defaultVisit);
     }
 
     private Void defaultVisit(JmmNode node, String method) {
@@ -117,6 +115,7 @@ public class Analyser extends AJmmVisitor<String, Void> {
     }
 
     private Void dealWithStatement(JmmNode node, String method) {
+        System.out.println("node.getKind():" + node.getKind());
         switch (node.getKind()) {
             case "Brackets":
                 for (JmmNode stmtChild : node.getChildren()) {

@@ -31,15 +31,11 @@ public class AnalysisStage implements JmmAnalysis {
 
         JmmSymbolTable symbolTable = new SymbolTableVisitor().getSymbolTable(parserResult.getRootNode());
 
-        /* DISCONNECT TO GET THE ANALYSIS STAGE
         Analyser analyser = new Analyser(symbolTable);
 
         analyser.visit(parserResult.getRootNode());
 
         List<Report> reports = analyser.getReports();
-         */
-
-        List<Report> reports = new ArrayList<>();
 
         System.out.println("reports: " + reports);
 
