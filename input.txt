@@ -14,12 +14,19 @@ class B {
 
     public static void main(String[] args){
         int num;
+        int t;
         String test;
         B b;
         b = new B();
         test = args[0];
         num = this.getArrayNum();
         io.print(num);
+        t = 8;
+        num = t;
+
+        if (num < 3) {
+            io.print(num);
+        }
     }
 }
 
