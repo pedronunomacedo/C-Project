@@ -67,6 +67,34 @@ public class ConstPropagationVisitor extends AJmmVisitor<String, Boolean> {
     private Boolean dealWithIfConditional(JmmNode node, String data) {
         boolean changes = false;
 
+        JmmNode ifConditionNode = node.getJmmChild(0);
+        changes = visit(ifConditionNode, data); // condition expression
+        ifConditionNode = node.getJmmChild(0); // update the condition node
+
+        if (ifConditionNode.getKind().equals("Bool")) {
+            switch (ifConditionNode.get("val")) {
+                case "true": {
+                    ifConditionNode.removeParent();
+                    if (node.get("hasElse") != null) {
+                        if (node.getNumChildren() == 3) { // has else expression
+                            node.getJmmChild(2).removeParent();
+                        }
+                    }
+
+                    node.getJmmChild(1).setParent(node.getJmmParent()); // Remove the if statement
+                }
+                case "false": {
+                    ifConditionNode.removeParent();
+                    if (node.get("hasElse") != null) {
+                        if (node.getNumChildren() == 3) { // has else expression
+                            node.getJmmChild(2).setParent(node); // update the parent of the else statement
+                        }
+                    }
+                    node.getJmmChild(1).removeParent(); // remove the parent from the if statement
+                }
+            }
+        }
+
         return changes;
     }
 
