@@ -284,7 +284,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String leftExprCode = (String) visit(leftExpr, Collections.singletonList("BINARY_OP")).get(0);
         if (!Arrays.asList("Integer", "Bool", "SelfCall", "Identifier").contains(leftExpr.getKind())) {
             if (Arrays.asList("<", "<=", ">", ">=", "&&", "||").contains(op)) {
-                this.removeVarAndLastType(new Type("boolean", false));
+                this.removeVarAndLastType(new Type("int", false));
             } else {
                 System.out.println("this.currentArithType ( " + op + " ): " + this.currentArithType);
                 this.removeVarAndLastType(this.currentArithType);
@@ -294,17 +294,18 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String rightExprCode = (String) visit(rightExpr, Collections.singletonList("BINARY_OP")).get(0);
         if (!Arrays.asList("Integer", "Bool", "SelfCall", "Identifier").contains(leftExpr.getKind())) {
             if (Arrays.asList("<", "<=", ">", ">=", "&&", "||").contains(op)) {
-                this.removeVarAndLastType(new Type("boolean", false));
+                this.removeVarAndLastType(new Type("int", false));
             } else {
                 this.removeVarAndLastType(this.currentArithType);
             }
         }
 
+        System.out.println("-> data.get(0) " + op + ": " + data.get(0));
         if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("ARRAY_ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
             String rightSide = "";
             if (Arrays.asList("<", "<=", ">", ">=", "&&", "||").contains(op)) {
                 rightSide = leftExprCode + " " + op + ".bool" + " " + rightExprCode;
-                this.currentArithType = new Type("boolean", false);
+                this.currentArithType = new Type("int", false);
             } else {
                 rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentAssignmentType) + " " + rightExprCode;
             }
@@ -329,6 +330,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             } else {
                 rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentArithType) + " " + rightExprCode;
             }
+
             String operationString = OllirTemplates.temporaryVariableTemplate((++this.tempMethodParamNum), OllirTemplates.type(this.currentArithType), rightSide);
             this.tempVariables.add("t" + this.tempMethodParamNum);
             this.tempVariablesOllirCode.add(operationString);
