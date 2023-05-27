@@ -141,7 +141,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
         String arrName = (String) visit(arrNameNode, Collections.singletonList("ARRAY_DECLARATION")).get(0); // array name
         String arrIndex = (String) visit(arrIndexNode, Collections.singletonList("ARRAY_DECLARATION")).get(0); // index or temporary variable
-        System.out.println("[dealWithArrayDeclaration] arrName (before): " + arrName);
 
         int dotIndex = arrName.indexOf("."); // has the type integrated in the objExpr
         String nameTypeStr = "";
@@ -181,9 +180,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             }
         }
 
-        System.out.println("[dealWithArrayDeclaration] arrName (after): " + arrName);
-        System.out.println("[dealWithArrayDeclaration] nameTypeStr: " + nameTypeStr);
-
         Pair<String, Symbol> pair = this.symbolTable.variableScope(this.currentMethod, arrName);
         String varScope = pair.a;
         Symbol arrayVariable = pair.b;
@@ -193,7 +189,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             switch (varScope) {
                 case "localVariable":
                     this.currentArithType = new Type(arrayVariable.getType().getName(), false);
-                    System.out.println("[dealWithArrayDeclaration] localVariable1 - finalString: " + arrayVariable.getName() + ".array" + OllirTemplates.type(arrayVariable.getType()) + "[" + arrIndex + "]" + OllirTemplates.type(this.currentArithType));
                     ollirCode.append(arrayVariable.getName() + OllirTemplates.type(arrayVariable.getType()) + "[" + arrIndex + "]" + OllirTemplates.type(this.currentArithType));
                     break;
                 case "parameterVariable":
@@ -286,7 +281,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             if (Arrays.asList("<", "<=", ">", ">=", "&&", "||").contains(op)) {
                 this.removeVarAndLastType(new Type("int", false));
             } else {
-                System.out.println("this.currentArithType ( " + op + " ): " + this.currentArithType);
                 this.removeVarAndLastType(this.currentArithType);
             }
         }
@@ -300,7 +294,6 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             }
         }
 
-        System.out.println("-> data.get(0) " + op + ": " + data.get(0));
         if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("ARRAY_ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
             String rightSide = "";
             if (Arrays.asList("<", "<=", ">", ">=", "&&", "||").contains(op)) {
@@ -350,10 +343,8 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         JmmMethod funcMethod = this.symbolTable.getMethod(funcName);
         List<JmmNode> parameters = node.getChildren().subList(1, node.getNumChildren());
         List<String> parameterString = new ArrayList<>();
-        System.out.println("[dealWithMemberAccess] funcMethod: " + ((funcMethod != null) ? funcMethod.getName() : "null"));
         for (JmmNode parameter : parameters) {
             String paramOllirCode = (String) visit(parameter, Collections.singletonList("MEMBER_ACCESS")).get(0); // value or the temporary variable
-            System.out.println("[dealWithMemberAccess] paramOllirCode: " + paramOllirCode);
             if (funcMethod != null) { // method exists and we know the type of the parameters
                 Type paramType = funcMethod.getParameters().get(parameters.indexOf(parameter)).getType();
                 String var = paramOllirCode.substring(0, paramOllirCode.indexOf("."));
@@ -371,10 +362,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         String objExpr = (String) visit(node.getJmmChild(0), Collections.singletonList("MEMBER_ACCESS")).get(0);
         int dotIndex = objExpr.indexOf("."); // has the type integrated in the objExpr
         String retAcc = (funcMethod != null) ? OllirTemplates.type(funcMethod.getReturnType()) : OllirTemplates.type(this.currentAssignmentType);
-        System.out.println("dotIndex: " + dotIndex);
-        System.out.println("objExpr: " + objExpr);
-        System.out.println("data.get(0):"  + data.get(0));
-        System.out.println("this.currentAssignmentType: " + this.currentAssignmentType);
+
         if ((dotIndex == -1 && !objExpr.equals("this"))) { // objExpr it's an import, use invokestatic
             if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("ARRAY_ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES") || data.get(0).equals("LOOP")) {
                 String invokeStaticStr = OllirTemplates.invokestatic(objExpr, funcName, parameterString, OllirTemplates.type(this.currentAssignmentType));

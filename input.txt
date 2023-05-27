@@ -1,16 +1,54 @@
-import X;
+import io;
 
-class Help {
-    public int foo(int c, int y, int z) {
-        int i;
-        boolean e;
-        i = 0;
-        if ( (z < c) && (y < c)) {
-            i = 1;
-        } else {
-            i = 2;
-        }
+class B {
+    int a;
 
-        e = true && e;
+    public int getArrayNum() {
+        int[] b;
+        int n = 1;
+        b = new int[2];
+        b[0] = n;
+
+        return 1;
+    }
+
+    public static void main(String[] args){
+        int num;
+        String test;
+        B b;
+        b = new B();
+        test = args[0];
+        num = this.getArrayNum();
+        io.print(num);
     }
 }
+
+
+
+
+
+/*
+import io;
+
+class B {
+    int a;
+
+    public int getArrayNum() {
+        int[] b;
+        b = new int[2];
+        b[0] = 0;
+        b[1] = 1;
+
+        return b[1];
+    }
+
+    public static void main(String[] args){
+        int num;
+        B b;
+        b = new B();
+        num = b.getArrayNum();
+
+        io.print(num);
+    }
+}
+*/

@@ -186,7 +186,8 @@ public class Instructions {
 
         Operand arrayOperand = (Operand) operand;
         int arrayReg = varTable.get(arrayOperand.getName()).getVirtualReg();
-
+        System.out.println("operand: " + ((Operand) ((ArrayOperand) operand).getIndexOperands().get(0)).getName());
+        System.out.println("((ArrayOperand) operand).getIndexOperands().get(0): " + ((ArrayOperand) operand).getIndexOperands().get(0).getType());
         Operand indexOperand = (Operand) ((ArrayOperand) operand).getIndexOperands().get(0);
         int indexReg = varTable.get(indexOperand.getName()).getVirtualReg();
 
