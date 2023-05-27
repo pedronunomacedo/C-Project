@@ -25,6 +25,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
     public ArrayList<String> tempVariables;
     public ArrayList<String> tempVariablesOllirCode;
     public Type currentAssignmentType;
+    public Type memberAccessParamType;
 
     public ExprOllirVisitor(JmmSymbolTable symbolTable, List<Report> reports) {
         this.symbolTable = symbolTable;
@@ -281,8 +282,26 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         JmmNode rightExpr = node.getJmmChild(1);
 
         String leftExprCode = (String) visit(leftExpr, Collections.singletonList("BINARY_OP")).get(0);
-        String rightExprCode = (String) visit(rightExpr, Collections.singletonList("BINARY_OP")).get(0);
+        System.out.println("leftExprCode: " + leftExprCode);
+        if (!Arrays.asList("Integer", "Bool", "SelfCall", "Identifier").contains(leftExpr.getKind())) {
+            if (Arrays.asList("<", "<=", ">", ">=", "&&", "||").contains(op)) {
+                this.removeVarAndLastType(new Type("boolean", false));
+            } else {
+                System.out.println("this.currentArithType ( " + op + " ): " + this.currentArithType);
+                leftExprCode = leftExprCode.substring(0, leftExprCode.indexOf(".")) + ".i32"; // remove the type
+                this.removeVarAndLastType(this.currentArithType);
+            }
+        }
 
+        String rightExprCode = (String) visit(rightExpr, Collections.singletonList("BINARY_OP")).get(0);
+        if (!Arrays.asList("Integer", "Bool", "SelfCall", "Identifier").contains(leftExpr.getKind())) {
+            if (Arrays.asList("<", "<=", ">", ">=", "&&", "||").contains(op)) {
+                this.removeVarAndLastType(new Type("boolean", false));
+            } else {
+                leftExprCode = leftExprCode.substring(0, leftExprCode.indexOf(".")) + ".i32"; // remove the type
+                this.removeVarAndLastType(this.currentArithType);
+            }
+        }
 
         if (data.get(0).equals("ASSIGNMENT") || data.get(0).equals("ARRAY_ASSIGNMENT") || data.get(0).equals("LOCAL_VARIABLES")) {
             String rightSide = "";
@@ -290,6 +309,7 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 rightSide = leftExprCode + " " + op + ".bool" + " " + rightExprCode;
                 this.currentArithType = new Type("boolean", false);
             } else {
+                rightExprCode = rightExprCode.substring(0, rightExprCode.indexOf(".")) + ".i32"; // remove the type
                 rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentAssignmentType) + " " + rightExprCode;
             }
             ollirCode.append(rightSide);
@@ -299,8 +319,10 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 rightSide = leftExprCode + " " + op + ".bool" + " " + rightExprCode;
                 this.currentArithType = new Type("boolean", false);
             } else {
+                rightExprCode = rightExprCode.substring(0, rightExprCode.indexOf(".")) + ".i32"; // remove the type
                 rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentArithType) + " " + rightExprCode;
             }
+
             String operationString = OllirTemplates.temporaryVariableTemplate((++this.tempMethodParamNum), ".bool", rightSide);
             this.tempVariables.add("t" + this.tempMethodParamNum);
             this.tempVariablesOllirCode.add(operationString);
@@ -311,8 +333,10 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
                 rightSide = leftExprCode + " " + op + ".bool" + " " + rightExprCode;
                 this.currentArithType = new Type("boolean", false);
             } else {
+                rightExprCode = rightExprCode.substring(0, rightExprCode.indexOf(".")) + ".i32"; // remove the type
                 rightSide = leftExprCode + " " + op + OllirTemplates.type(this.currentArithType) + " " + rightExprCode;
             }
+
             String operationString = OllirTemplates.temporaryVariableTemplate((++this.tempMethodParamNum), OllirTemplates.type(this.currentArithType), rightSide);
             this.tempVariables.add("t" + this.tempMethodParamNum);
             this.tempVariablesOllirCode.add(operationString);
@@ -332,10 +356,26 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
         JmmMethod funcMethod = this.symbolTable.getMethod(funcName);
         List<JmmNode> parameters = node.getChildren().subList(1, node.getNumChildren());
         List<String> parameterString = new ArrayList<>();
+        System.out.println("[dealWithMemberAccess] funcMethod: " + ((funcMethod != null) ? funcMethod.getName() : "null"));
         for (JmmNode parameter : parameters) {
             String paramOllirCode = (String) visit(parameter, Collections.singletonList("MEMBER_ACCESS")).get(0); // value or the temporary variable
-            parameterString.add(paramOllirCode);
+            System.out.println("[dealWithMemberAccess] paramOllirCode: " + paramOllirCode);
+            if (funcMethod != null) { // method exists and we know the type of the parameters
+                Type paramType = funcMethod.getParameters().get(parameters.indexOf(parameter)).getType();
+                this.memberAccessParamType = paramType;
+                String var = paramOllirCode.substring(0, paramOllirCode.indexOf("."));
+                String tempParamVar = var + OllirTemplates.type(paramType);
+                parameterString.add(tempParamVar);
+
+                if (!Arrays.asList("Identifier", "SelfCall", "Bool", "Integer").contains(parameter.getKind())) { // Change the type of the temporary variable code
+                    this.removeVarAndLastType(paramType);
+                }
+            } else { // unknown method (let the type returned on te visited)
+                parameterString.add(paramOllirCode);
+            }
         }
+
+        this.memberAccessParamType = null;
 
         String objExpr = (String) visit(node.getJmmChild(0), Collections.singletonList("MEMBER_ACCESS")).get(0);
         int dotIndex = objExpr.indexOf("."); // has the type integrated in the objExpr
@@ -445,4 +485,33 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
         return Collections.singletonList(ollirCode.toString());
     }
+
+
+    private void removeVarAndLastType(Type paramType) {
+        String lastTemporaryVarAssignment = this.tempVariablesOllirCode.get(this.tempVariablesOllirCode.size() - 1);
+        this.tempVariablesOllirCode.remove(lastTemporaryVarAssignment);
+        String removedTempVar = "";
+        String tempVar = "";
+
+        // Remove the variable and assign the correct assignment type
+        if (lastTemporaryVarAssignment.contains(":=")) {
+            tempVar = lastTemporaryVarAssignment.substring(0, lastTemporaryVarAssignment.indexOf(".")); // t<num> (without the type)
+            removedTempVar = lastTemporaryVarAssignment.substring(lastTemporaryVarAssignment.indexOf(":=") + 2); // :=.type (...);\n
+            removedTempVar = removedTempVar.substring(removedTempVar.indexOf(" ")); // (...);\n (remove the type that is on the :=)
+
+        } else {
+            tempVar = "";
+            removedTempVar = lastTemporaryVarAssignment; // all the tempVarOllirCode
+        }
+
+        // Remove the type of the right side and put the correct type
+        if (removedTempVar.lastIndexOf(".") != -1) {
+            removedTempVar = removedTempVar.substring(0, removedTempVar.lastIndexOf("."));
+        }
+
+        lastTemporaryVarAssignment = ((!tempVar.equals("")) ? (tempVar + OllirTemplates.type(paramType)) + " :=" + OllirTemplates.type(paramType) : "") + removedTempVar + OllirTemplates.type(paramType) + ";\n";
+        this.tempVariablesOllirCode.add(lastTemporaryVarAssignment);
+    }
 }
+
+
