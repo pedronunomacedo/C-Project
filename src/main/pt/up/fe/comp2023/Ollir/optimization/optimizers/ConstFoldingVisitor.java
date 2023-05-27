@@ -1,38 +1,39 @@
 package pt.up.fe.comp2023.Ollir.optimization.optimizers;
 
+import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
+import pt.up.fe.comp2023.ast.JmmSymbolTable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class ConstFoldingVisitor extends AJmmVisitor<String, Boolean> {
+    JmmSymbolTable symbolTable;
+    HashMap<String, String> variables;
+    public ConstFoldingVisitor(JmmSymbolTable symbolTable) {
+        this.symbolTable = symbolTable;
+        this.variables = new HashMap<>();
+    }
+
     @Override
     protected void buildVisitor() {
         setDefaultVisit(this::defaultVisit);
         addVisit("BinaryOp", this::dealWithBinaryOp);
         addVisit("UnaryOp", this::dealWithUnaryOp);
         addVisit("ExprParentheses", this::dealWithExprParentheses);
+        addVisit("Assignment", this::dealWithAssignment);
+        addVisit("Identifier", this::dealWithIdentifier);
     }
-
-    int i = 0;
 
     public Boolean dealWithBinaryOp(JmmNode node, String data) {
         JmmNode leftNode = node.getJmmChild(0);
         JmmNode rightNode = node.getJmmChild(1);
 
-        System.out.println("--------- BinaryOp " + i + " ---------");
-        System.out.println("[BinaryOp] leftNode: " + leftNode);
-        System.out.println("[BinaryOp] op: " + node.get("op"));
-        System.out.println("[BinaryOp] rightNode: " + rightNode);
-        System.out.println("-----------------------------");
-
         boolean changes = visit(leftNode);
         changes = visit(rightNode) || changes;
-
-        System.out.println("-----------------------------");
-        System.out.println("[BinaryOp] changes: " + changes);
-        System.out.println("[BinaryOp] newLeftNode: " + leftNode);
-        System.out.println("[BinaryOp] newRightNode: " + rightNode);
-        System.out.println("--------- End BinaryOp " + i + " ---------");
 
         // These kids may have changed during the visit
         leftNode = node.getJmmChild(0);
@@ -109,10 +110,54 @@ public class ConstFoldingVisitor extends AJmmVisitor<String, Boolean> {
         boolean changes = false;
         JmmNode child = node.getJmmChild(0);
         changes = visit(child);
-        JmmNode newNode = node;
+        child = node.getJmmChild(0); // Update the child variable (could be changed while being visited)
 
         if (child.getKind().equals("Integer") || child.getKind().equals("Bool")) {
             node.replace(child);
+        }
+
+        return changes;
+    }
+
+    public Boolean dealWithAssignment(JmmNode node, String data) {
+        boolean changes = false;
+
+        String varName = node.get("varName");
+        JmmNode valueNode = node.getJmmChild(0);
+        changes = visit(valueNode);
+        valueNode = node.getJmmChild(0); // Update the changed value child
+
+        if (valueNode.getKind().equals("Bool") || valueNode.getKind().equals("Integer")) {
+            this.variables.put(varName, valueNode.get("val"));
+        } else {
+            this.variables.remove(varName); // if the variable varName changes remove from the variables list
+        }
+
+        return changes;
+    }
+
+    private Boolean dealWithIdentifier(JmmNode node, String data) {
+        boolean changes = false;
+
+        String varName = node.get("val");
+
+        if (this.variables.get(varName) != null) { // constant variable
+            String varStrType = null;
+            if (this.variables.get(varName).equals("true") || this.variables.get(varName).equals("false")) {
+                varStrType = "Bool";
+            } else if (this.variables.get(varName).matches("-?\\d+")) { // Check if it's an integer number
+                varStrType = "Integer";
+            }
+
+            if (Arrays.asList("Bool", "Integer").contains(varStrType)) { // substitute node
+                JmmNode newNode = new JmmNodeImpl(varStrType);
+                newNode.put("lineStart", node.get("lineStart"));
+                newNode.put("colStart", node.get("colStart"));
+
+                newNode.put("val", this.variables.get(varName));
+
+                node.replace(newNode);
+            }
         }
 
         return changes;

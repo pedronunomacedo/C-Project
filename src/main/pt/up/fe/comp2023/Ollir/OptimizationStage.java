@@ -23,7 +23,7 @@ public class OptimizationStage implements JmmOptimization {
         boolean hasChanges = true;
 
         while (hasChanges) {
-            ConstFoldingVisitor constFoldingVisitor = new ConstFoldingVisitor();
+            ConstFoldingVisitor constFoldingVisitor = new ConstFoldingVisitor((JmmSymbolTable) semanticsResult.getSymbolTable());
             if (debug) {
                 System.out.println("Performing constant folding ...");
             }
