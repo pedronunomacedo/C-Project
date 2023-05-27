@@ -1,4 +1,96 @@
 package pt.up.fe.comp2023.Ollir.optimization.optimizers;
 
-public class ConstPropagationVisitor {
+import pt.up.fe.comp.jmm.ast.AJmmVisitor;
+import pt.up.fe.comp.jmm.ast.JmmNode;
+import pt.up.fe.comp.jmm.analysis.table.Type;
+import pt.up.fe.comp2023.Ollir.OllirTemplates;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class ConstPropagationVisitor extends AJmmVisitor<String, Boolean> {
+    private final Map<String, String> constantVariables;
+
+    public ConstPropagationVisitor() {
+        this.constantVariables = new HashMap<>();
+    }
+
+    @Override
+    protected void buildVisitor() {
+        setDefaultVisit(this::defaultVisit);
+
+        addVisit("Program", this::dealWithIteration);
+        addVisit("ClassDeclaration", this::dealWithIteration);
+
+        addVisit("MethodDeclaration", this::dealWithMethodDeclaration);
+        addVisit("LocalVariable", this::dealWithLocalVariableDeclaration);
+
+        addVisit("IfConditional", this::dealWithIfConditional);
+    }
+
+    private Boolean dealWithLocalVariableDeclaration(JmmNode node, String data) {
+        boolean changes = false;
+
+        if (node.getNumChildren() > 0) { // declaration with assignment
+            JmmNode valueNode = node.getJmmChild(1);
+            Type varType = getType(valueNode);
+
+            changes = visit(valueNode);
+
+            if (valueNode.getKind().equals("Integer") || valueNode.getKind().equals("Bool") || valueNode.getKind().equals("SelfCall") || valueNode.getKind().equals("Identifier")) {
+                this.constantVariables.put(node.get("varName"), valueNode.get("val"));
+                return true;
+            }
+        }
+
+        return changes;
+    }
+
+    private Boolean dealWithMethodDeclaration(JmmNode node, String data) {
+        boolean changes = false;
+
+        this.constantVariables.clear(); // clear the list of constant variables on the method scope
+
+        return this.dealWithIteration(node, data); // Go to every child of the method node
+    }
+
+    public Boolean dealWithIteration(JmmNode node, String data) {
+        boolean changes = false;
+
+        for (JmmNode child : node.getChildren()) {
+            changes = visit(child, data) || changes;
+        }
+
+        return changes;
+    }
+
+    private Boolean dealWithIfConditional(JmmNode node, String data) {
+        boolean changes = false;
+
+        return changes;
+    }
+
+
+    public Boolean defaultVisit(JmmNode jmmNode, String data) {
+        boolean changes = false;
+
+        for (JmmNode child : jmmNode.getChildren()) {
+            changes = visit(child) || changes;
+        }
+
+        return changes;
+    }
+
+    private static Type getType(JmmNode nodeType) {
+        return switch (nodeType.getKind()) {
+            case "IntegerArrayType" -> new Type("int", true);
+            case "IntegerType" -> new Type("int", false);
+            case "BooleanType" -> new Type("boolean", false);
+            case "StringType" -> new Type("String", false);
+            case "VoidType" -> new Type("void", false);
+            case "IdType" -> new Type(nodeType.get("typeName"), false);
+            default -> throw new IllegalStateException("Unexpected value: " + nodeType.getKind());
+        };
+    }
+
 }

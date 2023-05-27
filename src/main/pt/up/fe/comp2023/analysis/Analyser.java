@@ -115,7 +115,6 @@ public class Analyser extends AJmmVisitor<String, Void> {
     }
 
     private Void dealWithStatement(JmmNode node, String method) {
-        System.out.println("node.getKind():" + node.getKind());
         switch (node.getKind()) {
             case "Brackets":
                 for (JmmNode stmtChild : node.getChildren()) {
@@ -195,10 +194,14 @@ public class Analyser extends AJmmVisitor<String, Void> {
                         return null;
                     }
 
-                    if (!((variable2.getType().getName().equals(this.analysis.getSymbolTable().getSuper()) || this.analysis.getSymbolTable().getImports().contains(variable2.getType().getName()) || this.analysis.getSymbolTable().getClassName().equals(variable2.getType().getName()))
+                    if (!(
+                            ((variable2.getType().getName().equals(this.analysis.getSymbolTable().getSuper()) || this.analysis.getSymbolTable().getImports().contains(variable2.getType().getName()) || this.analysis.getSymbolTable().getClassName().equals(variable2.getType().getName()))
                             &&
-                            (expressionType.getName().equals(this.analysis.getSymbolTable().getClassName()) || this.analysis.getSymbolTable().getImports().contains(expressionType.getName())))) {
-                        analysis.newReport(node, "1ExpressionType is not Assignment Type (rightSide type: " + variable2.getType().getName() + ", leftSide type: " + expressionType.getName());
+                            (expressionType.getName().equals(this.analysis.getSymbolTable().getClassName()) || this.analysis.getSymbolTable().getImports().contains(expressionType.getName())))
+                            ||
+                            (Arrays.asList("int", "boolean", "String").contains(variable2.getType().getName()) && Arrays.asList("int", "boolean", "String").contains(expressionType.getName()) && variable2.getType().getName().equals(expressionType.getName()))
+                    )) {
+                        analysis.newReport(node, "1ExpressionType is not Assignment Type (rightSide type: " + variable2.getType().getName() + ", leftSide type: " + expressionType.getName() + ") ");
                         return null;
                     }
 
