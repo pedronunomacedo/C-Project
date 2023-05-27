@@ -1,6 +1,6 @@
 import io;
 class ArrayInit {
-    int test;
+    int[] arr;
 
     public static void main(String[] args) {
 
@@ -14,8 +14,18 @@ class ArrayInit {
         int a;
         int b;
         int c;
+        int num;
+        //int[] arr;
+        int[] arr2;
+        arr = new int[3];
+
+        arr[0] = 2;
+        arr[1] = 5;
+        arr[2] = 1;
+        num = arr[2];
+        arr2 = arr;
         b = 2;
-        a = 20 - 12 + (4 / b);
+        a = 20 - 12 + (4 / num);
         c = a;
 
         return 1;

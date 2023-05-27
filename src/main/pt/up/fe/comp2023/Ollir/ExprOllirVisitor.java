@@ -140,19 +140,18 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
 
         String arrName = (String) visit(arrNameNode, Collections.singletonList("ARRAY_DECLARATION")).get(0); // array name
         String arrIndex = (String) visit(arrIndexNode, Collections.singletonList("ARRAY_DECLARATION")).get(0); // index or temporary variable
+        System.out.println("[dealWithArrayDeclaration] arrName (before): " + arrName);
 
         int dotIndex = arrName.indexOf("."); // has the type integrated in the objExpr
-        String nameTypeStr = new String();
-        boolean isArray = false;
+        String nameTypeStr = "";
         if (arrNameNode.getNumChildren() == 0 && dotIndex != -1) { // terminal symbol
             if (arrName.chars().filter(ch -> ch == '.').count() == 2) { // parameter (remove the param index and param type)
                 List<String> parts = Arrays.asList(arrName.split("\\.")); // Escape the dot with double backslashes
                 if (parts.contains("array")) { // varName.array.type
                     String allName = arrName; // varName.array.type
                     arrName = allName.substring(0, dotIndex); // varName
-                    String otherPart = allName.substring(dotIndex + 1, allName.length()); // array.type
-                    dotIndex = otherPart.indexOf(".");
-                    nameTypeStr = otherPart.substring(dotIndex + 1, otherPart.length()); // type
+                    dotIndex = allName.lastIndexOf(".");
+                    nameTypeStr = allName.substring(dotIndex + 1, allName.length()); // type
                 } else {
                     arrName = arrName.substring(dotIndex + 1, arrName.length());
                     dotIndex = arrName.indexOf("."); // index of the 2nd "."
@@ -172,17 +171,17 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             if (dotIndex != -1) {
                 String newName = arrName.substring(0, dotIndex); // nameTypeStr
                 if (parts.contains("array")) { // t<num>.array.type
-                    isArray = true;
-                    nameTypeStr = arrName.substring(dotIndex + 1, arrName.length()); // array.type
-                    dotIndex = nameTypeStr.indexOf("."); // index of the 2nd "."
-                    nameTypeStr = nameTypeStr.substring(dotIndex + 1, nameTypeStr.length());
+                    dotIndex = arrName.lastIndexOf(".");
+                    nameTypeStr = arrName.substring(dotIndex + 1, arrName.length()); // type
                 } else { // t<num>.type
-                    isArray = false;
                     nameTypeStr = arrName.substring(dotIndex + 1, arrName.length());
                 }
                 arrName = newName;
             }
         }
+
+        System.out.println("[dealWithArrayDeclaration] arrName (after): " + arrName);
+        System.out.println("[dealWithArrayDeclaration] nameTypeStr: " + nameTypeStr);
 
         Pair<String, Symbol> pair = this.symbolTable.variableScope(this.currentMethod, arrName);
         String varScope = pair.a;
@@ -193,18 +192,19 @@ public class ExprOllirVisitor extends AJmmVisitor<List<Object>, List<Object>> {
             switch (varScope) {
                 case "localVariable":
                     this.currentArithType = new Type(arrayVariable.getType().getName(), false);
-                    ollirCode.append(arrayVariable.getName() + ".array" + OllirTemplates.type(arrayVariable.getType()) + "[" + arrIndex + "]" + OllirTemplates.type(this.currentArithType));
+                    System.out.println("[dealWithArrayDeclaration] localVariable1 - finalString: " + arrayVariable.getName() + ".array" + OllirTemplates.type(arrayVariable.getType()) + "[" + arrIndex + "]" + OllirTemplates.type(this.currentArithType));
+                    ollirCode.append(arrayVariable.getName() + OllirTemplates.type(arrayVariable.getType()) + "[" + arrIndex + "]" + OllirTemplates.type(this.currentArithType));
                     break;
                 case "parameterVariable":
                     this.currentArithType = new Type(arrayVariable.getType().getName(), false);
                     paramIndex = this.currentMethod.getParameterIndex(arrayVariable.getName());
-                    ollirCode.append("$" + paramIndex + "." + arrayVariable.getName() + ".array" + OllirTemplates.type(arrayVariable.getType()) + "[" + arrIndex + "]" + OllirTemplates.type(this.currentArithType));
+                    ollirCode.append("$" + paramIndex + "." + arrayVariable.getName() + OllirTemplates.type(arrayVariable.getType()) + "[" + arrIndex + "]" + OllirTemplates.type(this.currentArithType));
                     break;
                 case "fieldVariable":
                     this.currentArithType = new Type(arrayVariable.getType().getName(), false);
                     this.tempVariablesOllirCode.add(OllirTemplates.getField((++this.tempMethodParamNum), arrayVariable));
                     Symbol tempSymbol = new Symbol(arrayVariable.getType(), "t" + this.tempMethodParamNum);
-                    ollirCode.append(tempSymbol.getName() + ".array" + OllirTemplates.type(arrayVariable.getType()));
+                    ollirCode.append(tempSymbol.getName() + OllirTemplates.type(arrayVariable.getType()));
                     break;
                 default:
                     if (data.get(0).equals("ASSIGNMENT")) {
