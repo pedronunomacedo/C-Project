@@ -7,6 +7,7 @@ import java.util.Map;
 
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
@@ -48,6 +49,7 @@ public class Launcher {
         // Create the symbolTable class object
         // Semantic Analysis
         JmmSemanticsResult semanticsResult = new AnalysisStage().semanticAnalysis(parserResult);
+
 
         // Check if there are parsing errors
         TestUtils.noErrors(semanticsResult);
