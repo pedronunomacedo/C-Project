@@ -15,18 +15,12 @@ class B {
     public static void main(String[] args){
         int num;
         int t;
-        String test;
-        B b;
-        b = new B();
-        test = args[0];
-        num = this.getArrayNum();
-        io.print(num);
         t = 2;
         num = t;
 
-        if (num < 3) {
+        if (true) {
             io.print(num);
-            num = 10;
+            t = num;
         } else {
             io.print(num + 1);
             num = 20;
