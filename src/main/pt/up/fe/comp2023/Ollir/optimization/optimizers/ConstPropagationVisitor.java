@@ -69,20 +69,22 @@ public class ConstPropagationVisitor extends AJmmVisitor<String, Boolean> {
         changes = visit(ifConditionNode, data); // condition expression
         ifConditionNode = node.getJmmChild(0); // update the condition node
 
+        /*
         if (ifConditionNode.getKind().equals("Bool")) {
             switch (ifConditionNode.get("val")) {
                 case "true" -> {
-                    node.replace(node.getJmmChild(1));
+                    //node.replace(node.getJmmChild(1));
                     return true;
                 }
                 case "false" -> {
                     if (node.get("hasElse") != null) {
-                        node.replace(node.getJmmChild(2)); // dead code elimination
+                        //node.replace(node.getJmmChild(2)); // dead code elimination
                         return true;
                     }
                 }
             }
         }
+         */
 
         return changes;
     }

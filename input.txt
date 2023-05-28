@@ -18,12 +18,11 @@ class B {
         t = 2;
         num = t;
 
-        if (true) {
-            io.print(num);
-            t = num;
+        t = 10;
+        if (t < 15) {
+            t = 1;
         } else {
-            io.print(num + 1);
-            num = 20;
+            t = 2;
         }
     }
 }
