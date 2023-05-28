@@ -351,11 +351,21 @@ public class Instructions {
             if (varTable.get(((Operand)elem).getName()).getVarType().getTypeOfElement() == ElementType.ARRAYREF) {
                 jasminCode.append(storeArray(elem, varTable));
             } else {
-                jasminCode.append("\t").append("istore ").append(virtualReg).append("\n");
+                if (virtualReg <= 3){
+                    jasminCode.append("\t").append("istore_").append(virtualReg).append("\n");
+                }
+                else{
+                    jasminCode.append("\t").append("istore ").append(virtualReg).append("\n");
+                }
                 limitStack(-1);
             }
         } else {
-            jasminCode.append("\t").append("astore ").append(virtualReg).append("\n");
+            if (virtualReg <= 3){
+                jasminCode.append("\t").append("astore_").append(virtualReg).append("\n");
+            }
+            else{
+                jasminCode.append("\t").append("astore ").append(virtualReg).append("\n");
+            }
             limitStack(-1);
         }
 
@@ -373,9 +383,19 @@ public class Instructions {
         else{
             indexReg = Integer.parseInt(((LiteralElement) index).getLiteral());
         }
-        jasminCode.append("astore ").append(reg).append("\n");
+        if (reg <= 3){
+            jasminCode.append("astore_").append(reg).append("\n");
+        }
+        else{
+            jasminCode.append("astore ").append(reg).append("\n");
+        }
         limitStack(-1);
-        jasminCode.append("istore ").append(indexReg).append("\n");
+        if (indexReg <= 3){
+            jasminCode.append("istore_").append(indexReg).append("\n");
+        }
+        else{
+            jasminCode.append("istore ").append(indexReg).append("\n");
+        }
         limitStack(-1);
         jasminCode.append("iastore").append("\n");
         limitStack(-3);
