@@ -57,14 +57,19 @@ During this project, we developed a jmm compiler. The jmm compilation flow has 4
 
 <!-- GETTING STARTED -->
 ## Getting Started
-
+<div align="left">
 To get a local copy up and running follow these simple steps.
+</div>
 
 ### Installation
-
+<div align="left">
 _Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
+</div>
+<br />
 
+<div align="left">
 1. Clone the repo
+
    ```sh
    git clone https://git.fe.up.pt/compilers2023/comp2023-4c.git
    ```
@@ -89,16 +94,21 @@ _Below is an example of how you can instruct your audience on installing and set
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
+</div>
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
+<div align="left">
+
 - Using the **input.txt**, you can input your jmm code, and see the result by pressing the **_Play_** button on the right top corner.
+
+</div>
 
 <img src="images/input_txt_file.png " alt="input.txt file" width="400px">
 
 <p></p>
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
@@ -122,9 +132,13 @@ During this project, all elements of the group have demonstrated constant dedica
 <!-- EXTRA FEATURES -->
 ## Extra Features
 
+<div align="left">
+
 1. You can do inline declaration followed by an assignment.
 
 2. You can develop more complex expression like, for example:
+
+</div>
 
 ```java
 int res = obj.test(10)[obj.getNum()]; // you can found this in the inout.txt file, inside the project root directory
