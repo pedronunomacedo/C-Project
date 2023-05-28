@@ -58,12 +58,12 @@ During this project, we developed a jmm compiler. The jmm compilation flow has 4
 <!-- GETTING STARTED -->
 ## Getting Started
 <div align="left">
-To get a local copy up and running follow these simple steps.
+<p>To get a local copy up and running follow these simple steps.</p>
 </div>
 
 ### Installation
 <div align="left">
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
+<p>Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._</p>
 </div>
 <br />
 
