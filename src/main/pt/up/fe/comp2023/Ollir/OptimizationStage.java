@@ -24,17 +24,17 @@ public class OptimizationStage implements JmmOptimization {
         boolean hasChanges = true;
 
         while (hasChanges) {
-            ConstFoldingVisitor constFoldingVisitor = new ConstFoldingVisitor((JmmSymbolTable) semanticsResult.getSymbolTable());
-            if (debug) {
-                System.out.println("Performing constant folding ...");
-            }
-            hasChanges = constFoldingVisitor.visit(semanticsResult.getRootNode());
-
             ConstPropagationVisitor constPropagationVisitor = new ConstPropagationVisitor();
             if (debug) {
                 System.out.println("Performing constant propagation ...");
             }
-            hasChanges = constPropagationVisitor.visit(semanticsResult.getRootNode()) || hasChanges;
+            hasChanges = constPropagationVisitor.visit(semanticsResult.getRootNode());
+
+            ConstFoldingVisitor constFoldingVisitor = new ConstFoldingVisitor((JmmSymbolTable) semanticsResult.getSymbolTable());
+            if (debug) {
+                System.out.println("Performing constant folding ...");
+            }
+            hasChanges = constFoldingVisitor.visit(semanticsResult.getRootNode()) || hasChanges;
         }
 
         if (debug) {
