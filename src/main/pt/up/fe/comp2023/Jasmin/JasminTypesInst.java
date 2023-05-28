@@ -49,7 +49,7 @@ public class JasminTypesInst {
             switch (opType){
                 case NOT, NOTB:
                     jasminCode.append(Instructions.loadInst(operand, m.getVarTable()));
-                    jasminCode.append("ldc 1").append("\n");
+                    jasminCode.append(loadCType(1)).append("\n");
                     Instructions.limitStack(1);
                     jasminCode.append("ixor").append("\n");
                     Instructions.limitStack(-1);
@@ -128,5 +128,23 @@ public class JasminTypesInst {
         }
 
         return jasminCode.toString();
+    }
+
+    public static String loadCType(int value) {
+        if (value == -1) {
+            return "iconst_m1";
+        }
+        else if (value >= 0 && value <= 5) {
+            return "iconst_" + value;
+        }
+        else if (value >= -128 && value <= 127) {
+            return "bipush " + value;
+        }
+        else if (value >= -32768 && value <= 32767) {
+            return "sipush " + value;
+        }
+        else {
+            return "ldc " + value;
+        }
     }
 }
