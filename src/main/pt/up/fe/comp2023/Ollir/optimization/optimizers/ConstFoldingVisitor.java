@@ -64,12 +64,17 @@ public class ConstFoldingVisitor extends AJmmVisitor<String, Boolean> {
         JmmNode leftNode = node.getJmmChild(0);
         JmmNode rightNode = node.getJmmChild(1);
 
+        System.out.println("(Before) Visiting leftChild of " + node.get("op") + " : " + leftNode.getKind());
         boolean leftChanges = visit(leftNode, data);
+        System.out.println("(Before) Visiting rightChild of " + node.get("op") + " : " + rightNode.getKind());
         boolean rightChanges = visit(rightNode, data);
 
         // These kids may have changed during the visit
         leftNode = node.getJmmChild(0);
         rightNode = node.getJmmChild(1);
+
+        System.out.println("(After) Visiting leftChild of " + node.get("op") + " : " + leftNode.getKind());
+        System.out.println("(After) Visiting rightChild of " + node.get("op") + " : " + rightNode.getKind());
 
         // Check if both kids are either both Bool or Integer
         boolean booleanKidsType = leftNode.getKind().equals("Bool") && rightNode.getKind().equals("Bool");
@@ -108,10 +113,6 @@ public class ConstFoldingVisitor extends AJmmVisitor<String, Boolean> {
             node.replace(newNode);
 
             return true;
-        } else {
-            if (Arrays.asList("Bool", "Integer").contains(leftNode.getKind()) && !Arrays.asList("Bool", "Integer").contains(leftNode.getKind())) {
-
-            }
         }
 
         return leftChanges || rightChanges;
@@ -169,17 +170,20 @@ public class ConstFoldingVisitor extends AJmmVisitor<String, Boolean> {
         changes = visit(valueNode, data);
         valueNode = node.getJmmChild(0); // Update the changed value child
 
+        System.out.println("[dealWithAssignment] valueNode.getKind(): " + valueNode.getKind());
+
         if (valueNode.getKind().equals("Bool")) {
             this.variables.put(varName, valueNode.get("val"));
         } else if (valueNode.getKind().equals("Integer")) {
             if (data != null && data.equals("LOOP_BODY")) {
                 if (this.loopNotConstants.contains(varName)) { // non constant loop variable
                     this.variables.put(varName, valueNode.get("val")); // update value
+                } else {
+                    return false;
                 }
+            } else {
+                this.variables.put(varName, valueNode.get("val")); // update the value of the variable outside the loop
             }
-        } else {
-            // this.variables.remove(varName); // if the variable varName changes remove from the variables list
-            this.loopNotConstants.add(varName);
         }
 
         return changes;
@@ -190,7 +194,9 @@ public class ConstFoldingVisitor extends AJmmVisitor<String, Boolean> {
 
         String varName = node.get("val");
 
-        if (this.variables.get(varName) != null) { // constant variable
+        System.out.println("[dealWithIdentifier] varName: " + varName);
+
+        if (this.variables.get(varName) != null) {
             String varStrType = null;
             if (this.variables.get(varName).equals("true") || this.variables.get(varName).equals("false")) {
                 varStrType = "Bool";
@@ -199,6 +205,7 @@ public class ConstFoldingVisitor extends AJmmVisitor<String, Boolean> {
             }
 
             if (data != null && data.equals("LOOP_CONDITION")) {
+                System.out.println("[dealWithIdentifier] data: " + data);
                 if (this.loopNotConstants.contains(varName)) { // if the variable that is in the loop condition and is not a constant (don't substitute)
                     return false;
                 }
