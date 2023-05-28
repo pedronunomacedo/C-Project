@@ -1,24 +1,31 @@
 import io;
+import MyClass;
 class PropWithLoop {
-    public int foo(){
-	  int a;
-	  int i;
-	  int res;
-	  a = 10;
-	  i = 0;
-	  while (i < a){
-	    i=i+1;
-	  }
-	  res = i*a;
-	  return res;
-	}
+
+    public int test(int a) {
+        int i;
+        int d;
+        int t;
+        int res;
+        i = 0;
+        d = 10;
+        t = 0;
+        while (i < a){
+          i=i+1;
+          d = 10;
+          t = d + 5;
+        }
+        res = i*a + d + t;
+
+        return res;
+    }
 
 	public static void main(String[] args) {
 	    int res;
 	    PropWithLoop obj;
 	    obj = new PropWithLoop();
 
-	    res = obj.foo();
+	    res = obj.test(10);
 
 	    io.print(res);
 	}
