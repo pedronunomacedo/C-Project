@@ -26,27 +26,34 @@ public class JasminTypesInst {
     public static String getInstructionType(Instruction instr, Method m) {
         String result = "";
         if (instr.getInstType() == InstructionType.ASSIGN) {
-            StringBuilder jasminCode = new StringBuilder();
-            AssignInstruction inst = (AssignInstruction) instr;
-            Element lhand = inst.getDest();
-            Instruction rhand = inst.getRhs();
-            jasminCode.append(JasminTypesInst.getInstructionType(rhand, m));
-            jasminCode.append("\t").append(Instructions.storeElem(lhand, m.getVarTable()));
-            result = jasminCode.toString();
+            result = Instructions.assignInst((AssignInstruction) instr, m);
         }  else if (instr.getInstType() == InstructionType.GOTO) {
             StringBuilder jasminCode = new StringBuilder();
             GotoInstruction inst = (GotoInstruction) instr;
             jasminCode.append("\t").append("goto ").append(inst.getLabel()).append("\n");
+            result = jasminCode.toString();
         } else if (instr.getInstType() == InstructionType.CALL) {
             result = Instructions.callInst((CallInstruction) instr, m);
         } else if (instr.getInstType() == InstructionType.BRANCH) {
-            result = "";
+            result = Instructions.branchInst((CondBranchInstruction) instr, m);
         }  else if (instr.getInstType() == InstructionType.PUTFIELD) {
             result = Instructions.putField((PutFieldInstruction) instr, m);
         } else if (instr.getInstType() == InstructionType.GETFIELD) {
             result = Instructions.getField((GetFieldInstruction) instr, m);
         } else if (instr.getInstType() == InstructionType.UNARYOPER) {
             StringBuilder jasminCode = new StringBuilder();
+            UnaryOpInstruction instruct = (UnaryOpInstruction) instr;
+            Element operand = instruct.getOperand();
+            OperationType opType = instruct.getOperation().getOpType();
+
+            switch (opType){
+                case NOT, NOTB:
+                    jasminCode.append(Instructions.loadInst(operand, m.getVarTable()));
+                    jasminCode.append("ldc 1").append("\n");
+                    Instructions.limitStack(1);
+                    jasminCode.append("ixor").append("\n");
+                    Instructions.limitStack(-1);
+            }
             result = jasminCode.toString();
         } else if (instr.getInstType() == InstructionType.RETURN) {
             result = Instructions.returnInst((ReturnInstruction) instr, m);

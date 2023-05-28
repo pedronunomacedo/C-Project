@@ -1,8 +1,12 @@
 package pt.up.fe.comp2023.Jasmin;
 
 import org.specs.comp.ollir.*;
+import java.util.ArrayList;
 
 public class JasminBuilder {
+
+    public static int current;
+    public static int max;
     public static ClassUnit classUnit;
     private StringBuilder jasminCode;
 
@@ -80,7 +84,7 @@ public class JasminBuilder {
             }
 
             jasminCode.append(classUnit.getField(i).getFieldName()).append(" ");
-            String jasminFieldType = JasminTypesInst.getType(classUnit.getField(i).getFieldType(), classUnit.getImports(), false);
+            String jasminFieldType = JasminTypesInst.getType(classUnit.getField(i).getFieldType(), classUnit.getImports(), true);
             jasminCode.append(jasminFieldType);
 
             if (classUnit.getField(i).isInitialized()){
@@ -91,71 +95,85 @@ public class JasminBuilder {
         }
     }
     private void addMethods() {
-        for (int i = 0; i < classUnit.getMethods().size(); i++) {
+        for (int index = 0; index < classUnit.getMethods().size(); index++) {
+            current = 0;
+            max = 0;
             boolean hasReturnStatement = false;
-            StringBuilder instructionsCode = new StringBuilder();
+            Method method = classUnit.getMethod(index);
 
             jasminCode.append(".method ");
-
-            if (classUnit.getMethod(i).getMethodAccessModifier().name().equalsIgnoreCase("default")) {
+            if (method.getMethodAccessModifier().name().equalsIgnoreCase("default")) {
                 jasminCode.append("public ");
             } else {
-                jasminCode.append(classUnit.getMethod(i).getMethodAccessModifier().name().toLowerCase()).append(" ");
+                jasminCode.append(method.getMethodAccessModifier().name().toLowerCase()).append(" ");
             }
 
-            if (classUnit.getMethod(i).isStaticMethod()) {
+            if (method.isStaticMethod()) {
                 jasminCode.append("static ");
             }
-
-            if (classUnit.getMethod(i).isFinalMethod()) {
+            if (method.isFinalMethod()) {
                 jasminCode.append("final ");
             }
 
-            if (classUnit.getMethod(i).isConstructMethod()) {
+            if (method.isConstructMethod()) {
                 jasminCode.append("<init>");
             } else {
-                jasminCode.append(classUnit.getMethod(i).getMethodName());
+                jasminCode.append(method.getMethodName());
             }
 
             jasminCode.append("(");
 
-            if (classUnit.getMethod(i).getParams().size() == 1) {
-                jasminCode.append(JasminTypesInst.getType(classUnit.getMethod(i).getParam(0).getType(), classUnit.getImports(), true));
-            } else if (classUnit.getMethod(i).getParams().size() > 1) {
-                for (int j = 0; j < classUnit.getMethod(i).getParams().size() - 1; j++) {
-                    jasminCode.append(JasminTypesInst.getType(classUnit.getMethod(i).getParam(j).getType(), classUnit.getImports(), true));
+            if (method.getParams().size() == 1) {
+                jasminCode.append(JasminTypesInst.getType(method.getParam(0).getType(), classUnit.getImports(), true));
+            } else if (method.getParams().size() > 1) {
+                for (int j = 0; j < method.getParams().size() - 1; j++) {
+                    jasminCode.append(JasminTypesInst.getType(method.getParam(j).getType(), classUnit.getImports(), true));
                 }
-                jasminCode.append(JasminTypesInst.getType(classUnit.getMethod(i).getParam(classUnit.getMethod(i).getParams().size() - 1).getType(), classUnit.getImports(), true));
+                jasminCode.append(JasminTypesInst.getType(method.getParam(method.getParams().size() - 1).getType(), classUnit.getImports(), true));
             }
 
-            jasminCode.append(")").append(JasminTypesInst.getType(classUnit.getMethod(i).getReturnType(), classUnit.getImports(), true)).append("\n");
+            jasminCode.append(")").append(JasminTypesInst.getType(method.getReturnType(), classUnit.getImports(), true)).append("\n");
 
-            for (Instruction instruction : classUnit.getMethod(i).getInstructions()) {
-                for (String label : classUnit.getMethod(i).getLabels(instruction)) {
+            StringBuilder instructionsCode = new StringBuilder();
+
+            for (Instruction instruction : method.getInstructions()) {
+                for (String label : method.getLabels(instruction)) {
                     instructionsCode.append("\t").append(label).append(":\n");
                 }
-
-                instructionsCode.append(JasminTypesInst.getInstructionType(instruction, classUnit.getMethod(i)));
-
+                instructionsCode.append(JasminTypesInst.getInstructionType(instruction, method));
                 if (instruction.getInstType() == InstructionType.RETURN) {
                     hasReturnStatement = true;
-                } else if (instruction.getInstType() == InstructionType.CALL) {
+                }
+
+                if (instruction.getInstType() == InstructionType.CALL) {
                     if (((CallInstruction) instruction).getReturnType().getTypeOfElement() != ElementType.VOID) {
                         instructionsCode.append("pop\n");
+                        Instructions.limitStack(-1);
                     }
                 }
             }
 
-            jasminCode.append("\t").append(".limit locals 99").append("\n");
-            jasminCode.append("\t").append(".limit stack 99").append("\n");
+            ArrayList<Integer> variables = new ArrayList<>();
+            for (Descriptor descriptor : method.getVarTable().values()) {
+                if (!variables.contains(descriptor.getVirtualReg())) {
+                    variables.add(descriptor.getVirtualReg());
+                }
+            }
+            if (!variables.contains(0) && !method.isStaticMethod()) {
+                variables.add(0);
+            }
+
+            jasminCode.append(".limit locals ").append(variables.size()).append("\n");
+            jasminCode.append("\t").append(".limit stack ").append(max).append("\n");
+
             jasminCode.append(instructionsCode);
 
             if (!hasReturnStatement) {
                 jasminCode.append("\treturn\n");
             }
-
             jasminCode.append(".end method").append("\n");
         }
 
+        System.out.println(jasminCode);
     }
 }
