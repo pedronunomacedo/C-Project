@@ -6,15 +6,14 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
 import pt.up.fe.comp2023.Ollir.OllirTemplates;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ConstPropagationVisitor extends AJmmVisitor<String, Boolean> {
     private final Map<String, String> constantVariables;
+    private Set<String> constVariables;
     public ConstPropagationVisitor() {
         this.constantVariables = new HashMap<>();
+        this.constVariables = new HashSet<>();
     }
 
     @Override
@@ -32,15 +31,53 @@ public class ConstPropagationVisitor extends AJmmVisitor<String, Boolean> {
         addVisit("LocalVariable", this::dealWithLocalVariableDeclaration);
 
         addVisit("IfConditional", this::dealWithIfConditional);
-        //addVisit("Loop", this::dealWithWhileDeclaration);
+        addVisit("Loop", this::dealWithWhileDeclaration);
         addVisit("Assignment", this::dealWithAssignment);
 
         addVisit("Identifier", this::dealWithIdentifier);
     }
 
+    private Boolean dealWithWhileDeclaration(JmmNode node, String data) {
+        System.out.println("[OptStage - dealWithWhileDeclaration] node.getJmmParent().getKind(): " + node.getJmmParent());
+        System.out.println("[OptStage - dealWithWhileDeclaration] data: " + data);
+        boolean changes = false;
+        JmmNode condNode = node.getJmmChild(0);
+        JmmNode bodyLoopNode = node.getJmmChild(1);
+
+        this.visitLoopAssignments(bodyLoopNode);
+
+        System.out.println("[OptStage - dealWithWhileDeclaration] this.constantVariables: " + this.constantVariables);
+
+        changes = visit(condNode, "LOOP_CONDITION");
+        changes = visit(bodyLoopNode, "LOOP_BODY") || changes;
+
+        //System.out.println("this.loopNotConstants: " + this.loopNotConstants);
+        //System.out.println("this.variables: " + this.variables);
+
+        return changes;
+    }
+
+    public void visitLoopAssignments(JmmNode bodyLoopNode) {
+        System.out.println("node.getChildren(): " + bodyLoopNode.getKind());
+
+        if (bodyLoopNode.getKind().equals("Brackets")) { // brackets
+            for (JmmNode childLoopNode : bodyLoopNode.getChildren()) {
+                if (!childLoopNode.getKind().equals("Assignment") && !childLoopNode.getKind().equals("ArrayAssignment")) {
+                    this.constVariables.add(childLoopNode.get("varName"));
+                }
+            }
+        } else { // single while loop body expression
+            if (!bodyLoopNode.getKind().equals("Assignment") && !bodyLoopNode.getKind().equals("ArrayAssignment")) {
+                this.constVariables.add(bodyLoopNode.get("varName"));
+            }
+        }
+    }
+
     private Boolean dealWithIdentifier(JmmNode node, String data) {
         boolean change = false;
         String varName = node.get("val");
+        System.out.println("[OptStage - dealWithIdentifier] varName: " + varName);
+        System.out.println("[OptStage - dealWithIdentifier] this.constantVariables: " + this.constantVariables);
 
         if (this.constantVariables.get(varName) != null) {
             String valueType = "";
@@ -67,17 +104,39 @@ public class ConstPropagationVisitor extends AJmmVisitor<String, Boolean> {
         boolean changes = false;
         String varName = node.get("varName");
 
+        if (data != null && data.equals("LOOP_BODY")) {
+            String prevValue = this.constantVariables.get(varName);
+            this.constantVariables.remove(varName);
+            this.constVariables.remove(varName);
+            changes = visit(node.getJmmChild(0));
+
+            if (Arrays.asList("Bool", "Integer").contains(node.getJmmChild(0).getKind())) {
+                if (node.getJmmChild(0).get("val").equals(prevValue)) { // the value inside the loop actually did not change (possible code elimination - the value of the variable did not change)
+                    this.constantVariables.put(varName, prevValue);
+                    this.constVariables.add(varName);
+                }
+            }
+            return changes;
+        }
+
         changes = visit(node.getJmmChild(0));
 
-        System.out.println("node.getJmmChild(0).getKind(): " + node.getJmmChild(0).getKind());
+        System.out.println("[OptStage - dealWithAssignment] node.getJmmChild(0).getKind(): " + node.getJmmChild(0).getKind());
+        System.out.println("[OptStage - dealWithAssignment] data: " + data);
         if (Arrays.asList("Bool", "Integer").contains(node.getJmmChild(0).getKind())) {
-            this.constantVariables.put(varName, node.getJmmChild(0).get("val"));
-            JmmNode newNode = new JmmNodeImpl(node.getJmmChild(0).getKind());
-            newNode.put("val", node.getJmmChild(0).get("val"));
-            newNode.put("lineStart", node.get("lineStart"));
-            newNode.put("colStart", node.get("colStart"));
-            node.getJmmChild(0).replace(newNode);
-            this.constantVariables.put(varName, node.getJmmChild(0).get("val"));
+            if (data != null && data.equals("LOOP_BODY")) {
+                this.constantVariables.remove(varName);
+                this.constVariables.remove(varName);
+            } else {
+                this.constantVariables.put(varName, node.getJmmChild(0).get("val"));
+                JmmNode newNode = new JmmNodeImpl(node.getJmmChild(0).getKind());
+                newNode.put("val", node.getJmmChild(0).get("val"));
+                newNode.put("lineStart", node.get("lineStart"));
+                newNode.put("colStart", node.get("colStart"));
+                node.getJmmChild(0).replace(newNode);
+                this.constantVariables.put(varName, node.getJmmChild(0).get("val"));
+                this.constVariables.add(varName);
+            }
 
             System.out.println("node.getChildren(): " + node.getChildren());
         }
