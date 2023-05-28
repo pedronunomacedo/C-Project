@@ -50,12 +50,14 @@ public class ConstFoldingVisitor extends AJmmVisitor<String, Boolean> {
 
         System.out.println("this.loopNotConstants: " + this.loopNotConstants);
 
-
-
         boolean changes = visit(condNode, "LOOP_CONDITION");
         changes = visit(bodyLoopNode, "LOOP_BODY") || changes;
 
+        System.out.println("this.loopNotConstants: " + this.loopNotConstants);
+        System.out.println("this.variables: " + this.variables);
+
         this.loopNotConstants = new HashSet<>();
+        this.variables.clear();
 
         return changes;
     }
@@ -64,6 +66,9 @@ public class ConstFoldingVisitor extends AJmmVisitor<String, Boolean> {
         JmmNode leftNode = node.getJmmChild(0);
         JmmNode rightNode = node.getJmmChild(1);
 
+        System.out.println("[dealWithBinaryOp] this.variables: " + this.variables);
+        System.out.println("[dealWithBinaryOp] data: " + data);
+        System.out.println("[dealWithBinaryOp] parent: " + node.getJmmParent().getKind());
         System.out.println("(Before) Visiting leftChild of " + node.get("op") + " : " + leftNode.getKind());
         boolean leftChanges = visit(leftNode, data);
         System.out.println("(Before) Visiting rightChild of " + node.get("op") + " : " + rightNode.getKind());
@@ -170,8 +175,6 @@ public class ConstFoldingVisitor extends AJmmVisitor<String, Boolean> {
         changes = visit(valueNode, data);
         valueNode = node.getJmmChild(0); // Update the changed value child
 
-        System.out.println("[dealWithAssignment] valueNode.getKind(): " + valueNode.getKind());
-
         if (valueNode.getKind().equals("Bool")) {
             this.variables.put(varName, valueNode.get("val"));
         } else if (valueNode.getKind().equals("Integer")) {
@@ -194,7 +197,9 @@ public class ConstFoldingVisitor extends AJmmVisitor<String, Boolean> {
 
         String varName = node.get("val");
 
+        System.out.println("[dealWithIdentifier] data: " + data);
         System.out.println("[dealWithIdentifier] varName: " + varName);
+        System.out.println("[dealWithIdentifier] this.variables: " + this.variables);
 
         if (this.variables.get(varName) != null) {
             String varStrType = null;
