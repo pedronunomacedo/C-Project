@@ -281,12 +281,22 @@ public class Instructions {
                 jasminCode.append(loadArrayElem(op, varTable));
             }
             else{
-                jasminCode.append("\t").append("iload ").append(virtualReg).append("\n");
+                if (virtualReg <= 3){
+                    jasminCode.append("\t").append("iload_").append(virtualReg).append("\n");
+                }
+                else{
+                    jasminCode.append("\t").append("iload ").append(virtualReg).append("\n");
+                }
                 limitStack(1);
             }
         }
         else {
-            jasminCode.append("\t").append("aload ").append(virtualReg).append("\n");
+            if (virtualReg <= 3){
+                jasminCode.append("\t").append("aload_").append(virtualReg).append("\n");
+            }
+            else{
+                jasminCode.append("\t").append("aload ").append(virtualReg).append("\n");
+            }
             limitStack(1);
         }
 
