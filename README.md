@@ -119,7 +119,7 @@ During this project, we developed a jmm compiler. The jmm compilation flow has 4
 | -----------           | ----------- | -------------
 | Gonçalo Ferreira      | 202004761   | 30%
 | Gonçalo Domingues     | 202007914   | 30%
-| Pedro Macedo.         | 202007531   | 40%
+| Pedro Macedo          | 202007531   | 40%
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
