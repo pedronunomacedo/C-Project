@@ -138,11 +138,12 @@ During this project, all elements of the group have demonstrated constant dedica
 
 2. You can develop more complex expression like, for example:
 
-</div>
 
 ```java
 int res = obj.test(10)[obj.getNum()]; // you can found this in the inout.txt file, inside the project root directory
 ```
+
+</div>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
