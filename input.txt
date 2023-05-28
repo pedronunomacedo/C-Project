@@ -3,13 +3,15 @@ import io;
 class B {
     int a;
 
-    public int getArrayNum() {
-        int[] b;
-        int n = 1;
-        b = new int[2];
-        b[0] = n;
-
-        return 1;
+    public int func(int val){
+    	  int s;
+    	  s = 10;
+    	  if(val < s){
+    		s = val;
+    	  }else{
+    	    s = s;
+    	  }
+    	  return s;
     }
 
     public static void main(String[] args){
@@ -56,3 +58,5 @@ class B {
     }
 }
 */
+
+
