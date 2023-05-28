@@ -6,6 +6,7 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
 import pt.up.fe.comp2023.Ollir.OllirTemplates;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,11 +23,67 @@ public class ConstPropagationVisitor extends AJmmVisitor<String, Boolean> {
 
         addVisit("Program", this::dealWithIteration);
         addVisit("ClassDeclaration", this::dealWithIteration);
+        addVisit("BinaryOp", this::dealWithIteration);
+        addVisit("ReturnObj", this::dealWithIteration);
+        addVisit("Brackets", this::dealWithIteration);
+        addVisit("Expr", this::dealWithIteration);
 
         addVisit("MethodDeclaration", this::dealWithMethodDeclaration);
         addVisit("LocalVariable", this::dealWithLocalVariableDeclaration);
 
         addVisit("IfConditional", this::dealWithIfConditional);
+        addVisit("Assignment", this::dealWithAssignment);
+
+        addVisit("Identifier", this::dealWithIdentifier);
+    }
+
+    private Boolean dealWithIdentifier(JmmNode node, String data) {
+        boolean change = false;
+        String varName = node.get("val");
+
+        if (this.constantVariables.get(varName) != null) {
+            String valueType = "";
+
+            try {
+                int number = Integer.parseInt(this.constantVariables.get(varName));
+                valueType = "Integer";
+            } catch (NumberFormatException e) {
+                valueType = "Bool";
+            }
+
+            JmmNode newNode = new JmmNodeImpl(valueType);
+            newNode.put("val", this.constantVariables.get(varName));
+            newNode.put("lineStart", node.get("lineStart"));
+            newNode.put("codeStart", node.get("colStart"));
+            node.replace(newNode);
+        }
+
+        return change;
+    }
+
+
+    private Boolean dealWithAssignment(JmmNode node, String data) {
+        boolean changes = false;
+        String varName = node.get("varName");
+
+        changes = visit(node.getJmmChild(0));
+
+        System.out.println("node.getJmmChild(0).getKind(): " + node.getJmmChild(0).getKind());
+        if (Arrays.asList("Bool", "Integer").contains(node.getJmmChild(0).getKind())) {
+            System.out.println("varName: " + varName);
+            System.out.println("node.getJmmChild(0).get(\"val\"): " + node.getJmmChild(0).get("val"));
+            System.out.println("node.getJmmChild(0).getKind()): " + node.getJmmChild(0).getKind());
+            this.constantVariables.put(varName, node.getJmmChild(0).get("val"));
+            JmmNode newNode = new JmmNodeImpl(node.getJmmChild(0).getKind());
+            newNode.put("val", node.getJmmChild(0).get("val"));
+            newNode.put("lineStart", node.get("lineStart"));
+            newNode.put("colStart", node.get("colStart"));
+            node.getJmmChild(0).replace(newNode);
+
+            System.out.println("node.getChildren(): " + node.getChildren());
+        }
+
+        return changes;
     }
 
     private Boolean dealWithLocalVariableDeclaration(JmmNode node, String data) {
@@ -65,11 +122,14 @@ public class ConstPropagationVisitor extends AJmmVisitor<String, Boolean> {
     private Boolean dealWithIfConditional(JmmNode node, String data) {
         boolean changes = false;
 
-        JmmNode ifConditionNode = node.getJmmChild(0);
-        changes = visit(ifConditionNode, data); // condition expression
-        ifConditionNode = node.getJmmChild(0); // update the condition node
+        for (JmmNode child : node.getChildren()) {
+            changes = visit(child, data) || changes;
+        }
 
-        /*
+        // JmmNode ifConditionNode = node.getJmmChild(0);
+        // changes = visit(child, data) // condition expression
+
+        /* CODE ELIMINATION (WORKING!)
         if (ifConditionNode.getKind().equals("Bool")) {
             switch (ifConditionNode.get("val")) {
                 case "true" -> {
@@ -90,14 +150,8 @@ public class ConstPropagationVisitor extends AJmmVisitor<String, Boolean> {
     }
 
 
-    public Boolean defaultVisit(JmmNode jmmNode, String data) {
-        boolean changes = false;
-
-        for (JmmNode child : jmmNode.getChildren()) {
-            changes = visit(child) || changes;
-        }
-
-        return changes;
+    public Boolean defaultVisit(JmmNode node, String data) {
+        return false;
     }
 
     private static Type getType(JmmNode nodeType) {
