@@ -2,7 +2,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <h3 align="center">FEUP COMP - Compiler</h3>
+  <h3 align="center" style="font-size: 100px">FEUP COMP - Compiler</h3>
 </div>
 
 
