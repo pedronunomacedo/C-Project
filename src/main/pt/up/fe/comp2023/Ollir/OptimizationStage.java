@@ -5,6 +5,7 @@ import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp2023.Ollir.optimization.optimizers.ConstFoldingVisitor;
+import pt.up.fe.comp2023.Ollir.optimization.optimizers.ConstPropagationVisitor;
 import pt.up.fe.comp2023.ast.JmmSymbolTable;
 import pt.up.fe.comp2023.Ollir.OllirVisitor;
 
@@ -28,6 +29,12 @@ public class OptimizationStage implements JmmOptimization {
                 System.out.println("Performing constant folding ...");
             }
             hasChanges = constFoldingVisitor.visit(semanticsResult.getRootNode());
+
+            ConstPropagationVisitor constPropagationVisitor = new ConstPropagationVisitor();
+            if (debug) {
+                System.out.println("Performing constant propagation ...");
+            }
+            hasChanges = constPropagationVisitor.visit(semanticsResult.getRootNode()) || hasChanges;
         }
 
         if (debug) {
