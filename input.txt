@@ -1,33 +1,29 @@
 import io;
+class PropWithLoop {
+    public int foo(){
+	  int a;
+	  int i;
+	  int res;
+	  a = 10;
+	  i = 0;
+	  while (i < a){
+	    i=i+1;
+	  }
+	  res = i*a;
+	  return res;
+	}
 
-class B {
-    int a;
+	public static void main(String[] args) {
+	    int res;
+	    PropWithLoop obj;
+	    obj = new PropWithLoop();
 
-    public int func(int val){
-    	  int s;
-    	  s = 10;
-    	  if(val < s){
-    		s = val;
-    	  }else{
-    	    s = s;
-    	  }
-    	  return s;
-    }
+	    res = obj.foo();
 
-    public static void main(String[] args){
-        int num;
-        int t;
-        t = 2;
-        num = t;
-
-        t = 10;
-        if (t < 15) {
-            t = 1;
-        } else {
-            t = 2;
-        }
-    }
+	    io.print(res);
+	}
 }
+
 
 
 

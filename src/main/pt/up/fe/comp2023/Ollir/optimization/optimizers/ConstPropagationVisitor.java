@@ -6,13 +6,13 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
 import pt.up.fe.comp2023.Ollir.OllirTemplates;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ConstPropagationVisitor extends AJmmVisitor<String, Boolean> {
     private final Map<String, String> constantVariables;
-
     public ConstPropagationVisitor() {
         this.constantVariables = new HashMap<>();
     }
@@ -32,6 +32,7 @@ public class ConstPropagationVisitor extends AJmmVisitor<String, Boolean> {
         addVisit("LocalVariable", this::dealWithLocalVariableDeclaration);
 
         addVisit("IfConditional", this::dealWithIfConditional);
+        //addVisit("Loop", this::dealWithWhileDeclaration);
         addVisit("Assignment", this::dealWithAssignment);
 
         addVisit("Identifier", this::dealWithIdentifier);
@@ -70,15 +71,13 @@ public class ConstPropagationVisitor extends AJmmVisitor<String, Boolean> {
 
         System.out.println("node.getJmmChild(0).getKind(): " + node.getJmmChild(0).getKind());
         if (Arrays.asList("Bool", "Integer").contains(node.getJmmChild(0).getKind())) {
-            System.out.println("varName: " + varName);
-            System.out.println("node.getJmmChild(0).get(\"val\"): " + node.getJmmChild(0).get("val"));
-            System.out.println("node.getJmmChild(0).getKind()): " + node.getJmmChild(0).getKind());
             this.constantVariables.put(varName, node.getJmmChild(0).get("val"));
             JmmNode newNode = new JmmNodeImpl(node.getJmmChild(0).getKind());
             newNode.put("val", node.getJmmChild(0).get("val"));
             newNode.put("lineStart", node.get("lineStart"));
             newNode.put("colStart", node.get("colStart"));
             node.getJmmChild(0).replace(newNode);
+            this.constantVariables.put(varName, node.getJmmChild(0).get("val"));
 
             System.out.println("node.getChildren(): " + node.getChildren());
         }
