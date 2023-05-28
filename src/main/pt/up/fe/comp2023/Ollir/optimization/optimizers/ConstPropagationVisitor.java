@@ -48,10 +48,7 @@ public class ConstPropagationVisitor extends AJmmVisitor<String, Boolean> {
     }
 
     private Boolean dealWithMethodDeclaration(JmmNode node, String data) {
-        boolean changes = false;
-
         this.constantVariables.clear(); // clear the list of constant variables on the method scope
-
         return this.dealWithIteration(node, data); // Go to every child of the method node
     }
 
@@ -74,10 +71,14 @@ public class ConstPropagationVisitor extends AJmmVisitor<String, Boolean> {
 
         if (ifConditionNode.getKind().equals("Bool")) {
             switch (ifConditionNode.get("val")) {
-                case "true" -> node.replace(node.getJmmChild(1));
+                case "true" -> {
+                    node.replace(node.getJmmChild(1));
+                    return true;
+                }
                 case "false" -> {
                     if (node.get("hasElse") != null) {
                         node.replace(node.getJmmChild(2)); // dead code elimination
+                        return true;
                     }
                 }
             }
