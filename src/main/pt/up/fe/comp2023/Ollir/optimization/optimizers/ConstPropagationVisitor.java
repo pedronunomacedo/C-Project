@@ -3,6 +3,7 @@ package pt.up.fe.comp2023.Ollir.optimization.optimizers;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.analysis.table.Type;
+import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
 import pt.up.fe.comp2023.Ollir.OllirTemplates;
 
 import java.util.HashMap;
@@ -73,24 +74,11 @@ public class ConstPropagationVisitor extends AJmmVisitor<String, Boolean> {
 
         if (ifConditionNode.getKind().equals("Bool")) {
             switch (ifConditionNode.get("val")) {
-                case "true": {
-                    ifConditionNode.removeParent();
+                case "true" -> node.replace(node.getJmmChild(1));
+                case "false" -> {
                     if (node.get("hasElse") != null) {
-                        if (node.getNumChildren() == 3) { // has else expression
-                            node.getJmmChild(2).removeParent();
-                        }
+                        node.replace(node.getJmmChild(2)); // dead code elimination
                     }
-
-                    node.getJmmChild(1).setParent(node.getJmmParent()); // Remove the if statement
-                }
-                case "false": {
-                    ifConditionNode.removeParent();
-                    if (node.get("hasElse") != null) {
-                        if (node.getNumChildren() == 3) { // has else expression
-                            node.getJmmChild(2).setParent(node); // update the parent of the else statement
-                        }
-                    }
-                    node.getJmmChild(1).removeParent(); // remove the parent from the if statement
                 }
             }
         }
