@@ -33,57 +33,57 @@ public class Instructions {
                 jasminCode.append(loadInst(rightOp, method.getVarTable()));
                 String compLabel = "NEQ";
                 String compOp = "if_icmpne " + compLabel + "_" + labelsCount;
-                jasminCode.append(compInstructionGenerator(compLabel, compOp));
+                jasminCode.append(instGenerator(compLabel, compOp));
             }
             case EQ: {
                 jasminCode.append(loadInst(leftOp, method.getVarTable()));
                 jasminCode.append(loadInst(rightOp, method.getVarTable()));
                 String compLabel = "EQ";
                 String compOp = "if_icmpeq " + compLabel + "_" + labelsCount;
-                jasminCode.append(compInstructionGenerator(compLabel, compOp));
+                jasminCode.append(instGenerator(compLabel, compOp));
             }
             case GTE: {
                 jasminCode.append(loadInst(leftOp, method.getVarTable()));
                 jasminCode.append(loadInst(rightOp, method.getVarTable()));
                 String compLabel = "GTE";
                 String compOp = "if_icmpge " + compLabel + "_" + labelsCount;
-                jasminCode.append(compInstructionGenerator(compLabel, compOp));
+                jasminCode.append(instGenerator(compLabel, compOp));
             }
             case LTE: {
                 jasminCode.append(loadInst(leftOp, method.getVarTable()));
                 jasminCode.append(loadInst(rightOp, method.getVarTable()));
                 String compLabel = "LTE";
                 String compOp = "if_icmple " + compLabel + "_" + labelsCount;
-                jasminCode.append(compInstructionGenerator(compLabel, compOp));
+                jasminCode.append(instGenerator(compLabel, compOp));
             }
             case GTH: {
                 jasminCode.append(loadInst(leftOp, method.getVarTable()));
                 jasminCode.append(loadInst(rightOp, method.getVarTable()));
                 String compLabel = "GTH";
                 String compOp = "if_icmpgt " + compLabel + "_" + labelsCount;
-                jasminCode.append(compInstructionGenerator(compLabel, compOp));
+                jasminCode.append(instGenerator(compLabel, compOp));
             }
             case LTH: {
                 jasminCode.append(loadInst(leftOp, method.getVarTable()));
                 jasminCode.append(loadInst(rightOp, method.getVarTable()));
                 String compLabel = "LTH";
                 String compOp = "if_icmplt " + compLabel + "_" + labelsCount;
-                jasminCode.append(compInstructionGenerator(compLabel, compOp));
+                jasminCode.append(instGenerator(compLabel, compOp));
             }
         }
 
         return jasminCode.toString();
     }
 
-    private static String compInstructionGenerator(String compLabel, String compOp) {
+    private static String instGenerator(String compLabel, String compOp) {
         StringBuilder jasminCode = new StringBuilder();
         jasminCode.append("\t").append(compOp).append("\n");
         limitStack(-2);
-        jasminCode.append("\t").append("ldc 0").append("\n");
+        jasminCode.append("\t").append(JasminTypesInst.loadCType(0)).append("\n");
         limitStack(1);
         jasminCode.append("\t").append("goto ").append(compLabel +"_"+ labelsCount + "_end").append("\n");
         jasminCode.append("\t").append(compLabel).append("_").append(labelsCount).append(":\n");
-        jasminCode.append("\t").append("ldc 1").append("\n");
+        jasminCode.append("\t").append(JasminTypesInst.loadCType(1)).append("\n");
         limitStack(1);
         jasminCode.append("\t").append(compLabel).append("_").append(labelsCount).append("_end:\n");
         labelsCount++;
@@ -175,13 +175,23 @@ public class Instructions {
                 indexReg = Integer.parseInt(((LiteralElement) index).getLiteral());
             }
 
-            jasminCode.append("\t").append("aload ").append(reg).append("\n");
+            if (reg <= 3){
+                jasminCode.append("\t").append("aload_").append(reg).append("\n");
+            }
+            else{
+                jasminCode.append("\t").append("aload ").append(reg).append("\n");
+            }
             limitStack(1);
             if (!(index instanceof LiteralElement)) {
-                jasminCode.append("\t").append("iload ").append(indexReg).append("\n");
+                if (indexReg <= 3){
+                    jasminCode.append("\t").append("iload_").append(indexReg).append("\n");
+                }
+                else{
+                    jasminCode.append("\t").append("iload ").append(indexReg).append("\n");
+                }
             }
             else {
-                jasminCode.append("\t").append("ldc ").append(indexReg).append("\n");
+                jasminCode.append("\t").append(JasminTypesInst.loadCType(indexReg)).append("\n");
             }
             limitStack(1);
             jasminCode.append(JasminTypesInst.getInstructionType(rhs,method));
@@ -262,7 +272,7 @@ public class Instructions {
     public static String loadInst(Element op, HashMap<String, Descriptor> varTable) {
         if (op.isLiteral()){
             limitStack(1);
-            return "\t" + "ldc " + (((LiteralElement)op).getLiteral()) + "\n";
+            return "\t" + JasminTypesInst.loadCType(Integer.parseInt((((LiteralElement)op).getLiteral()))) + "\n";
         }
         int virtualReg = varTable.get(((Operand)op).getName()).getVirtualReg();
         StringBuilder jasminCode = new StringBuilder();
@@ -297,13 +307,23 @@ public class Instructions {
             indexReg = Integer.parseInt(((LiteralElement) index).getLiteral());
         }
 
-        jasminCode.append("aload ").append(reg).append("\n");
+        if (reg <= 3){
+            jasminCode.append("aload_").append(reg).append("\n");
+        }
+        else{
+            jasminCode.append("aload ").append(reg).append("\n");
+        }
         limitStack(1);
         if (!(index instanceof LiteralElement)) {
-            jasminCode.append("\t").append("iload ").append(indexReg).append("\n");
+            if (indexReg <= 3){
+                jasminCode.append("\t").append("iload_").append(indexReg).append("\n");
+            }
+            else{
+                jasminCode.append("\t").append("iload ").append(indexReg).append("\n");
+            }
         }
         else {
-            jasminCode.append("\t").append("ldc ").append(indexReg).append("\n");
+            jasminCode.append("\t").append(JasminTypesInst.loadCType(indexReg)).append("\n");
         }
         limitStack(1);
         jasminCode.append("iaload").append("\n");
