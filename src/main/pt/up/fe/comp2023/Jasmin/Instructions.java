@@ -160,6 +160,7 @@ public class Instructions {
     }
 
     public static String assignInst(AssignInstruction instruction, Method method) {
+        Descriptor descriptor = getDescriptor(instruction.getDest(),method);
         StringBuilder jasminCode = new StringBuilder();
         Instruction rhs = instruction.getRhs();
         Element lhs = instruction.getDest();
@@ -199,10 +200,93 @@ public class Instructions {
             limitStack(-3);
         }
         else{
-            jasminCode.append(JasminTypesInst.getInstructionType(rhs, method));
-            jasminCode.append(storeElem(lhs, method.getVarTable()));
-        }
+            if (rhs instanceof BinaryOpInstruction binaryOpInstruction){
+                if (binaryOpInstruction.getOperation().getOpType() == OperationType.ADD || binaryOpInstruction.getOperation().getOpType() == OperationType.SUB){
+                    if (binaryOpInstruction.getRightOperand().getType().getTypeOfElement() == ElementType.INT32 && binaryOpInstruction.getRightOperand().isLiteral()){
+                        if (getElementName(binaryOpInstruction.getRightOperand()) >= -128 && getElementName(binaryOpInstruction.getRightOperand()) <= 127) {
+                            Descriptor varDescriptor;
 
+                            Element leftOperand = binaryOpInstruction.getLeftOperand();
+                            Element rightOperand = binaryOpInstruction.getRightOperand();
+                            Descriptor leftDescriptor = getDescriptor(leftOperand,method);
+                            Descriptor rightDescriptor = getDescriptor(rightOperand,method);
+
+                            if (leftDescriptor == null || leftDescriptor.getVirtualReg()!=descriptor.getVirtualReg()){
+                                if (rightDescriptor == null || rightDescriptor.getVirtualReg()!=descriptor.getVirtualReg()){
+                                    jasminCode.append(JasminTypesInst.getInstructionType(rhs, method));
+                                    jasminCode.append(storeElem(lhs, method.getVarTable()));
+                                    return jasminCode.toString();
+                                }
+                                else {
+                                    varDescriptor = rightDescriptor;
+                                }
+                            }
+                            else {
+                                varDescriptor = leftDescriptor;
+                            }
+
+                            if (binaryOpInstruction.getOperation().getOpType() == OperationType.SUB){
+                                jasminCode.append("iinc ").append(varDescriptor.getVirtualReg()).append(" ").append(-getElementName(binaryOpInstruction.getRightOperand())).append("\n");
+                            }
+                            else{
+                                jasminCode.append("iinc ").append(varDescriptor.getVirtualReg()).append(" ").append(getElementName(binaryOpInstruction.getRightOperand())).append("\n");
+                            }
+                        }
+                        else {
+                            jasminCode.append(JasminTypesInst.getInstructionType(rhs, method));
+                            jasminCode.append(storeElem(lhs, method.getVarTable()));
+                        }
+                    }
+                    else if (binaryOpInstruction.getLeftOperand().getType().getTypeOfElement() == ElementType.INT32 && binaryOpInstruction.getLeftOperand().isLiteral()){
+                        if (getElementName(binaryOpInstruction.getLeftOperand()) >= -128 && getElementName(binaryOpInstruction.getLeftOperand()) <= 127){
+                            Descriptor varDescriptor;
+
+                            Element leftOperand = binaryOpInstruction.getLeftOperand();
+                            Element rightOperand = binaryOpInstruction.getRightOperand();
+                            Descriptor leftDescriptor = getDescriptor(leftOperand,method);
+                            Descriptor rightDescriptor = getDescriptor(rightOperand,method);
+
+                            if (leftDescriptor == null || leftDescriptor.getVirtualReg()!=descriptor.getVirtualReg()){
+                                if (rightDescriptor == null || rightDescriptor.getVirtualReg()!=descriptor.getVirtualReg()){
+                                    jasminCode.append(JasminTypesInst.getInstructionType(rhs, method));
+                                    jasminCode.append(storeElem(lhs, method.getVarTable()));
+                                    return jasminCode.toString();
+                                }
+                                else {
+                                    varDescriptor = rightDescriptor;
+                                }
+                            }
+                            else {
+                                varDescriptor = leftDescriptor;
+                            }
+
+                            if (binaryOpInstruction.getOperation().getOpType() == OperationType.SUB){
+                                jasminCode.append("iinc ").append(varDescriptor.getVirtualReg()).append(" ").append(-getElementName(binaryOpInstruction.getLeftOperand())).append("\n");
+                            }
+                            else{
+                                jasminCode.append("iinc ").append(varDescriptor.getVirtualReg()).append(" ").append(getElementName(binaryOpInstruction.getLeftOperand())).append("\n");
+                            }
+                        }
+                        else {
+                            jasminCode.append(JasminTypesInst.getInstructionType(rhs, method));
+                            jasminCode.append(storeElem(lhs, method.getVarTable()));
+                        }
+                    }
+                    else {
+                        jasminCode.append(JasminTypesInst.getInstructionType(rhs, method));
+                        jasminCode.append(storeElem(lhs, method.getVarTable()));
+                    }
+                }
+                else {
+                    jasminCode.append(JasminTypesInst.getInstructionType(rhs, method));
+                    jasminCode.append(storeElem(lhs, method.getVarTable()));
+                }
+            }
+            else {
+                jasminCode.append(JasminTypesInst.getInstructionType(rhs, method));
+                jasminCode.append(storeElem(lhs, method.getVarTable()));
+            }
+        }
         return jasminCode.toString();
     }
 
@@ -416,5 +500,21 @@ public class Instructions {
     public static void limitStack(int sizeChange) {
         JasminBuilder.current += sizeChange;
         JasminBuilder.max = Math.max(JasminBuilder.max, JasminBuilder.current);
+    }
+
+    public static Descriptor getDescriptor(Element elem,Method method) {
+        if (elem.isLiteral()){
+            return null;
+        }
+        if(elem.getType().getTypeOfElement() == ElementType.THIS) {
+            return method.getVarTable().get("this");
+        }
+        return method.getVarTable().get(((Operand)elem).getName());
+    }
+
+    public static int getElementName(Element elem) {
+        if (elem.isLiteral())
+            return Integer.parseInt(((LiteralElement) elem).getLiteral());
+        return Integer.parseInt(((Operand) elem).getName());
     }
 }
