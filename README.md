@@ -140,7 +140,7 @@ During this project, all elements of the group have demonstrated constant dedica
 
 
 ```java
-int res = obj.test(10)[obj.getNum()]; // you can found this in the inout.txt file, inside the project root directory
+int res = obj.test(10)[obj.getNum()]; // you can found this in the input.txt file, inside the project's root directory
 ```
 
 </div>
