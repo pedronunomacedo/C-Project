@@ -150,8 +150,8 @@ int res = obj.test(10)[obj.getNum()]; // you can found this in the inout.txt fil
 <!-- CONTACT -->
 ## More Info
 
-Unit link: [https://sigarra.up.pt/feup/pt/ucurr_geral.ficha_uc_view?pv_ocorrencia_id=501688](https://sigarra.up.pt/feup/pt/ucurr_geral.ficha_uc_view?pv_ocorrencia_id=501688)
+**Unit link**: [https://sigarra.up.pt/feup/pt/ucurr_geral.ficha_uc_view?pv_ocorrencia_id=501688](https://sigarra.up.pt/feup/pt/ucurr_geral.ficha_uc_view?pv_ocorrencia_id=501688)
 
-Project Link: [https://git.fe.up.pt/compilers2023/comp2023-4c](https://git.fe.up.pt/compilers2023/comp2023-4c)
+**Project Link**: [https://git.fe.up.pt/compilers2023/comp2023-4c](https://git.fe.up.pt/compilers2023/comp2023-4c)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
