@@ -115,11 +115,11 @@ During this project, we developed a jmm compiler. The jmm compilation flow has 4
 <!-- CONTRIBUTIONS -->
 ## Contributions
 
-| Name                  | Number      | Contributions
-| -----------           | ----------- | -------------
-| Gonçalo Ferreira      | 202004761   | 30%
-| Gonçalo Domingues     | 202007914   | 30%
-| Pedro Macedo          | 202007531   | 40%
+| Name                                                            | Number      | Contributions
+| -------------------------                                       | ----------- | -------------
+| [Gonçalo Ferreira](https://github.com/gonzallito)               | 202004761   | 30%
+| [Gonçalo Domingues](https://github.com/GoncaloDomingues750)     | 202007914   | 30%
+| [Pedro Macedo](https://github.com/pedronunomacedo)              | 202007531   | 40%
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
